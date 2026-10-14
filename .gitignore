@@ -1,0 +1,11 @@
+# Exportierte Kurzbefehle sind mit der Apple-ID signiert
+*.shortcut
+# Eigene Sicherungen der App
+durstlama-*.json
+*.local.*
+.env*
+node_modules/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
