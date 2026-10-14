@@ -1,7 +1,9 @@
 # Durstlama
 
 Ein kostenloser Trink-Tracker mit Lama. Ein Tipp auf ein Getränk trägt es ein, mehr nicht.
-Je mehr du trinkst, desto höher steht das Wasser im Teich und desto zufriedener schaut das Lama.
+Je mehr du trinkst, desto höher steht das Wasser im Teich und desto zufriedener schaut dein Tier.
+Zur Auswahl stehen Lama, Hase, Katze, Pinguin, Frosch und Bär, alle selbst gezeichnet
+(Tipp aufs Tier oder **Getränke → Dein Tier**).
 
 **Öffnen:** https://malenyaaa.github.io/durstlama/
 
