@@ -4,212 +4,273 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Durstlama</title>
-<meta name="description" content="Kostenloser Trink-Tracker mit Lama. Ein Tipp pro Glas, iOS-Kurzbefehle, alle Daten bleiben auf dem Gerät.">
-<meta name="theme-color" content="#E8F3F5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0B1923" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Kostenloser Trink-Tracker mit Tier. Ein Tipp pro Glas, iOS-Kurzbefehle, alle Daten bleiben auf dem Gerät.">
+<meta name="theme-color" content="#FDF2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1726" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* Layout: eine schmale Handy-Spalte; oben das Lama im Teich, darunter die Getränke-Kacheln zum Antippen */
+@font-face {
+  font-family: "Fredoka";
+  src: url("fonts/fredoka-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+/* Layout: eine Spalte wie eine Handy-App. Oben groß das Tier im Teich mit Sprechblase,
+   darunter runde Getränke-Knöpfe; Reiter als Leiste am unteren Rand. */
 :root {
   color-scheme: light;
-  --bg: #E8F3F5;
+  --bg: #FDF2F7;
   --surface: #FFFFFF;
-  --ink: #12324A;
-  --muted: #587285;
-  --line: #CCDFE6;
-  --water: #2394C2;
-  --water-soft: #9ED4EA;
-  --pond: #D6ECF3;
-  --wool: #F4E7D0;
-  --wool-shade: #DCC6A0;
-  --eye: #2A2018;
-  --accent: #D2386C;
-  --ok: #23885A;
-  --on-water: #FFFFFF;
-  --display: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
-  --body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --soft: #F8E6F0;
+  --ink: #4A3858;
+  --muted: #8F7C9E;
+  --pink: #FF8DB6;
+  --pink-ink: #D9467E;
+  --water: #7CCBF4;
+  --water-deep: #3FA9E0;
+  --pond: #E2F3FC;
+  --pond-ring: #FFFFFF;
+  --butter: #FFE38F;
+  --shadow: 0 6px 20px rgba(122, 64, 110, .10);
+  --font: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0B1923; --surface: #132A3B; --ink: #E2F0F6; --muted: #8EA9BB; --line: #234257;
-    --water: #3AAEDD; --water-soft: #1E6A8C; --pond: #10314A;
-    --wool: #EADBC0; --wool-shade: #C4AB82; --eye: #2A2018;
-    --accent: #F06A9C; --ok: #4CC58C; --on-water: #04131D;
+    --bg: #1E1726; --surface: #2A2035; --soft: #352943; --ink: #F5EAF8; --muted: #B6A3C6;
+    --pink: #FF9CC2; --pink-ink: #FF9CC2; --water: #6CC3F0; --water-deep: #4AAFE6;
+    --pond: #22324A; --pond-ring: #3A2D49; --butter: #F5D57A;
+    --shadow: 0 6px 20px rgba(0, 0, 0, .35);
     color-scheme: dark;
   }
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.4; }
 [hidden] { display: none !important; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+code { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: .85em; }
+
 .app {
-  max-width: 520px; margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  max-width: 480px; margin: 0 auto;
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
   padding-top: calc(14px + env(safe-area-inset-top, 0px));
   padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
-  display: flex; flex-direction: column; gap: 14px;
 }
-h2 { font-family: var(--display); font-weight: 800; font-size: 20px; margin: 6px 0 0; line-height: 1.2; text-wrap: balance; }
-h3 { font-family: var(--display); font-weight: 700; font-size: 17px; margin: 0; line-height: 1.25; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.brand { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: .01em; }
+.brand span { color: var(--pink-ink); }
+.date { font-size: 14px; color: var(--muted); }
+
+.panel { display: flex; flex-direction: column; gap: 18px; padding-top: 10px; }
+h2 { font-size: 20px; font-weight: 600; margin: 0; }
+h3 { font-size: 18px; font-weight: 600; margin: 0; }
 p { margin: 0; }
-code { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
-button, input { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 3px solid var(--water); outline-offset: 2px; }
 
-.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.brand { font-family: var(--display); font-weight: 800; font-size: 28px; line-height: 1; letter-spacing: -0.01em; margin: 0; }
-.brand span { color: var(--water); }
-.date { color: var(--muted); font-size: 14px; }
+/* ---------- Bühne: Tier im Teich ---------- */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 4px; }
+.bubble {
+  position: relative; background: var(--surface); border-radius: 22px; padding: 10px 16px;
+  font-size: 16px; font-weight: 500; text-align: center; max-width: 92%; box-shadow: var(--shadow);
+  text-wrap: balance;
+}
+.bubble::after {
+  content: ""; position: absolute; left: 50%; bottom: -9px; width: 18px; height: 18px; margin-left: -9px;
+  background: var(--surface); transform: rotate(45deg); border-radius: 3px;
+}
+.pond {
+  position: relative; width: min(72vw, 270px); aspect-ratio: 1; max-width: 100%; margin-top: 8px;
+  border-radius: 50%; background: var(--pond); border: 6px solid var(--pond-ring); box-shadow: var(--shadow);
+  overflow: hidden; padding: 0; display: block;
+}
+.water { position: absolute; left: 0; right: 0; bottom: 0; height: 14%; transition: height .8s cubic-bezier(.3,1.3,.5,1); }
+.water.back { background: var(--water); }
+.water.front { background: var(--water); opacity: .35; z-index: 3; pointer-events: none; }
+.wave { position: absolute; left: 0; top: -11px; width: 200%; height: 12px; animation: wave 4s linear infinite; }
+.wave path { fill: var(--water); }
+.water.front .wave { animation-duration: 6s; animation-direction: reverse; }
+@keyframes wave { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.pet {
+  position: absolute; left: 50%; top: 50%; width: 64%; height: 64%; margin: -36% 0 0 -32%;
+  z-index: 2; transform-origin: 50% 90%; animation: breathe 3.2s ease-in-out infinite;
+  transition: filter .6s;
+}
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03, .98); } }
+.pond.thirsty .pet { filter: saturate(.7); animation: droop 3.6s ease-in-out infinite; }
+.pond.parched .pet { filter: saturate(.5); animation: wobble 2.4s ease-in-out infinite; }
+@keyframes droop { 0%,100% { transform: translateY(3%) rotate(-3deg); } 50% { transform: translateY(5%) rotate(-5deg); } }
+@keyframes wobble { 0%,70%,100% { transform: translateY(5%) rotate(-4deg); } 78% { transform: translateY(5%) rotate(4deg); } 86% { transform: translateY(5%) rotate(-6deg); } 94% { transform: translateY(5%) rotate(2deg); } }
+.pond.sip .pet { animation: gulp .9s ease-out; }
+@keyframes gulp { 0% { transform: scale(1); } 35% { transform: scale(1.08, .88); } 60% { transform: scale(.95, 1.07); } 100% { transform: scale(1); } }
+.pond.cheer .pet { animation: hop .55s ease-out 3; }
+@keyframes hop { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-14%); } }
 
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; gap: 4px; }
-.tabs button { border: 0; background: transparent; border-radius: 10px; padding: 8px 2px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
-.tabs button[aria-selected="true"] { background: var(--water); color: var(--on-water); }
+.fx { position: absolute; z-index: 4; pointer-events: none; opacity: 0; }
+.fx svg { display: block; width: 100%; height: 100%; }
+.sweat { width: 9%; height: 11%; left: 72%; top: 22%; }
+.sweat path { fill: var(--water-deep); }
+.pond.parched .sweat { animation: sweat 2.4s ease-in infinite; }
+@keyframes sweat { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 80% { opacity: 1; transform: translateY(60%); } 100% { opacity: 0; transform: translateY(80%); } }
+.sipdrop { width: 12%; height: 14%; left: 44%; top: -14%; }
+.sipdrop path { fill: var(--water-deep); }
+.pond.sip .sipdrop { animation: fall .7s ease-in; }
+@keyframes fall { 0% { opacity: 1; transform: translateY(0) scale(1); } 85% { opacity: 1; transform: translateY(330%) scale(.8); } 100% { opacity: 0; transform: translateY(360%) scale(.4); } }
+.heart { width: 11%; height: 11%; }
+.heart path { fill: var(--pink); }
+.heart.h1 { left: 16%; top: 30%; } .heart.h2 { left: 74%; top: 18%; } .heart.h3 { left: 66%; top: 46%; }
+.pond.happy .heart { animation: float 3s ease-in-out infinite; }
+.pond.happy .heart.h2 { animation-delay: 1s; } .pond.happy .heart.h3 { animation-delay: 2s; }
+@keyframes float { 0% { opacity: 0; transform: translateY(20%) scale(.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-120%) scale(1); } }
 
-.panel { display: flex; flex-direction: column; gap: 14px; }
+.count { font-size: 48px; font-weight: 700; line-height: 1; margin-top: 12px; font-variant-numeric: tabular-nums; }
+.count span { font-size: 22px; font-weight: 500; color: var(--muted); }
+.of { color: var(--muted); font-size: 15px; }
 
-/* Heute */
-.hero { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr); gap: 14px; align-items: center; }
-#llama { width: 100%; height: auto; display: block; cursor: pointer; }
-.pond-bg { fill: var(--pond); }
-.pond-ring { fill: none; stroke: var(--line); stroke-width: 3; }
-.water { fill: var(--water); opacity: .55; }
-.water-back { fill: var(--water-soft); opacity: .8; }
-.wave { animation: wave 3.2s linear infinite; }
-.water-back.wave { animation-duration: 4.6s; animation-direction: reverse; }
-@keyframes wave { from { transform: translateX(0); } to { transform: translateX(100px); } }
-.wool { fill: var(--wool); stroke: var(--wool-shade); stroke-width: 2; }
-.wool-shade { fill: var(--wool-shade); }
-.eye { fill: var(--eye); }
-.mouth { fill: none; stroke: var(--eye); stroke-width: 2.2; stroke-linecap: round; }
-.blanket { fill: var(--accent); }
-.blanket-zig { fill: none; stroke: var(--wool); stroke-width: 2; stroke-linejoin: round; }
-.cheek { fill: #F07F9C; opacity: .3; transition: opacity .4s; }
-.happy .cheek { opacity: .7; }
-.pet-g { transform-origin: 100px 180px; transform-box: view-box; }
-.cheer .pet-g { animation: hop .6s ease-out 2; }
-.pets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.pets button { border: 1px solid var(--line); background: var(--bg); border-radius: 14px; padding: 8px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-weight: 600; font-size: 13.5px; }
-.pets button[aria-pressed="true"] { border-color: var(--water); box-shadow: 0 0 0 2px var(--water) inset; }
-.pets svg { width: 64px; height: 64px; }
-@keyframes hop { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-14px); } }
+/* ---------- Getränke ---------- */
+.ask { text-align: center; }
+.drinks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px; }
+.drink {
+  border: 0; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.drink .ic {
+  width: 70px; height: 70px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surface); box-shadow: var(--shadow); transition: transform .1s;
+}
+.drink:active .ic { transform: scale(.9); }
+.drink .ic .art { width: 48px; height: 48px; display: block; }
+.drink .ic .art img, .drink .ic .art svg { width: 100% !important; height: 100% !important; display: block; }
+.pet img, .pet svg { width: 100% !important; height: 100% !important; display: block; }
+.drink .nm { font-weight: 600; font-size: 15px; text-align: center; line-height: 1.15; overflow-wrap: anywhere; }
+.drink .ml { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.drink .ml.over { color: var(--pink-ink); font-weight: 600; }
+.drink .hy { font-size: 12px; color: var(--pink-ink); background: var(--soft); border-radius: 999px; padding: 1px 8px; }
+.drink .hy.zero { background: var(--pink-ink); color: #fff; }
+.drink .hy.plus { color: var(--water-deep); }
+.under { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.pill { border: 0; background: var(--soft); color: var(--ink); border-radius: 999px; padding: 8px 16px; font-weight: 500; font-size: 15px; }
+.pill[aria-pressed="true"], .pill[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
+.sizes { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
 
-.stats { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.big { font-family: var(--display); font-weight: 800; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
-.big small { font-size: 20px; font-weight: 600; color: var(--muted); }
-.of { color: var(--muted); font-size: 14px; }
-.bar { height: 10px; border-radius: 6px; background: var(--pond); overflow: hidden; margin-top: 6px; }
-.bar i { display: block; height: 100%; width: 0; background: var(--water); border-radius: 6px; transition: width .5s ease; }
-.bar.done i { background: var(--ok); }
-.says { font-weight: 600; margin-top: 6px; }
-.mini { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.chip { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
-.chip.hi { border-color: var(--accent); color: var(--accent); }
+/* ---------- Heute-Liste ---------- */
+.today { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 4px 16px; }
+.today summary { list-style: none; padding: 12px 0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.today summary::-webkit-details-marker { display: none; }
+.today summary::after { content: "›"; font-size: 22px; color: var(--muted); transition: transform .2s; }
+.today[open] summary::after { transform: rotate(90deg); }
+.log { list-style: none; margin: 0; padding: 0 0 6px; }
+.log li { display: grid; grid-template-columns: 46px 12px minmax(0, 1fr) auto 36px; align-items: center; gap: 8px; padding: 8px 0; font-variant-numeric: tabular-nums; }
+.log li + li { border-top: 1px dashed var(--soft); }
+.log .tm { color: var(--muted); font-size: 14px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.log .nm { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.log .sub { display: block; color: var(--muted); font-size: 13px; }
+.log .x { border: 0; background: transparent; color: var(--muted); font-size: 22px; width: 36px; height: 36px; border-radius: 50%; }
+.log .x:hover { background: var(--soft); }
+.mini { color: var(--muted); font-size: 14px; padding: 4px 0 12px; }
+.mini .hi { color: var(--pink-ink); font-weight: 600; }
 
-.label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.sizes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.sizes button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.sizes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-
-.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 360px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.tile { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 12px 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 104px; transition: transform .08s; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
-.tile:active { transform: scale(.95); }
-.tile .nm { font-weight: 800; font-size: 14px; text-align: center; overflow-wrap: anywhere; line-height: 1.2; }
-.tile .ml { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.tile .ml.over { color: var(--water); font-weight: 800; }
-.drop { width: 30px; height: 36px; flex: none; }
-.drop path { stroke: var(--line); stroke-width: 1.5; }
-.ghost { border: 1px dashed var(--line); background: transparent; border-radius: 12px; padding: 10px; font-weight: 600; color: var(--muted); }
-
-.log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-.log li { display: grid; grid-template-columns: 44px 14px minmax(0, 1fr) auto 36px; align-items: center; gap: 8px; padding: 9px 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
-.log li:first-child { border-top: 0; }
-.log li.empty { display: block; padding: 16px; color: var(--muted); text-align: center; }
-.log .tm { color: var(--muted); font-size: 13px; }
-.dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--line); }
-.log .nm { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
-.log .sub { color: var(--muted); font-size: 12px; font-weight: 400; }
-.log .x { border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; width: 36px; height: 36px; border-radius: 8px; }
-.log .x:hover { background: var(--pond); }
-
-/* Karten */
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.kpi { display: flex; flex-direction: column; gap: 2px; }
-.kpi b { font-family: var(--display); font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.kpi span { font-size: 12.5px; color: var(--muted); }
+/* ---------- Karten (Woche, Mehr) ---------- */
+.card { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.note { font-size: 14px; color: var(--muted); }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; text-align: center; }
+.kpi b { display: block; font-size: 30px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 13px; color: var(--muted); }
 #week-chart svg { width: 100%; height: auto; display: block; }
-.ax { fill: var(--muted); font-size: 11px; font-family: var(--body); }
-.ax.today { fill: var(--ink); font-weight: 800; }
-.val { fill: var(--ink); font-size: 11px; font-weight: 600; font-family: var(--body); }
-.goal-line { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 4; }
-.grid-line { stroke: var(--line); stroke-width: 1; }
-.note { font-size: 13px; color: var(--muted); }
-.rank { display: flex; flex-direction: column; gap: 8px; }
-.rank-row { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr) 64px; gap: 10px; align-items: center; font-size: 14px; font-variant-numeric: tabular-nums; }
-.rank-row .track { height: 10px; background: var(--pond); border-radius: 6px; overflow: hidden; }
+.ax { fill: var(--muted); font-size: 12px; font-family: var(--font); }
+.ax.today { fill: var(--ink); font-weight: 700; }
+.val { fill: var(--ink); font-size: 12px; font-weight: 600; font-family: var(--font); }
+.goal-line { stroke: var(--pink); stroke-width: 2; stroke-dasharray: 2 6; stroke-linecap: round; }
+.rank { display: flex; flex-direction: column; gap: 10px; }
+.rank-row { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr) 56px; gap: 10px; align-items: center; font-size: 15px; font-variant-numeric: tabular-nums; }
+.rank-row .track { height: 12px; background: var(--soft); border-radius: 6px; overflow: hidden; }
 .rank-row .track i { display: block; height: 100%; border-radius: 6px; }
 .rank-row .v { text-align: right; color: var(--muted); }
-.rank-row .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.rank-row .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
 
-/* Getränke */
+.pets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.pets button { border: 0; background: var(--soft); border-radius: 20px; padding: 10px 4px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; }
+.pets button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 0 0 3px var(--pink) inset; }
+.pets img { width: 52px; height: 52px; }
+
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.field label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
-.field input[type="number"], .field input[type="text"] { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 8px 10px; font-variant-numeric: tabular-nums; min-width: 0; font-size: 16px; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.field select, .field input[type="number"], .field input[type="text"] { width: 100%; border: 0; background: var(--soft); border-radius: 12px; padding: 9px 12px; font-size: 16px; min-width: 0; font-variant-numeric: tabular-nums; }
 .goal-row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
-.goal-row .field { flex: 1 1 140px; }
+.goal-row .field { flex: 1 1 130px; }
 .presets { display: flex; gap: 6px; flex-wrap: wrap; }
-.presets button { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 11px; font-size: 13px; font-weight: 600; }
-.dlist { display: flex; flex-direction: column; gap: 10px; }
-.dcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.dhead { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
-.dhead input[type="color"] { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 2px; background: var(--bg); }
-.dhead input[type="text"] { font-weight: 800; }
-.fav { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; }
-.fav input { width: 18px; height: 18px; accent-color: var(--water); }
-.dgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-@media (max-width: 440px) { .dgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.dfoot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-.dfoot code { font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); padding: 2px 6px; border-radius: 6px; color: var(--ink); }
-.dbtns { display: flex; gap: 6px; flex-wrap: wrap; }
-.small-btn { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 5px 10px; font-size: 13px; font-weight: 600; }
-.arch-list { display: flex; flex-direction: column; gap: 6px; }
-.arch-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
-.add-row { display: grid; grid-template-columns: minmax(0, 1fr) 96px auto; gap: 8px; align-items: end; }
-.primary { border: 0; background: var(--water); color: var(--on-water); border-radius: 10px; padding: 9px 14px; font-weight: 800; }
-.row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-details summary { cursor: pointer; font-weight: 600; }
 
-/* Kurzbefehle */
+details.more { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 4px 16px; }
+details.more > summary { list-style: none; padding: 14px 0; font-weight: 600; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::after { content: "›"; font-size: 24px; color: var(--muted); transition: transform .2s; }
+details.more[open] > summary::after { transform: rotate(90deg); }
+.more-body { display: flex; flex-direction: column; gap: 14px; padding-bottom: 16px; }
+
+.dlist { display: flex; flex-direction: column; gap: 10px; }
+.dcard { background: var(--soft); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.dhead { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.dhead input[type="color"] { width: 40px; height: 40px; border: 0; border-radius: 50%; padding: 0; background: transparent; }
+.dhead input[type="text"] { font-weight: 600; background: var(--surface) !important; }
+.dcard .field input, .dcard .field select { background: var(--surface); }
+.fav { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.fav input { width: 20px; height: 20px; accent-color: var(--pink-ink); }
+.dgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; }
+.dfoot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+.dfoot code { background: var(--surface); padding: 2px 8px; border-radius: 8px; color: var(--ink); }
+.dbtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.small { border: 0; background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 500; }
+.add-row { display: grid; grid-template-columns: minmax(0, 1fr) 90px auto; gap: 8px; align-items: end; }
+.primary { border: 0; background: var(--pink-ink); color: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 600; }
+@media (prefers-color-scheme: dark) { .primary { color: #2A1230; } }
+.row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.arch-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+
 .steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .links { display: flex; flex-direction: column; gap: 8px; }
-.link-row { display: grid; grid-template-columns: 12px minmax(0, 100px) minmax(0, 1fr) auto; gap: 8px; align-items: center; }
-.link-row .n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.link-row code, .codebox { font-size: 12px; background: var(--bg); border: 1px solid var(--line); padding: 5px 7px; border-radius: 8px; overflow-x: auto; white-space: nowrap; display: block; min-width: 0; -webkit-user-select: all; user-select: all; }
-.k { font-weight: 800; }
+.link-row { display: grid; grid-template-columns: 12px minmax(0, 92px) minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.link-row .n { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-row code { background: var(--soft); padding: 6px 8px; border-radius: 10px; overflow-x: auto; white-space: nowrap; display: block; min-width: 0; -webkit-user-select: all; user-select: all; }
+.k { font-weight: 600; }
+.foot-note { font-size: 13px; color: var(--muted); text-align: center; }
+.foot-note.warn { color: var(--pink-ink); }
 
-.foot-note { font-size: 12.5px; color: var(--muted); text-align: center; }
-.foot-note.warn { color: var(--accent); }
+/* ---------- Leiste unten ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-top: 10px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  display: flex; justify-content: center;
+}
+.tabbar-in { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 100%; max-width: 360px; background: var(--surface); border-radius: 999px; padding: 6px; box-shadow: var(--shadow); }
+.tabbar button { border: 0; background: transparent; border-radius: 999px; padding: 8px 4px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; font-size: 15px; color: var(--muted); }
+.tabbar button svg { width: 20px; height: 20px; }
+.tabbar button svg * { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.tabbar button[aria-selected="true"] { background: var(--pink-ink); color: #fff; }
+@media (prefers-color-scheme: dark) { .tabbar button[aria-selected="true"] { color: #2A1230; } }
 
 .toast {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  position: fixed; left: 0; right: 0; z-index: 30; bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
   display: flex; justify-content: center; pointer-events: none;
 }
-.toast-in { pointer-events: auto; max-width: 488px; width: 100%; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 12px 12px 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
-.toast-in span { flex: 1; font-weight: 600; min-width: 0; }
-.toast-in button { border: 0; background: transparent; color: var(--water-soft); font-weight: 800; padding: 6px 8px; border-radius: 8px; white-space: nowrap; }
-@media (prefers-color-scheme: dark) { .toast-in button { color: var(--water); } }
+.toast-in { pointer-events: auto; max-width: 444px; width: 100%; background: var(--ink); color: var(--bg); border-radius: 20px; padding: 12px 12px 12px 18px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
+.toast-in span { flex: 1; font-weight: 500; min-width: 0; }
+.toast-in button { border: 0; background: var(--pink); color: #2A1230; font-weight: 600; padding: 7px 14px; border-radius: 999px; white-space: nowrap; }
 
 @media (prefers-reduced-motion: reduce) {
-  .wave, .cheer .pet-g { animation: none; }
-  .bar i { transition: none; }
+  .pet, .wave, .pond.thirsty .pet, .pond.parched .pet, .pond.sip .pet, .pond.cheer .pet,
+  .pond.parched .sweat, .pond.sip .sipdrop, .pond.happy .heart { animation: none; }
+  .pond.parched .sweat, .pond.happy .heart { opacity: 1; }
+  .water { transition: none; }
 }
 </style>
 </head>
@@ -217,72 +278,60 @@ details summary { cursor: pointer; font-weight: 600; }
 <div class="app">
   <header class="top">
     <h1 class="brand">Durst<span>lama</span></h1>
-    <div class="date" id="today-label"></div>
+    <span class="date" id="today-label"></span>
   </header>
-
-  <nav class="tabs" role="tablist" aria-label="Bereiche">
-    <button role="tab" id="t-heute" data-tab="heute" aria-controls="p-heute" aria-selected="true">Heute</button>
-    <button role="tab" id="t-woche" data-tab="woche" aria-controls="p-woche" aria-selected="false" tabindex="-1">Woche</button>
-    <button role="tab" id="t-getraenke" data-tab="getraenke" aria-controls="p-getraenke" aria-selected="false" tabindex="-1">Getränke</button>
-    <button role="tab" id="t-kurz" data-tab="kurz" aria-controls="p-kurz" aria-selected="false" tabindex="-1">Kurzbefehle</button>
-  </nav>
 
   <!-- HEUTE -->
   <section class="panel" id="p-heute" role="tabpanel" aria-labelledby="t-heute">
-    <div class="hero">
-      <svg id="llama" viewBox="0 0 200 200" role="img" aria-label="Dein Tier im Teich, der Wasserstand zeigt deinen Fortschritt">
-        <defs><clipPath id="pond"><circle cx="100" cy="100" r="92"/></clipPath></defs>
-        <circle cx="100" cy="100" r="92" class="pond-bg"/>
-        <g clip-path="url(#pond)">
-          <g id="water-back" transform="translate(0 186)">
-            <path class="water-back wave" d="M-200 4 q25 -9 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V220 H-200 Z"/>
-          </g>
-        </g>
-        <g class="pet-g" id="pet"></g>
-        <g clip-path="url(#pond)">
-          <g id="water-front" transform="translate(0 192)">
-            <path class="water wave" d="M-200 0 q25 -8 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V220 H-200 Z"/>
-          </g>
-        </g>
-        <circle cx="100" cy="100" r="92" class="pond-ring"/>
-      </svg>
-      <div class="stats">
-        <div class="big"><span id="sum">0</span><small> ml</small></div>
-        <div class="of">von <span id="goal-label">2.000</span> ml Tagesziel</div>
-        <div class="bar" id="bar"><i id="bar-fill"></i></div>
-        <p class="says" id="says">Ich hab Durst.</p>
-        <div class="mini" id="mini"></div>
-      </div>
+    <div class="stage">
+      <p class="bubble" id="says">Hallo!</p>
+      <button class="pond" id="pond" type="button" aria-label="Tier wechseln">
+        <span class="water back" id="water-back"><svg class="wave" viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12 V6 q25 -6 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V12 Z"/></svg></span>
+        <span class="pet" id="pet-anim" aria-hidden="true"></span>
+        <span class="water front" id="water-front"><svg class="wave" viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12 V6 q25 6 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V12 Z"/></svg></span>
+        <span class="fx sweat" aria-hidden="true"><svg viewBox="0 0 30 36"><path d="M15 2 C15 2 3 16 3 23 a12 12 0 0 0 24 0 C27 16 15 2 15 2 Z"/></svg></span>
+        <span class="fx sipdrop" aria-hidden="true"><svg viewBox="0 0 30 36"><path d="M15 2 C15 2 3 16 3 23 a12 12 0 0 0 24 0 C27 16 15 2 15 2 Z"/></svg></span>
+        <span class="fx heart h1" aria-hidden="true"><svg viewBox="0 0 24 22"><path d="M12 21 C5 15 1 11 1 6.5 A5.5 5.5 0 0 1 12 4 A5.5 5.5 0 0 1 23 6.5 C23 11 19 15 12 21 Z"/></svg></span>
+        <span class="fx heart h2" aria-hidden="true"><svg viewBox="0 0 24 22"><path d="M12 21 C5 15 1 11 1 6.5 A5.5 5.5 0 0 1 12 4 A5.5 5.5 0 0 1 23 6.5 C23 11 19 15 12 21 Z"/></svg></span>
+        <span class="fx heart h3" aria-hidden="true"><svg viewBox="0 0 24 22"><path d="M12 21 C5 15 1 11 1 6.5 A5.5 5.5 0 0 1 12 4 A5.5 5.5 0 0 1 23 6.5 C23 11 19 15 12 21 Z"/></svg></span>
+      </button>
+      <div class="count"><b id="sum">0</b><span> ml</span></div>
+      <div class="of">von <span id="goal-label">2.000</span> ml</div>
     </div>
 
-    <div class="sizes" id="sizes" role="group" aria-labelledby="sizes-label">
-      <span class="label" id="sizes-label">Menge</span>
+    <h2 class="ask">Was hast du getrunken?</h2>
+    <div class="drinks" id="tiles"></div>
+    <div class="under">
+      <button class="pill" id="size-toggle" type="button" aria-expanded="false" aria-controls="sizes">Andere Menge</button>
+      <button class="pill" id="more-btn" type="button">Alle Getränke</button>
     </div>
-    <div class="tiles" id="tiles"></div>
-    <button class="ghost" id="more-btn" type="button">Alle Getränke zeigen</button>
+    <div class="sizes" id="sizes" role="group" aria-label="Menge für den nächsten Eintrag" hidden></div>
 
-    <h2>Heute getrunken</h2>
-    <ul class="log" id="log"></ul>
+    <details class="today" id="today-box">
+      <summary id="today-sum">Heute noch nichts getrunken</summary>
+      <ul class="log" id="log"></ul>
+      <p class="mini" id="mini"></p>
+    </details>
   </section>
 
   <!-- WOCHE -->
   <section class="panel" id="p-woche" role="tabpanel" aria-labelledby="t-woche" hidden>
     <div class="card">
       <div class="kpis">
-        <div class="kpi"><b id="k-avg">0</b><span>Liter am Tag, Schnitt der 7 Tage</span></div>
+        <div class="kpi"><b id="k-avg">0</b><span>Liter am Tag im Schnitt</span></div>
         <div class="kpi"><b id="k-hit">0/7</b><span>Tage Ziel geschafft</span></div>
         <div class="kpi"><b id="k-streak">0</b><span>Tage am Stück</span></div>
       </div>
     </div>
     <div class="card" id="week-chart"></div>
     <div class="card">
-      <h3>Was du diese Woche getrunken hast</h3>
+      <h3>Diese Woche getrunken</h3>
       <div class="rank" id="rank"></div>
     </div>
   </section>
 
-  <!-- GETRÄNKE -->
-  <section class="panel" id="p-getraenke" role="tabpanel" aria-labelledby="t-getraenke" hidden>
+  <!-- MEHR -->
+  <section class="panel" id="p-mehr" role="tabpanel" aria-labelledby="t-mehr" hidden>
     <div class="card">
       <h3>Dein Tier</h3>
       <div class="pets" id="pet-pick" role="group" aria-label="Tier auswählen"></div>
@@ -297,201 +346,161 @@ details summary { cursor: pointer; font-weight: 600; }
       <p class="note">Die Deutsche Gesellschaft für Ernährung nennt für Erwachsene rund 1,5 Liter aus Getränken am Tag. Bei Hitze, Sport oder Arbeit draußen ist es mehr.</p>
     </div>
 
-    <div class="card">
-      <h3>Neues Getränk</h3>
-      <div class="add-row">
-        <div class="field"><label for="new-name">Name</label><input type="text" id="new-name" placeholder="z. B. Ingwertee" maxlength="30"></div>
-        <div class="field"><label for="new-ml">Menge ml</label><input type="number" id="new-ml" value="300" min="10" max="2000" step="10" inputmode="numeric"></div>
-        <button class="primary" id="new-add" type="button">Anlegen</button>
+    <details class="more" id="drinks-box">
+      <summary>Getränke</summary>
+      <div class="more-body">
+        <p class="note">Ein Häkchen bei <span class="k">Startseite</span> legt das Getränk nach vorne. <span class="k">Zählt</span> sagt, wie viel Prozent zum Tagesziel gerechnet werden; Laut Studien wässern Kaffee, Tee, Saft, Cola und normales Bier fast genauso gut wie Wasser, Milch sogar besser (130 %). Wein entwässert kurzzeitig (50 %). Du kannst jeden Wert selbst ändern. Koffein und Zucker gelten je 100 ml.</p>
+        <div class="add-row">
+          <div class="field"><label for="new-name">Neues Getränk</label><input type="text" id="new-name" placeholder="z. B. Ingwertee" maxlength="30"></div>
+          <div class="field"><label for="new-ml">Menge ml</label><input type="number" id="new-ml" value="300" min="10" max="2000" step="10" inputmode="numeric"></div>
+          <button class="primary" id="new-add" type="button">Anlegen</button>
+        </div>
+        <div class="dlist" id="dlist"></div>
+        <div id="arch-box">
+          <h3>Archiv</h3>
+          <p class="note">Archivierte Getränke erscheinen nicht mehr zur Auswahl. Alte Einträge und Kurzbefehl-Links bleiben gültig.</p>
+          <div class="dlist" id="arch-list"></div>
+        </div>
       </div>
-    </div>
+    </details>
 
-    <p class="note">Ein Häkchen bei <span class="k">Kachel</span> legt das Getränk auf die Startseite. <span class="k">Zählt</span> sagt, wie viel Prozent davon zum Tagesziel gerechnet werden; bei Alkohol ist der Wert eine grobe Annahme, stell ihn ein, wie du magst. Koffein und Zucker gelten je 100 ml.</p>
-    <div class="dlist" id="dlist"></div>
+    <details class="more" id="kurz-box">
+      <summary>Kurzbefehle fürs iPhone</summary>
+      <div class="more-body">
+        <p>Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Durstlama das Getränk sofort ein. Mit der App Kurzbefehle wird daraus ein Knopf, ein Widget, ein Siri-Satz oder zweimal hinten aufs iPhone klopfen.</p>
+        <p class="note">Kurzbefehle öffnen Links immer in Safari. Nutze Durstlama deshalb auch sonst in Safari, nicht als Web-App vom Home-Bildschirm. Die hätte einen eigenen, getrennten Speicher.</p>
+        <div class="links" id="links"></div>
+        <p class="note">Andere Menge: hinten anhängen, zum Beispiel <code>#wasser-500</code>. Öffnest du denselben Link ohne Zeitstempel zweimal innerhalb von 90 Sekunden, fragt Durstlama nach, statt doppelt einzutragen.</p>
 
-    <div class="card" id="arch-card">
-      <h3>Archiv</h3>
-      <p class="note">Archivierte Getränke erscheinen nicht mehr in der Auswahl. Alte Einträge und Kurzbefehl-Links bleiben gültig.</p>
-      <div class="arch-list" id="arch-list"></div>
-    </div>
+        <h3>Variante A: ein Menü, Safari geht kurz auf</h3>
+        <ol class="steps">
+          <li>App <span class="k">Kurzbefehle</span> öffnen, oben rechts auf <span class="k">+</span>, Name <span class="k">Trinken</span>.</li>
+          <li>Aktion <span class="k">Aus Menü auswählen</span>. Für jedes Getränk eine Zeile anlegen, zum Beispiel „Wasser“, „Kaffee“.</li>
+          <li>Unter jede Zeile: Aktion <span class="k">Aktuelles Datum</span>, dann <span class="k">Datum formatieren</span> mit Datumsformat <span class="k">Eigenes</span> und dem Format <code>yyyyMMddHHmmss</code>.</li>
+          <li>Darunter Aktion <span class="k">URL</span> mit dem Link des Getränks, hinten <code>-250-</code> und die Variable <span class="k">Formatiertes Datum</span>. Ergebnis zum Beispiel <code>…#wasser-250-20261014143005</code>.</li>
+          <li>Darunter <span class="k">URLs öffnen</span>.</li>
+        </ol>
+        <p class="note">Der Zeitstempel sorgt dafür, dass nichts doppelt gezählt wird, auch wenn Safari die Seite später neu lädt. Starten: „Hey Siri, Trinken“, das Kurzbefehle-Widget, oder Einstellungen → Bedienungshilfen → Tippen → <span class="k">Auf Rückseite tippen</span> → Doppeltippen → Trinken.</p>
+
+        <h3>Variante B: still eintragen, ohne Safari</h3>
+        <p class="note">Der Kurzbefehl schreibt den Eintrag nur in eine Textdatei in iCloud Drive. Beim nächsten Öffnen holt Durstlama alles auf einmal nach, mit der richtigen Uhrzeit.</p>
+        <ol class="steps">
+          <li>Kurzbefehl <span class="k">Trinken still</span>: <span class="k">Aus Menü auswählen</span>, pro Zeile <span class="k">Aktuelles Datum</span> und <span class="k">Datum formatieren</span> wie oben.</li>
+          <li>Dann Aktion <span class="k">Text</span> mit <code>wasser-250-</code> plus <span class="k">Formatiertes Datum</span>.</li>
+          <li>Dann <span class="k">An Textdatei anhängen</span>, Datei <code>Shortcuts/durstlama.txt</code>. Optional <span class="k">Mitteilung anzeigen</span> „Wasser notiert“.</li>
+          <li>Zweiter Kurzbefehl <span class="k">Durstlama öffnen</span>: <span class="k">Datei abrufen</span> <code>Shortcuts/durstlama.txt</code>, dann <span class="k">Text ersetzen</span>: Zeilenumbruch durch <code>_</code> ersetzen.</li>
+          <li>Dann <span class="k">URL</span>: <code id="queue-url"></code> plus <span class="k">Geänderter Text</span>, dann <span class="k">URLs öffnen</span>.</li>
+          <li>Zum Schluss einen leeren <span class="k">Text</span> mit <span class="k">Datei sichern</span> nach <code>Shortcuts/durstlama.txt</code> schreiben, Ersetzen an.</li>
+        </ol>
+
+        <h3>Apple Health und Erinnerungen</h3>
+        <p class="note">In jede Menüzeile passt zusätzlich <span class="k">Gesundheitsprobe protokollieren</span> (Wasser, bei Kaffee auch Koffein). Eine Webseite kann Health aber nicht auslesen. Erinnern: In Kurzbefehle unter <span class="k">Automation</span> → <span class="k">Tageszeit</span> eine Uhrzeit wählen, <span class="k">Sofort ausführen</span> und die Aktion <span class="k">Mitteilung anzeigen</span> mit „Schluck Wasser?“.</p>
+      </div>
+    </details>
 
     <div class="card">
       <h3>Sicherung</h3>
       <p class="note">Durstlama speichert alles nur in diesem Browser. iOS kann Website-Daten löschen, wenn du die Seite lange nicht öffnest. Sichere deshalb ab und zu eine Datei, zum Beispiel in iCloud Drive.</p>
       <div class="row-btns">
         <button class="primary" id="export-btn" type="button">Sicherung speichern</button>
-        <button class="small-btn" id="import-btn" type="button">Sicherung laden</button>
+        <button class="pill" id="import-btn" type="button">Sicherung laden</button>
         <input type="file" id="import-file" accept="application/json,.json" hidden>
       </div>
-      <p class="note">Beim Laden kommen Einträge aus der Datei dazu, vorhandene bleiben. Getränke und Ziel werden aus der Datei übernommen.</p>
+      <p class="note">Beim Laden kommen Einträge aus der Datei dazu, vorhandene bleiben. Tier, Getränke und Ziel werden aus der Datei übernommen.</p>
     </div>
+
+    <p class="foot-note" id="foot-note">Alle Daten bleiben in diesem Browser. Durstlama schickt nichts ins Netz.</p>
+    <p class="foot-note">Tiere und Getränke-Animationen: Google Noto Emoji (CC BY 4.0). Wasser, Glas, Milch, Becher: Microsoft Fluent Emoji (MIT). Abspielen: lottie-web (MIT). Schrift: Fredoka (OFL).</p>
   </section>
-
-  <!-- KURZBEFEHLE -->
-  <section class="panel" id="p-kurz" role="tabpanel" aria-labelledby="t-kurz" hidden>
-    <div class="card">
-      <h3>So geht es</h3>
-      <p>Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Durstlama das Getränk sofort ein. Mit der App Kurzbefehle wird daraus ein Knopf, ein Widget, ein Siri-Satz oder zweimal hinten aufs iPhone klopfen.</p>
-      <p class="note">Wichtig: Kurzbefehle öffnen Links immer in Safari. Nutze Durstlama deshalb auch sonst in Safari, nicht als Web-App vom Home-Bildschirm. Die hätte einen eigenen, getrennten Speicher.</p>
-    </div>
-
-    <div class="card">
-      <h3>Deine Links</h3>
-      <div class="links" id="links"></div>
-      <p class="note">Andere Menge: hinten anhängen, zum Beispiel <code>#wasser-500</code>. Öffnest du denselben Link ohne Zeitstempel zweimal innerhalb von 90 Sekunden, fragt Durstlama nach, statt doppelt einzutragen.</p>
-    </div>
-
-    <div class="card">
-      <h3>Variante A: ein Menü, Safari geht kurz auf</h3>
-      <ol class="steps">
-        <li>App <span class="k">Kurzbefehle</span> öffnen, oben rechts auf <span class="k">+</span>, Name <span class="k">Trinken</span>.</li>
-        <li>Aktion <span class="k">Aus Menü auswählen</span>. Für jedes Getränk eine Zeile anlegen, zum Beispiel „Wasser“, „Kaffee“.</li>
-        <li>Unter jede Zeile: Aktion <span class="k">Aktuelles Datum</span>, dann <span class="k">Datum formatieren</span> mit Datumsformat <span class="k">Eigenes</span> und dem Format <code>yyyyMMddHHmmss</code>.</li>
-        <li>Darunter Aktion <span class="k">URL</span> mit dem Link des Getränks, hinten <code>-250-</code> und die Variable <span class="k">Formatiertes Datum</span>. Ergebnis zum Beispiel <code>…#wasser-250-20261014143005</code>.</li>
-        <li>Darunter <span class="k">URLs öffnen</span>.</li>
-      </ol>
-      <p class="note">Der Zeitstempel sorgt dafür, dass nichts doppelt gezählt wird, auch wenn Safari die Seite später neu lädt. Ohne Zeitstempel funktioniert der Link auch, dann greift nur die 90-Sekunden-Sperre.</p>
-      <p class="note">Starten: „Hey Siri, Trinken“, das Kurzbefehle-Widget auf dem Home-Bildschirm, oder Einstellungen → Bedienungshilfen → Tippen → <span class="k">Auf Rückseite tippen</span> → Doppeltippen → Trinken.</p>
-    </div>
-
-    <div class="card">
-      <h3>Variante B: still eintragen, ohne Safari</h3>
-      <p>Der Kurzbefehl schreibt den Eintrag nur in eine Textdatei in iCloud Drive. Beim nächsten Öffnen holt Durstlama alles auf einmal nach, mit der richtigen Uhrzeit.</p>
-      <ol class="steps">
-        <li>Kurzbefehl <span class="k">Trinken still</span>: <span class="k">Aus Menü auswählen</span>, pro Zeile <span class="k">Aktuelles Datum</span> und <span class="k">Datum formatieren</span> wie oben.</li>
-        <li>Dann Aktion <span class="k">Text</span> mit <code>wasser-250-</code> plus <span class="k">Formatiertes Datum</span>.</li>
-        <li>Dann <span class="k">An Textdatei anhängen</span>, Datei <code>Shortcuts/durstlama.txt</code>. Optional <span class="k">Mitteilung anzeigen</span> „Wasser notiert“.</li>
-        <li>Zweiter Kurzbefehl <span class="k">Durstlama öffnen</span>: <span class="k">Datei abrufen</span> <code>Shortcuts/durstlama.txt</code>, dann <span class="k">Text ersetzen</span>: Zeilenumbruch durch <code>_</code> ersetzen.</li>
-        <li>Dann <span class="k">URL</span>: <code id="queue-url"></code> plus <span class="k">Geänderter Text</span>, dann <span class="k">URLs öffnen</span>.</li>
-        <li>Zum Schluss <span class="k">Text</span> leer lassen und mit <span class="k">Datei sichern</span> nach <code>Shortcuts/durstlama.txt</code> schreiben, Ersetzen an. So wird die Liste geleert.</li>
-      </ol>
-      <p class="note">Leg „Durstlama öffnen“ mit dem Lama-Symbol auf den Home-Bildschirm. Das ist dann dein App-Symbol.</p>
-    </div>
-
-    <div class="card">
-      <h3>Zusätzlich Apple Health</h3>
-      <p class="note">In jede Menüzeile kannst du <span class="k">Gesundheitsprobe protokollieren</span> setzen (Typ Wasser, bei Kaffee auch Koffein). Dann steht es zusätzlich in Health. Eine Webseite kann Health nicht auslesen, die Richtung geht nur von Kurzbefehle nach Health.</p>
-    </div>
-
-    <div class="card">
-      <h3>Erinnern lassen</h3>
-      <p class="note">In Kurzbefehle unter <span class="k">Automation</span> → <span class="k">Tageszeit</span> eine Uhrzeit wählen, <span class="k">Sofort ausführen</span> einstellen und die Aktion <span class="k">Mitteilung anzeigen</span> mit „Schluck Wasser?“ anlegen. Für mehrere Erinnerungen am Tag mehrere Automationen.</p>
-    </div>
-  </section>
-
-  <p class="foot-note" id="foot-note">Alle Daten bleiben in diesem Browser. Durstlama schickt nichts ins Netz.</p>
 </div>
+
+<nav class="tabbar" aria-label="Bereiche">
+  <div class="tabbar-in" role="tablist">
+    <button role="tab" id="t-heute" data-tab="heute" aria-controls="p-heute" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 C12 3 5 11 5 15 a7 7 0 0 0 14 0 C19 11 12 3 12 3 Z"/></svg>Heute</button>
+    <button role="tab" id="t-woche" data-tab="woche" aria-controls="p-woche" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20 V13 M12 20 V6 M19 20 V10"/></svg>Woche</button>
+    <button role="tab" id="t-mehr" data-tab="mehr" aria-controls="p-mehr" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12 h.01 M12 12 h.01 M19 12 h.01"/></svg>Mehr</button>
+  </div>
+</nav>
 
 <div class="toast" id="toast" hidden>
   <div class="toast-in"><span id="toast-text" role="status" aria-live="polite"></span><button id="toast-btn" type="button"></button></div>
 </div>
 
+<script src="vendor/lottie_light.min.js"></script>
 <script>
 (function () {
   "use strict";
 
-  var SIZES = [null, 150, 200, 250, 330, 500];
+  var SIZES = [150, 200, 250, 330, 500];
   var UNDO_MS = 9000;
+  // Wie gut ein Getränk wässert, in % von Wasser (Anrechnung aufs Tagesziel), nach Studien:
+  // Beverage Hydration Index (Maughan u. a. 2016): Kaffee, Tee, Eistee, Cola, Sprudel, Sportgetränk,
+  // Orangensaft und Bier mit 4 % wie Wasser; Milch besser (Vollmilch 1,32, fettarm 1,44, auf den
+  // Wasseranteil bezogen). Wein und Schnaps entwässern kurzzeitig (Polhuis u. a. 2017), Bier nicht.
+  // Nicht aufgeführte Getränke zählen 100 %.
+  var HYD = { milch: 130, wein: 50 };
   // Werte je 100 ml: caf = Koffein mg, sug = Zucker g; f = Anrechnung aufs Tagesziel in %
   var DEFAULT_DRINKS = [
-    ["wasser", "Wasser", 250, 100, 0, 0, "#3BA7D9", true],
-    ["sprudel", "Sprudel", 250, 100, 0, 0, "#7FD0EE", true],
-    ["kraeutertee", "Kräutertee", 300, 100, 0, 0, "#86B653", true],
-    ["kaffee", "Kaffee", 200, 100, 50, 0, "#7A5235", true],
-    ["apfelschorle", "Apfelschorle", 330, 100, 0, 5, "#E8B04A", true],
-    ["schwarztee", "Schwarztee", 250, 100, 20, 0, "#B5651D", true],
-    ["fruechtetee", "Früchtetee", 300, 100, 0, 0, "#D2386C", false],
-    ["gruentee", "Grüner Tee", 250, 100, 20, 0, "#6FA85A", false],
-    ["espresso", "Espresso", 30, 100, 200, 0, "#4A2E1E", false],
-    ["cappuccino", "Cappuccino", 200, 100, 30, 4, "#C49A6C", false],
-    ["koffeinfrei", "Koffeinfreier Kaffee", 200, 100, 2, 0, "#9A7A60", false],
-    ["milch", "Milch", 200, 100, 0, 4.8, "#EFE9DA", false],
-    ["hafermilch", "Hafermilch", 200, 100, 0, 4, "#E3D3B0", false],
-    ["kakao", "Kakao", 250, 100, 2, 9, "#8B5A3C", false],
-    ["apfelsaft", "Apfelsaft", 200, 100, 0, 10, "#F2C14E", false],
-    ["osaft", "Orangensaft", 200, 100, 0, 9, "#F28C28", false],
-    ["cola", "Cola", 330, 100, 10, 10.6, "#8A2F2F", false],
-    ["colazero", "Cola zero", 330, 100, 10, 0, "#2E2E2E", false],
-    ["limo", "Limonade", 330, 100, 0, 9, "#F5D547", false],
-    ["eistee", "Eistee", 330, 100, 3, 7, "#C98A3A", false],
-    ["mate", "Mate", 500, 100, 20, 5, "#B9A23A", false],
-    ["energy", "Energydrink", 250, 100, 32, 11, "#BFD43A", false],
-    ["iso", "Iso-Getränk", 500, 100, 0, 6, "#5BC0D9", false],
-    ["tonic", "Tonic Water", 200, 100, 0, 9, "#CDE7EC", false],
-    ["kombucha", "Kombucha", 330, 100, 8, 3, "#D9A05B", false],
-    ["alkfreibier", "Alkoholfreies Bier", 330, 100, 0, 3, "#E0B341", false],
-    ["bier", "Bier", 500, 80, 0, 0, "#D9A21B", false],
-    ["wein", "Wein", 150, 50, 0, 0, "#8E2846", false],
-    ["bruehe", "Brühe", 250, 100, 0, 0, "#C9A227", false]
-  ].map(function (a) { return { id: a[0], name: a[1], ml: a[2], f: a[3], caf: a[4], sug: a[5], color: a[6], fav: a[7], archived: false }; });
+    ["wasser", "Wasser", 250, 100, 0, 0, "#4FB3E8", true],
+    ["sprudel", "Sprudel", 250, 100, 0, 0, "#8AD3F0", true],
+    ["kraeutertee", "Kräutertee", 300, 100, 0, 0, "#8BC66A", true],
+    ["kaffee", "Kaffee", 200, 100, 50, 0, "#9A6A4A", true],
+    ["apfelschorle", "Apfelschorle", 330, 100, 0, 5, "#F2B84B", true],
+    ["schwarztee", "Schwarztee", 250, 100, 20, 0, "#C77B3B", true],
+    ["fruechtetee", "Früchtetee", 300, 100, 0, 0, "#F06C9B", false],
+    ["gruentee", "Grüner Tee", 250, 100, 20, 0, "#7DB86A", false],
+    ["espresso", "Espresso", 30, 100, 200, 0, "#6B4630", false],
+    ["cappuccino", "Cappuccino", 200, 100, 30, 4, "#C9A07A", false],
+    ["koffeinfrei", "Koffeinfreier Kaffee", 200, 100, 2, 0, "#A88870", false],
+    ["milch", "Milch", 200, 100, 0, 4.8, "#E9DCC6", false],
+    ["hafermilch", "Hafermilch", 200, 100, 0, 4, "#E0CDA8", false],
+    ["kakao", "Kakao", 250, 100, 2, 9, "#9B6447", false],
+    ["apfelsaft", "Apfelsaft", 200, 100, 0, 10, "#F5C752", false],
+    ["osaft", "Orangensaft", 200, 100, 0, 9, "#F79A3E", false],
+    ["cola", "Cola", 330, 100, 10, 10.6, "#8E3B3B", false],
+    ["colazero", "Cola zero", 330, 100, 10, 0, "#555555", false],
+    ["limo", "Limonade", 330, 100, 0, 9, "#F4D74E", false],
+    ["eistee", "Eistee", 330, 100, 3, 7, "#D69A4C", false],
+    ["mate", "Mate", 500, 100, 20, 5, "#BFAA45", false],
+    ["energy", "Energydrink", 250, 100, 32, 11, "#B9D447", false],
+    ["iso", "Iso-Getränk", 500, 100, 0, 6, "#62C6DE", false],
+    ["tonic", "Tonic Water", 200, 100, 0, 9, "#A9DCE6", false],
+    ["kombucha", "Kombucha", 330, 100, 8, 3, "#DDA663", false],
+    ["alkfreibier", "Alkoholfreies Bier", 330, 100, 0, 3, "#E6B947", false],
+    ["bier", "Bier", 500, 80, 0, 0, "#DDA524", false],
+    ["wein", "Wein", 150, 50, 0, 0, "#A23A5E", false],
+    ["bruehe", "Brühe", 250, 100, 0, 0, "#CFAE3A", false]
+  ].map(function (a) { return { id: a[0], name: a[1], ml: a[2], f: HYD.hasOwnProperty(a[0]) ? HYD[a[0]] : 100, caf: a[4], sug: a[5], color: a[6], fav: a[7], archived: false }; });
+  // Alte Standardwerte für „zählt %“ bis Einstellungs-Fassung 2; wer sie nie geändert hat, bekommt die neuen
+  var OLD_F = { bier: 80, wein: 50 };
 
-  // Tiere im Teich: Zeichnung ohne Mund; mouth = [Mitte x, Mitte y, halbe Breite]
-  var PETS = {
-    lama: { name: "Lama", art: "Das", mouth: [152, 79, 5],
-      svg: '<ellipse class="wool" cx="52" cy="126" rx="9" ry="13"/>' +
-        '<rect class="wool" x="62" y="138" width="11" height="42" rx="5.5"/><rect class="wool" x="79" y="140" width="11" height="40" rx="5.5"/>' +
-        '<rect class="wool" x="105" y="140" width="11" height="40" rx="5.5"/><rect class="wool" x="121" y="138" width="11" height="42" rx="5.5"/>' +
-        '<ellipse class="wool" cx="92" cy="133" rx="43" ry="25"/><rect class="blanket" x="76" y="109" width="34" height="27" rx="4"/>' +
-        '<path class="blanket-zig" d="M78 122 l5 -6 l5 6 l5 -6 l5 6 l5 -6 l5 6"/><rect class="wool" x="117" y="66" width="23" height="76" rx="11.5"/>' +
-        '<ellipse class="wool" cx="121" cy="44" rx="5" ry="12" transform="rotate(-14 121 44)"/><ellipse class="wool" cx="135" cy="42" rx="5" ry="12" transform="rotate(10 135 42)"/>' +
-        '<ellipse class="wool" cx="133" cy="63" rx="21" ry="17"/><ellipse class="wool" cx="151" cy="72" rx="12" ry="10"/>' +
-        '<circle class="wool-shade" cx="124" cy="49" r="6"/><circle class="wool-shade" cx="132" cy="47" r="6"/>' +
-        '<circle class="eye" cx="140" cy="60" r="3.2"/><circle class="eye" cx="157" cy="69" r="1.4"/><ellipse class="cheek" cx="135" cy="71" rx="4.5" ry="2.8"/>' },
-    hase: { name: "Hase", art: "Der", mouth: [100, 109, 5],
-      svg: '<g fill="#FBF7F2" stroke="#D9CFC4" stroke-width="2">' +
-        '<ellipse cx="85" cy="46" rx="10" ry="30" transform="rotate(-8 85 76)"/><ellipse cx="115" cy="46" rx="10" ry="30" transform="rotate(8 115 76)"/>' +
-        '<ellipse cx="100" cy="152" rx="40" ry="32"/><ellipse cx="80" cy="181" rx="14" ry="7"/><ellipse cx="120" cy="181" rx="14" ry="7"/>' +
-        '<circle cx="100" cy="98" r="34"/></g>' +
-        '<ellipse cx="85" cy="48" rx="4.5" ry="20" fill="#F4B6C2" transform="rotate(-8 85 76)"/><ellipse cx="115" cy="48" rx="4.5" ry="20" fill="#F4B6C2" transform="rotate(8 115 76)"/>' +
-        '<circle class="eye" cx="87" cy="94" r="3.6"/><circle class="eye" cx="113" cy="94" r="3.6"/>' +
-        '<ellipse cx="100" cy="103" rx="3.6" ry="2.6" fill="#E58FA3"/>' +
-        '<ellipse class="cheek" cx="79" cy="106" rx="5" ry="3"/><ellipse class="cheek" cx="121" cy="106" rx="5" ry="3"/>' },
-    katze: { name: "Katze", art: "Die", mouth: [100, 107, 5],
-      svg: '<path d="M134 168 q34 -6 28 -46" fill="none" stroke="#D9954A" stroke-width="12" stroke-linecap="round"/>' +
-        '<path d="M134 168 q34 -6 28 -46" fill="none" stroke="#F6C58A" stroke-width="8" stroke-linecap="round"/>' +
-        '<g fill="#F6C58A" stroke="#D9954A" stroke-width="2">' +
-        '<ellipse cx="100" cy="152" rx="40" ry="31"/><ellipse cx="82" cy="181" rx="12" ry="7"/><ellipse cx="118" cy="181" rx="12" ry="7"/>' +
-        '<path d="M68 84 L74 46 L98 66 Z" stroke-linejoin="round"/><path d="M132 84 L126 46 L102 66 Z" stroke-linejoin="round"/>' +
-        '<ellipse cx="100" cy="94" rx="37" ry="31"/></g>' +
-        '<path d="M75 74 L78 56 L90 66 Z" fill="#F4B6C2"/><path d="M125 74 L122 56 L110 66 Z" fill="#F4B6C2"/>' +
-        '<path d="M92 66 v8 M100 64 v9 M108 66 v8" stroke="#D9954A" stroke-width="3" stroke-linecap="round"/>' +
-        '<circle class="eye" cx="87" cy="91" r="3.6"/><circle class="eye" cx="113" cy="91" r="3.6"/>' +
-        '<path d="M96 99 h8 l-4 4 z" fill="#E58FA3"/>' +
-        '<path d="M60 99 h17 M61 106 l16 -2 M140 99 h-17 M139 106 l-16 -2" stroke="#B9875A" stroke-width="1.6" stroke-linecap="round"/>' +
-        '<ellipse class="cheek" cx="79" cy="104" rx="5" ry="3"/><ellipse class="cheek" cx="121" cy="104" rx="5" ry="3"/>' },
-    pinguin: { name: "Pinguin", art: "Der", mouth: [100, 109, 4],
-      svg: '<ellipse cx="86" cy="182" rx="12" ry="6" fill="#F2A23A"/><ellipse cx="114" cy="182" rx="12" ry="6" fill="#F2A23A"/>' +
-        '<ellipse cx="58" cy="134" rx="10" ry="26" fill="#33435A" transform="rotate(15 58 134)"/><ellipse cx="142" cy="134" rx="10" ry="26" fill="#33435A" transform="rotate(-15 142 134)"/>' +
-        '<ellipse cx="100" cy="132" rx="44" ry="50" fill="#33435A"/><ellipse cx="100" cy="146" rx="30" ry="34" fill="#FBF7F2"/>' +
-        '<ellipse cx="100" cy="92" rx="28" ry="23" fill="#FBF7F2"/>' +
-        '<circle class="eye" cx="89" cy="89" r="3.6"/><circle class="eye" cx="111" cy="89" r="3.6"/>' +
-        '<path d="M93 97 L107 97 L100 104 Z" fill="#F2A23A" stroke-linejoin="round"/>' +
-        '<ellipse class="cheek" cx="79" cy="100" rx="5" ry="3"/><ellipse class="cheek" cx="121" cy="100" rx="5" ry="3"/>' },
-    frosch: { name: "Frosch", art: "Der", mouth: [100, 112, 13],
-      svg: '<g fill="#8CCB6A" stroke="#5E9E44" stroke-width="2">' +
-        '<ellipse cx="72" cy="182" rx="16" ry="7"/><ellipse cx="128" cy="182" rx="16" ry="7"/>' +
-        '<ellipse cx="100" cy="150" rx="44" ry="32"/><ellipse cx="100" cy="106" rx="44" ry="30"/>' +
-        '<circle cx="77" cy="80" r="15"/><circle cx="123" cy="80" r="15"/></g>' +
-        '<ellipse cx="100" cy="158" rx="27" ry="19" fill="#D9EFB8"/>' +
-        '<circle cx="77" cy="80" r="9" fill="#FFFFFF"/><circle cx="123" cy="80" r="9" fill="#FFFFFF"/>' +
-        '<circle class="eye" cx="78" cy="81" r="4.5"/><circle class="eye" cx="122" cy="81" r="4.5"/>' +
-        '<ellipse class="cheek" cx="70" cy="113" rx="6" ry="3.5"/><ellipse class="cheek" cx="130" cy="113" rx="6" ry="3.5"/>' },
-    baer: { name: "Bär", art: "Der", mouth: [100, 114, 5],
-      svg: '<g fill="#B88257" stroke="#8A5A35" stroke-width="2">' +
-        '<circle cx="70" cy="66" r="13"/><circle cx="130" cy="66" r="13"/>' +
-        '<ellipse cx="100" cy="152" rx="42" ry="32"/><ellipse cx="80" cy="181" rx="13" ry="7"/><ellipse cx="120" cy="181" rx="13" ry="7"/>' +
-        '<circle cx="100" cy="98" r="35"/></g>' +
-        '<circle cx="70" cy="66" r="7" fill="#E9C9A0"/><circle cx="130" cy="66" r="7" fill="#E9C9A0"/>' +
-        '<ellipse cx="100" cy="158" rx="24" ry="17" fill="#E9C9A0"/><ellipse cx="100" cy="109" rx="16" ry="12" fill="#E9C9A0"/>' +
-        '<ellipse cx="100" cy="104" rx="5" ry="3.5" fill="#2A2018"/>' +
-        '<circle class="eye" cx="86" cy="91" r="3.6"/><circle class="eye" cx="114" cy="91" r="3.6"/>' +
-        '<ellipse class="cheek" cx="78" cy="106" rx="5" ry="3"/><ellipse class="cheek" cx="122" cy="106" rx="5" ry="3"/>' }
+  // Getränkebilder unter getraenke/: animiert (Noto, .json + Standbild .svg) oder fest (Fluent, .png)
+  var ICONS = {
+    wasser: { name: "Wasser", png: true }, glas: { name: "Glas mit Eis", png: true }, milch: { name: "Milch", png: true },
+    becher: { name: "Becher mit Strohhalm", png: true }, kaffee: { name: "Heiße Tasse" }, tee: { name: "Tee" },
+    saft: { name: "Saftpäckchen" }, mate: { name: "Mate" }, wein: { name: "Wein" }, bier: { name: "Bier" },
+    cocktail: { name: "Cocktail" }, bubbletea: { name: "Bubble Tea" }
   };
-  function mouthPath(m, mood) {
-    var cx = m[0], cy = m[1], w = m[2], q = [-0.8, 0.4, 0.8, 1.2][mood];
-    return "M" + (cx - w) + " " + (cy + (mood === 0 ? 2 : 0)) + " q" + w + " " + (q * w) + " " + (2 * w) + " 0";
-  }
-  var shownPet = null;
+  var DEF_ICON = {
+    wasser: "wasser", sprudel: "wasser", kraeutertee: "tee", schwarztee: "tee", fruechtetee: "tee", gruentee: "tee",
+    kaffee: "kaffee", espresso: "kaffee", cappuccino: "kaffee", koffeinfrei: "kaffee", kakao: "kaffee", bruehe: "kaffee",
+    apfelschorle: "saft", apfelsaft: "saft", osaft: "saft", milch: "milch", hafermilch: "milch",
+    cola: "becher", colazero: "becher", limo: "becher", eistee: "becher", energy: "becher", iso: "becher",
+    tonic: "cocktail", kombucha: "becher", mate: "mate", alkfreibier: "bier", bier: "bier", wein: "wein"
+  };
+
+  // Tiere unter tiere/: animiert (Noto Emoji, CC BY 4.0), .json + Standbild .svg
+  var PETS = {
+    panda: { name: "Panda", art: "Der" }, baer: { name: "Bär", art: "Der" }, pinguin: { name: "Pinguin", art: "Der" },
+    frosch: { name: "Frosch", art: "Der" }, kueken: { name: "Küken", art: "Das" }, katze: { name: "Katze", art: "Die" },
+    fuchs: { name: "Fuchs", art: "Der" }, einhorn: { name: "Einhorn", art: "Das" }, otter: { name: "Otter", art: "Der" },
+    robbe: { name: "Robbe", art: "Die" }, eule: { name: "Eule", art: "Die" }, igel: { name: "Igel", art: "Der" },
+    faultier: { name: "Faultier", art: "Das" }, krake: { name: "Krake", art: "Der" }, schildkroete: { name: "Schildkröte", art: "Die" },
+    flamingo: { name: "Flamingo", art: "Der" }, kuh: { name: "Kuh", art: "Die" }, loewe: { name: "Löwe", art: "Der" },
+    dino: { name: "Dino", art: "Der" }, affe: { name: "Affe", art: "Der" }, hase: { name: "Hase", art: "Der" },
+    qualle: { name: "Qualle", art: "Die" }, biene: { name: "Biene", art: "Die" }, eidechse: { name: "Eidechse", art: "Die" },
+    schwein: { name: "Schwein", art: "Das" }, kaenguru: { name: "Känguru", art: "Das" }, tiger: { name: "Tiger", art: "Der" }
+  };
 
   var $ = function (s) { return document.querySelector(s); };
   var fmt = function (n) { return Math.round(n).toLocaleString("de-DE"); };
@@ -528,7 +537,8 @@ details summary { cursor: pointer; font-weight: 600; }
     return {
       id: d.id, name: String(d.name || "").slice(0, 30), ml: num(d.ml, 10, 2000, 250), f: num(d.f, 0, 150, 100),
       caf: num(d.caf, 0, 500, 0), sug: num(d.sug, 0, 100, 0),
-      color: /^#[0-9a-fA-F]{6}$/.test(d.color) ? d.color : "#3BA7D9", fav: !!d.fav, archived: !!d.archived
+      color: /^#[0-9a-fA-F]{6}$/.test(d.color) ? d.color : "#4FB3E8", fav: !!d.fav, archived: !!d.archived,
+      icon: ICONS.hasOwnProperty(d.icon) ? d.icon : (DEF_ICON[d.id] || "becher")
     };
   }
   function sanitizeSettings(s) {
@@ -537,14 +547,18 @@ details summary { cursor: pointer; font-weight: 600; }
     var drinks = (Array.isArray(s.drinks) ? s.drinks : []).map(sanitizeDrink).filter(function (d) {
       if (!d || seen[d.id]) return false; seen[d.id] = true; return true;
     });
-    if (!drinks.length) drinks = clone(DEFAULT_DRINKS);
-    return { goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "lama" };
+    if (!drinks.length) drinks = clone(DEFAULT_DRINKS).map(sanitizeDrink);
+    else if (!(s.v >= 2)) drinks.forEach(function (d) {
+      var old = OLD_F.hasOwnProperty(d.id) ? OLD_F[d.id] : 100;
+      if (DEF_ICON.hasOwnProperty(d.id) && d.f === old) d.f = HYD.hasOwnProperty(d.id) ? HYD[d.id] : 100;
+    });
+    return { v: 2, goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda" };
   }
   function sanitizeEntry(e) {
     if (!e || typeof e.id !== "string" || !isFinite(e.t)) return null;
     return {
       id: e.id.slice(0, 60), t: Number(e.t), d: String(e.d || ""), n: String(e.n || "Getränk").slice(0, 30),
-      c: /^#[0-9a-fA-F]{6}$/.test(e.c) ? e.c : "#3BA7D9", ml: num(e.ml, 0, 5000, 0), e: num(e.e, 0, 7500, 0),
+      c: /^#[0-9a-fA-F]{6}$/.test(e.c) ? e.c : "#4FB3E8", ml: num(e.ml, 0, 5000, 0), e: num(e.e, 0, 7500, 0),
       caf: num(e.caf, 0, 5000, 0), sug: num(e.sug, 0, 1000, 0)
     };
   }
@@ -598,13 +612,19 @@ details summary { cursor: pointer; font-weight: 600; }
     addEntry(e);
     setSize(null);
     renderAll();
-    var msg = (drink.name || "Getränk") + ", " + fmt(amount) + " ml eingetragen";
+    sip();
+    var msg = (drink.name || "Getränk") + ", " + fmt(amount) + " ml eingetragen" + (e.e < e.ml ? ", zählt " + fmt(e.e) + " ml" : "");
     if (before < settings.goal && daySum(today) >= settings.goal) { msg = "Ziel geschafft! " + msg; cheer(); }
     toast(msg, "Rückgängig", function () { removeEntry(e, true); }, UNDO_MS);
   }
-  function cheer() {
-    var svg = $("#llama"); svg.classList.remove("cheer"); void svg.getBoundingClientRect(); svg.classList.add("cheer");
+  function restart(cls, ms) {
+    var p = $("#pond");
+    p.classList.remove(cls); void p.offsetWidth; p.classList.add(cls);
+    setTimeout(function () { p.classList.remove(cls); }, ms);
   }
+  // Das Tier trinkt mit: ein Tropfen fällt hinein, es schluckt
+  function sip() { restart("sip", 950); }
+  function cheer() { setTimeout(function () { restart("cheer", 1700); }, 900); }
   function removeEntry(e, silent) {
     var day = dayKey(new Date(e.t));
     days[day] = entriesFor(day).filter(function (x) { return x.id !== e.id; });
@@ -665,11 +685,12 @@ details summary { cursor: pointer; font-weight: 600; }
       return;
     }
     renderAll();
+    if (added.length) sip();
     if (unknown.length) {
-      toast((added.length ? added.length + " Einträge übernommen. " : "") + "Ein Getränk mit dem Kürzel „" + unknown[0] + "“ gibt es nicht. Unter Kurzbefehle stehen die richtigen Links.", null, null, 10000);
+      toast((added.length ? added.length + " Einträge übernommen. " : "") + "Ein Getränk mit dem Kürzel „" + unknown[0] + "“ gibt es nicht. Unter Mehr → Kurzbefehle stehen die richtigen Links.", null, null, 10000);
       return;
     }
-    if (bad && !added.length) { toast("Mit diesem Link kann Durstlama nichts anfangen. Unter Kurzbefehle stehen die richtigen Links.", null, null, 10000); return; }
+    if (bad && !added.length) { toast("Mit diesem Link kann Durstlama nichts anfangen. Unter Mehr → Kurzbefehle stehen die richtigen Links.", null, null, 10000); return; }
     if (added.length === 1) {
       var e1 = added[0];
       toast(e1.n + ", " + fmt(e1.ml) + " ml eingetragen", "Rückgängig", function () { removeEntry(e1, true); }, UNDO_MS);
@@ -700,50 +721,135 @@ details summary { cursor: pointer; font-weight: 600; }
   });
 
   // ---------- Heute ----------
-  function dropSvg(color) {
-    var ns = "http://www.w3.org/2000/svg";
-    var s = document.createElementNS(ns, "svg");
-    s.setAttribute("viewBox", "0 0 30 36"); s.setAttribute("class", "drop"); s.setAttribute("aria-hidden", "true");
-    var p = document.createElementNS(ns, "path");
-    p.setAttribute("d", "M15 2 C15 2 3 16 3 23 a12 12 0 0 0 24 0 C27 16 15 2 15 2 Z");
-    p.setAttribute("fill", color);
-    s.appendChild(p);
-    return s;
+  // Animation in einen Kasten laden; ohne Player, bei Fehler oder reduzierter Bewegung das Standbild
+  var reduceMotion = false;
+  try { reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  function stillImg(src) { var i = el("img"); i.src = src; i.alt = ""; return i; }
+  function animInto(box, base) {
+    box.textContent = "";
+    if (window.lottie && !reduceMotion) {
+      try {
+        var a = lottie.loadAnimation({ container: box, renderer: "svg", loop: true, autoplay: true, path: base + ".json",
+          rendererSettings: { preserveAspectRatio: "xMidYMid meet" } });
+        a.addEventListener("data_failed", function () { a.destroy(); box.textContent = ""; box.appendChild(stillImg(base + ".svg")); });
+        return a;
+      } catch (e) {}
+    }
+    box.appendChild(stillImg(base + ".svg"));
+    return null;
+  }
+  function drinkIcon(d, anims) {
+    var key = ICONS.hasOwnProperty(d.icon) ? d.icon : "becher";
+    var box = el("span", "art");
+    if (ICONS[key].png) box.appendChild(stillImg("getraenke/" + key + ".png"));
+    else { var a = animInto(box, "getraenke/" + key); if (a) anims.push(a); }
+    return box;
   }
 
   var sizeSel = null, showAll = false;
   var sizeBtns = [];
   SIZES.forEach(function (v) {
-    var b = el("button", null, v ? v + " ml" : "Standard");
+    var b = el("button", "pill", v + " ml");
     b.type = "button";
-    b.addEventListener("click", function () { setSize(v); renderTiles(); });
+    b.addEventListener("click", function () { setSize(sizeSel === v ? null : v); renderTiles(); });
     $("#sizes").appendChild(b);
     sizeBtns.push({ v: v, b: b });
   });
   function setSize(v) {
     sizeSel = v;
     sizeBtns.forEach(function (x) { x.b.setAttribute("aria-pressed", String(x.v === v)); });
+    if (v === null) { $("#sizes").hidden = true; $("#size-toggle").setAttribute("aria-expanded", "false"); }
   }
-  setSize(null);
+  $("#size-toggle").addEventListener("click", function () {
+    var open = $("#sizes").hidden;
+    $("#sizes").hidden = !open;
+    this.setAttribute("aria-expanded", String(open));
+    if (!open) { sizeSel = null; sizeBtns.forEach(function (x) { x.b.setAttribute("aria-pressed", "false"); }); renderTiles(); }
+  });
 
+  // Knöpfe nur neu bauen, wenn sich etwas Sichtbares geändert hat, sonst starten die Animationen neu
+  var tileSig = "", tileAnims = [];
   function renderTiles() {
-    var tiles = $("#tiles"); tiles.textContent = "";
     var act = activeDrinks();
     var favs = act.filter(function (d) { return d.fav; });
     var shown = showAll || !favs.length ? act : favs;
+    var sig = sizeSel + "|" + shown.map(function (d) { return d.id + ":" + d.name + ":" + d.icon + ":" + d.ml + ":" + d.f; }).join(",");
+    var more = $("#more-btn");
+    more.hidden = !favs.length || favs.length === act.length;
+    more.textContent = showAll ? "Weniger zeigen" : "Alle Getränke";
+    if (sig === tileSig) return;
+    tileSig = sig;
+    tileAnims.forEach(function (a) { a.destroy(); }); tileAnims = [];
+    var tiles = $("#tiles"); tiles.textContent = "";
     shown.forEach(function (d) {
-      var b = el("button", "tile"); b.type = "button";
-      b.appendChild(dropSvg(d.color));
+      var b = el("button", "drink"); b.type = "button";
+      var ic = el("span", "ic"); ic.appendChild(drinkIcon(d, tileAnims)); b.appendChild(ic);
       b.appendChild(el("span", "nm", d.name || "Ohne Namen"));
       var ml = sizeSel || d.ml;
       b.appendChild(el("span", "ml" + (sizeSel ? " over" : ""), fmt(ml) + " ml"));
+      if (d.f !== 100) b.appendChild(el("span", "hy" + (d.f === 0 ? " zero" : d.f > 100 ? " plus" : ""), d.f === 0 ? "löscht keinen Durst" : d.f > 100 ? "wässert " + d.f + " %" : "zählt " + d.f + " %"));
       b.setAttribute("aria-label", (d.name || "Getränk") + ", " + fmt(ml) + " ml eintragen");
       b.addEventListener("click", function () { logDrink(d, sizeSel); });
       tiles.appendChild(b);
     });
-    var more = $("#more-btn");
-    more.hidden = !favs.length || favs.length === act.length;
-    more.textContent = showAll ? "Nur Kacheln zeigen" : "Alle Getränke zeigen";
+  }
+
+  // Wache Stunden zwischen zwei Zeitpunkten, nachts (22 bis 7 Uhr) zählt nichts
+  function awakeHours(from, to) {
+    var step = 6e5, ms = 0, t = Math.max(from, to - 3 * 864e5);
+    for (; t < to; t += step) { var h = new Date(t).getHours(); if (h >= 7 && h < 22) ms += Math.min(step, to - t); }
+    return ms / 36e5;
+  }
+
+  // Tier und Sprechblase: hängt am Getrunkenen und daran, wie lange der letzte Schluck her ist.
+  // Läuft auch jede Minute, ohne Knöpfe und Liste neu zu bauen.
+  var shownPet = null, petAnim = null;
+  function renderPet() {
+    var list = entriesFor(dayKey());
+    var sum = list.reduce(function (a, e) { return a + (e.e || 0); }, 0);
+    var goal = settings.goal, pct = Math.min(1, sum / goal);
+    var now = new Date(), hour = now.getHours(), awake = hour >= 7 && hour < 22;
+    var lastT = list.reduce(function (a, e) { return e.e > 0 ? Math.max(a, e.t) : a; }, 0);
+    var newest = list.reduce(function (a, e) { return !a || e.t >= a.t ? e : a; }, null);
+    var since = 0, noneYet = !lastT;
+    // Kommentar zum letzten Getränk, wenn es den Durst schlecht löscht (eine halbe Stunde lang)
+    var recentLow = newest && newest.ml > 0 && newest.e / newest.ml < 0.8 && Date.now() - newest.t < 18e5 ? newest : null;
+    var recentSweet = newest && newest.ml > 0 && newest.sug / newest.ml * 100 >= 8 && Date.now() - newest.t < 18e5 ? newest : null;
+    if (awake) {
+      var morning = new Date(now); morning.setHours(7, 0, 0, 0);
+      since = awakeHours(noneYet ? morning.getTime() : lastT, now.getTime());
+    }
+    var thirst = !awake ? 0 : since >= 4 ? 2 : since >= 2 ? 1 : 0;
+    var pet = PETS[settings.pet] || PETS.panda;
+    var rest = "Noch " + fmt(goal - sum) + " ml.";
+    var says;
+    if (sum >= goal) { says = "Danke! " + pet.art + " " + pet.name + " ist satt und glücklich."; thirst = 0; }
+    else if (recentLow && recentLow.e === 0) says = "Prost! Aber " + recentLow.n + " löscht keinen Durst. Ein Glas Wasser dazu?";
+    else if (recentLow) says = "Lecker! Aber " + recentLow.n + " zählt nur " + Math.round(recentLow.e / recentLow.ml * 100) + " %. Ein Glas Wasser dazu?";
+    else if (recentSweet) says = "Lecker! Aber " + recentSweet.n + " hat ganz schön viel Zucker. " + rest;
+    else if (!awake) says = "Psst, Schlafenszeit. " + rest;
+    else if (noneYet && thirst === 0) says = "Guten Morgen! Ich hab Durst. Trinkst du was mit mir?";
+    else if (noneYet) says = "Ich hab heute noch gar nichts bekommen …";
+    else if (thirst === 2) says = "Mir hängt die Zunge raus! Seit " + Math.floor(since) + " Stunden nichts.";
+    else if (thirst === 1) says = "Seit " + Math.floor(since) + " Stunden nichts. Ein Schluck?";
+    else if (pct >= 0.75) says = "Fast geschafft! " + rest;
+    else if (pct >= 0.35) says = "Lecker! " + rest;
+    else says = "Danke! Mehr bitte. " + rest;
+    $("#says").textContent = says;
+
+    if (shownPet !== settings.pet) {
+      if (petAnim) petAnim.destroy();
+      petAnim = animInto($("#pet-anim"), "tiere/" + settings.pet);
+      shownPet = settings.pet;
+    }
+    $("#pond").setAttribute("aria-label", pet.name + " im Teich, " + says + " Tippen zum Tier wechseln");
+    var h = (14 + pct * 34) + "%";
+    $("#water-back").style.height = h;
+    $("#water-front").style.height = h;
+    var p = $("#pond");
+    p.classList.toggle("thirsty", thirst === 1);
+    p.classList.toggle("parched", thirst === 2);
+    p.classList.toggle("happy", sum >= goal);
   }
 
   function renderHeute() {
@@ -752,56 +858,38 @@ details summary { cursor: pointer; font-weight: 600; }
     var sum = list.reduce(function (a, e) { return a + (e.e || 0); }, 0);
     var caf = list.reduce(function (a, e) { return a + (e.caf || 0); }, 0);
     var sug = list.reduce(function (a, e) { return a + (e.sug || 0); }, 0);
-    var goal = settings.goal;
-    var pct = Math.min(1, sum / goal);
 
     $("#sum").textContent = fmt(sum);
-    $("#goal-label").textContent = fmt(goal);
-    $("#bar-fill").style.width = (pct * 100) + "%";
-    $("#bar").classList.toggle("done", sum >= goal);
-    var lvl = 192 - pct * 172;
-    $("#water-back").setAttribute("transform", "translate(0 " + (lvl - 6) + ")");
-    $("#water-front").setAttribute("transform", "translate(0 " + lvl + ")");
-
-    var pet = PETS[settings.pet] || PETS.lama;
-    var says, mood;
-    if (sum >= goal) { says = "Ziel geschafft. " + pet.art + " " + pet.name + " ist zufrieden."; mood = 3; }
-    else if (pct >= 0.75) { says = "Fast geschafft, noch " + fmt(goal - sum) + " ml."; mood = 2; }
-    else if (pct >= 0.35) { says = "Schon besser. Noch " + fmt(goal - sum) + " ml."; mood = 1; }
-    else { says = "Ich hab Durst. Noch " + fmt(goal - sum) + " ml."; mood = 0; }
-    $("#says").textContent = says;
-    if (shownPet !== settings.pet) { $("#pet").innerHTML = pet.svg + '<path class="mouth" id="mouth"/>'; shownPet = settings.pet; }
-    $("#mouth").setAttribute("d", mouthPath(pet.mouth, mood));
-    $("#llama").classList.toggle("happy", sum >= goal);
-
-    var mini = $("#mini"); mini.textContent = "";
-    var c1 = el("span", "chip" + (caf > 400 ? " hi" : ""), "Koffein " + fmt(caf) + " mg");
-    var c2 = el("span", "chip" + (sug > 50 ? " hi" : ""), "Zucker " + sug.toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " g");
-    c1.title = "Für Erwachsene gelten bis etwa 400 mg am Tag als unbedenklich (EFSA).";
-    c2.title = "Die WHO empfiehlt höchstens 50 g freien Zucker am Tag. Milchzucker zählt dort nicht mit, hier schon.";
-    mini.appendChild(c1); mini.appendChild(c2);
-
+    $("#goal-label").textContent = fmt(settings.goal);
+    renderPet();
     renderTiles();
 
+    $("#today-sum").textContent = list.length ? "Heute " + list.length + (list.length === 1 ? " Getränk" : " Getränke") : "Heute noch nichts getrunken";
     var log = $("#log"); log.textContent = "";
-    if (!list.length) log.appendChild(el("li", "empty", "Noch nichts. Tipp oben auf ein Getränk, dann steht es hier."));
     list.forEach(function (e) {
       var li = el("li");
-      var d = new Date(e.t);
-      li.appendChild(el("span", "tm", pad(d.getHours()) + ":" + pad(d.getMinutes())));
+      var d = new Date(e.t), tm = pad(d.getHours()) + ":" + pad(d.getMinutes());
+      li.appendChild(el("span", "tm", tm));
       var dot = el("span", "dot"); dot.style.background = e.c; li.appendChild(dot);
       var nm = el("span", "nm", e.n || "Getränk");
-      if (e.e !== e.ml) { nm.appendChild(document.createElement("br")); nm.appendChild(el("span", "sub", "zählt " + fmt(e.e) + " ml")); }
+      if (e.e !== e.ml) nm.appendChild(el("span", "sub", "zählt " + fmt(e.e) + " ml"));
       li.appendChild(nm);
       li.appendChild(el("span", null, fmt(e.ml) + " ml"));
-      var x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", (e.n || "Eintrag") + " von " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " löschen");
+      var x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", (e.n || "Eintrag") + " von " + tm + " löschen");
       x.addEventListener("click", function () { removeEntry(e); });
       li.appendChild(x);
       log.appendChild(li);
     });
+    var mini = $("#mini"); mini.textContent = "";
+    var c1 = el("span", caf > 400 ? "hi" : null, "Koffein " + fmt(caf) + " mg");
+    var c2 = el("span", sug > 50 ? "hi" : null, "Zucker " + sug.toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " g");
+    c1.title = "Für Erwachsene gelten bis etwa 400 mg am Tag als unbedenklich (EFSA).";
+    c2.title = "Die WHO empfiehlt höchstens 50 g freien Zucker am Tag. Milchzucker zählt dort nicht mit, hier schon.";
+    mini.appendChild(c1); mini.appendChild(document.createTextNode(" · ")); mini.appendChild(c2);
 
     $("#today-label").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
   }
+  $("#pond").addEventListener("click", function () { showTab("mehr"); window.scrollTo(0, 0); });
 
   // ---------- Woche ----------
   function reached(day) { return daySum(day) >= settings.goal; }
@@ -829,19 +917,19 @@ details summary { cursor: pointer; font-weight: 600; }
     var ch = H - T - B, bw = (W - L - R) / 7;
     var y = function (v) { return T + ch - v / maxV * ch; };
     var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Getrunken an den letzten sieben Tagen">';
-    s += '<line class="grid-line" x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ch) + '" y2="' + (T + ch) + '"/>';
     week.forEach(function (x, i) {
-      var cx = L + i * bw + bw / 2, w = bw * 0.62, top = y(x.sum);
-      var fill = x.sum >= goal ? "var(--water)" : "var(--water-soft)";
-      if (x.sum > 0) s += '<rect x="' + (cx - w / 2) + '" y="' + top + '" width="' + w + '" height="' + (T + ch - top) + '" rx="6" fill="' + fill + '"/>';
-      s += '<text class="val" x="' + cx + '" y="' + (x.sum > 0 ? top - 6 : T + ch - 6) + '" text-anchor="middle">' + (x.sum > 0 ? liter(x.sum) : "–") + '</text>';
-      s += '<text class="ax' + (x.today ? " today" : "") + '" x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle">' + (x.today ? "Heute" : x.wd) + '</text>';
+      var cx = L + i * bw + bw / 2, w = bw * 0.56, top = y(x.sum);
+      var fill = x.sum >= goal ? "var(--water-deep)" : "var(--water)";
+      s += '<rect x="' + (cx - w / 2) + '" y="' + T + '" width="' + w + '" height="' + ch + '" rx="' + (w / 2) + '" fill="var(--soft)"/>';
+      if (x.sum > 0) s += '<rect x="' + (cx - w / 2) + '" y="' + Math.min(top, T + ch - w) + '" width="' + w + '" height="' + Math.max(T + ch - top, w) + '" rx="' + (w / 2) + '" fill="' + fill + '"/>';
+      if (x.sum > 0) s += '<text class="val" x="' + cx + '" y="' + (Math.min(top, T + ch - w) - 6) + '" text-anchor="middle">' + liter(x.sum) + '</text>';
+      s += '<text class="ax' + (x.today ? " today" : "") + '" x="' + cx + '" y="' + (H - 6) + '" text-anchor="middle">' + (x.today ? "Heute" : x.wd) + '</text>';
     });
     s += '<line class="goal-line" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(goal) + '" y2="' + y(goal) + '"/>';
     s += '</svg>';
     var wk = $("#week-chart");
     wk.innerHTML = '<h3>Letzte 7 Tage, in Litern</h3>' + s;
-    wk.appendChild(el("p", "note", "Die gestrichelte Linie ist dein Ziel von " + liter(goal) + " Litern. Dunkle Balken: Ziel geschafft."));
+    wk.appendChild(el("p", "note", "Die rosa Linie ist dein Ziel von " + liter(goal) + " Litern. Dunkelblau: Ziel geschafft."));
 
     var by = {};
     week.forEach(function (x) { entriesFor(x.k).forEach(function (e) { var b = by[e.d] || (by[e.d] = { n: e.n, c: e.c, ml: 0 }); b.ml += e.ml; }); });
@@ -860,32 +948,40 @@ details summary { cursor: pointer; font-weight: 600; }
     });
   }
 
-  // ---------- Getränke ----------
+  // ---------- Mehr: Tier, Ziel, Getränke ----------
   var saveTimer = null;
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { saveSettings(); renderHeute(); }, 500); }
   function flushSave() { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; saveSettings(); } }
 
-  function renderGetraenke() {
+  function renderPetPick() {
     var pp = $("#pet-pick"); pp.textContent = "";
     Object.keys(PETS).forEach(function (k) {
       var b = el("button"); b.type = "button";
       b.setAttribute("aria-pressed", String(settings.pet === k));
-      b.innerHTML = '<svg viewBox="24 22 152 166" aria-hidden="true"><g>' + PETS[k].svg + '<path class="mouth" d="' + mouthPath(PETS[k].mouth, 2) + '"/></g></svg>';
+      b.appendChild(stillImg("tiere/" + k + ".svg"));
       b.appendChild(el("span", null, PETS[k].name));
       b.addEventListener("click", function () {
-        settings.pet = k; saveSettings(); renderHeute();
+        settings.pet = k; saveSettings(); renderPet();
         pp.querySelectorAll("button").forEach(function (x, i) { x.setAttribute("aria-pressed", String(Object.keys(PETS)[i] === k)); });
       });
       pp.appendChild(b);
     });
+  }
+
+  function renderMehr() {
+    renderPetPick();
     $("#goal-input").value = settings.goal;
     var pr = $("#goal-presets"); pr.textContent = "";
     [1500, 2000, 2500, 3000].forEach(function (v) {
-      var b = el("button", null, liter(v) + " l"); b.type = "button";
+      var b = el("button", "pill", liter(v) + " l"); b.type = "button";
       b.addEventListener("click", function () { settings.goal = v; $("#goal-input").value = v; saveSettings(); renderHeute(); });
       pr.appendChild(b);
     });
+    renderDrinkEditor();
+    renderKurz();
+  }
 
+  function renderDrinkEditor() {
     var list = $("#dlist"); list.textContent = "";
     var act = activeDrinks();
     act.forEach(function (d, idx) {
@@ -897,7 +993,7 @@ details summary { cursor: pointer; font-weight: 600; }
       nm.addEventListener("input", function () { d.name = nm.value; saveSoon(); });
       var fav = el("label", "fav"); var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = d.fav; cb.id = "f-" + d.id;
       cb.addEventListener("change", function () { d.fav = cb.checked; saveSoon(); });
-      fav.appendChild(cb); fav.appendChild(document.createTextNode("Kachel"));
+      fav.appendChild(cb); fav.appendChild(document.createTextNode("Startseite"));
       head.appendChild(col); head.appendChild(nm); head.appendChild(fav);
       c.appendChild(head);
 
@@ -910,6 +1006,12 @@ details summary { cursor: pointer; font-weight: 600; }
         inp.addEventListener("input", function () { if (inp.value === "") return; d[f[0]] = num(String(inp.value).replace(",", "."), f[2], f[3], d[f[0]]); saveSoon(); });
         fl.appendChild(lb); fl.appendChild(inp); g.appendChild(fl);
       });
+      var sf = el("div", "field");
+      var sl = el("label", null, "Bild"); sl.htmlFor = "i-" + d.id;
+      var sel = document.createElement("select"); sel.id = "i-" + d.id;
+      Object.keys(ICONS).forEach(function (k) { var o = el("option", null, ICONS[k].name); o.value = k; if (k === d.icon) o.selected = true; sel.appendChild(o); });
+      sel.addEventListener("change", function () { d.icon = sel.value; saveSoon(); });
+      sf.appendChild(sl); sf.appendChild(sel); g.appendChild(sf);
       c.appendChild(g);
 
       var foot = el("div", "dfoot");
@@ -917,23 +1019,22 @@ details summary { cursor: pointer; font-weight: 600; }
       foot.appendChild(code);
       var btns = el("div", "dbtns");
       if (idx > 0) {
-        var up = el("button", "small-btn", "Nach oben"); up.type = "button";
+        var up = el("button", "small", "Nach oben"); up.type = "button";
         up.setAttribute("aria-label", (d.name || "Getränk") + " nach oben");
         up.addEventListener("click", function () {
           flushSave();
           var i = settings.drinks.indexOf(d), prev = settings.drinks.indexOf(act[idx - 1]);
           settings.drinks.splice(i, 1); settings.drinks.splice(prev, 0, d);
-          saveSettings(); renderGetraenke(); renderHeute();
-          var b = document.querySelector('[aria-label="' + (d.name || "Getränk").replace(/"/g, "") + ' nach oben"]'); if (b) b.focus();
+          saveSettings(); renderDrinkEditor(); renderHeute();
         });
         btns.appendChild(up);
       }
-      var arch = el("button", "small-btn", "Archivieren"); arch.type = "button";
+      var arch = el("button", "small", "Archivieren"); arch.type = "button";
       arch.addEventListener("click", function () {
         flushSave();
         if (activeDrinks().length <= 1) { toast("Ein Getränk muss in der Auswahl bleiben.", null); return; }
-        d.archived = true; saveSettings(); renderGetraenke(); renderHeute();
-        toast((d.name || "Getränk") + " archiviert", "Zurückholen", function () { d.archived = false; saveSettings(); renderGetraenke(); renderHeute(); }, UNDO_MS);
+        d.archived = true; saveSettings(); renderDrinkEditor(); renderHeute();
+        toast((d.name || "Getränk") + " archiviert", "Zurückholen", function () { d.archived = false; saveSettings(); renderDrinkEditor(); renderHeute(); }, UNDO_MS);
       });
       btns.appendChild(arch);
       foot.appendChild(btns);
@@ -942,14 +1043,14 @@ details summary { cursor: pointer; font-weight: 600; }
     });
 
     var archived = settings.drinks.filter(function (d) { return d.archived; });
-    $("#arch-card").hidden = !archived.length;
+    $("#arch-box").hidden = !archived.length;
     var al = $("#arch-list"); al.textContent = "";
     archived.forEach(function (d) {
       var row = el("div", "arch-row");
       var dot = el("span", "dot"); dot.style.background = d.color; row.appendChild(dot);
       row.appendChild(el("span", null, d.name || "Ohne Namen"));
-      var b = el("button", "small-btn", "Zurückholen"); b.type = "button";
-      b.addEventListener("click", function () { d.archived = false; saveSettings(); renderGetraenke(); renderHeute(); });
+      var b = el("button", "small", "Zurückholen"); b.type = "button";
+      b.addEventListener("click", function () { d.archived = false; saveSettings(); renderDrinkEditor(); renderHeute(); });
       row.appendChild(b);
       al.appendChild(row);
     });
@@ -966,11 +1067,11 @@ details summary { cursor: pointer; font-weight: 600; }
     if (!name) { toast("Gib dem Getränk zuerst einen Namen.", null); $("#new-name").focus(); return; }
     flushSave();
     var ml = num($("#new-ml").value, 10, 2000, 300);
-    var palette = ["#3BA7D9", "#86B653", "#F2A541", "#D2386C", "#8E6CC9", "#2BB3A3", "#E0663A"];
-    var d = { id: slug(name), name: name.slice(0, 30), ml: ml, f: 100, caf: 0, sug: 0, color: palette[settings.drinks.length % palette.length], fav: true, archived: false };
+    var palette = ["#4FB3E8", "#8BC66A", "#F2B84B", "#F06C9B", "#A28BE0", "#4CC3B3", "#F08A5D"];
+    var d = { id: slug(name), name: name.slice(0, 30), ml: ml, f: 100, caf: 0, sug: 0, color: palette[settings.drinks.length % palette.length], fav: true, archived: false, icon: "becher" };
     settings.drinks.push(d);
     $("#new-name").value = "";
-    saveSettings(); renderGetraenke(); renderHeute();
+    saveSettings(); renderDrinkEditor(); renderHeute(); renderKurz();
     toast(name + " angelegt und auf die Startseite gelegt. Kürzel: #" + d.id, null, null, 7000);
   });
   $("#goal-input").addEventListener("input", function () {
@@ -1015,7 +1116,7 @@ details summary { cursor: pointer; font-weight: 600; }
         data.days[k].map(sanitizeEntry).filter(Boolean).forEach(function (e) { if (addEntry(e)) n++; });
       });
       if (data.settings) { settings = sanitizeSettings(data.settings); saveSettings(); }
-      renderAll();
+      renderAll(true);
       toast("Sicherung geladen, " + n + " Einträge neu dazugekommen", null, null, 7000);
     }, function () { toast("Die Datei ließ sich nicht lesen.", null); });
   });
@@ -1030,7 +1131,7 @@ details summary { cursor: pointer; font-weight: 600; }
       row.appendChild(el("span", "n", d.name || "Getränk"));
       var url = baseUrl() + "#" + d.id;
       row.appendChild(el("code", null, url));
-      var b = el("button", "small-btn", "Kopieren"); b.type = "button";
+      var b = el("button", "small", "Kopieren"); b.type = "button";
       b.setAttribute("aria-label", "Link für " + (d.name || "Getränk") + " kopieren");
       b.addEventListener("click", function () { copy(url, row.querySelector("code"), b); });
       row.appendChild(b);
@@ -1049,11 +1150,11 @@ details summary { cursor: pointer; font-weight: 600; }
 
   // ---------- Reiter ----------
   var tab = "heute";
-  var TABS = ["heute", "woche", "getraenke", "kurz"];
+  var TABS = ["heute", "woche", "mehr"];
   function showTab(t, focus) {
-    if (tab === "getraenke" && t !== "getraenke") flushSave();
+    if (tab === "mehr" && t !== "mehr") flushSave();
     tab = t;
-    document.querySelectorAll(".tabs button").forEach(function (x) {
+    document.querySelectorAll(".tabbar button").forEach(function (x) {
       var on = x.dataset.tab === t;
       x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1;
       if (on && focus) x.focus();
@@ -1061,8 +1162,8 @@ details summary { cursor: pointer; font-weight: 600; }
     TABS.forEach(function (n) { $("#p-" + n).hidden = n !== t; });
     renderAll(true);
   }
-  document.querySelectorAll(".tabs button").forEach(function (b) {
-    b.addEventListener("click", function () { showTab(b.dataset.tab); });
+  document.querySelectorAll(".tabbar button").forEach(function (b) {
+    b.addEventListener("click", function () { showTab(b.dataset.tab); window.scrollTo(0, 0); });
     b.addEventListener("keydown", function (ev) {
       var i = TABS.indexOf(tab);
       if (ev.key === "ArrowRight") { ev.preventDefault(); showTab(TABS[(i + 1) % TABS.length], true); }
@@ -1070,22 +1171,19 @@ details summary { cursor: pointer; font-weight: 600; }
     });
   });
   $("#more-btn").addEventListener("click", function () { showAll = !showAll; renderTiles(); });
-  // Tipp aufs Tier führt zur Tierauswahl
-  $("#llama").addEventListener("click", function () { showTab("getraenke"); window.scrollTo(0, 0); });
 
   function renderAll(tabChanged) {
     renderHeute();
     if (tab === "woche") renderWoche();
-    if (tab === "getraenke" && tabChanged) renderGetraenke();
-    if (tab === "kurz") renderKurz();
+    if (tab === "mehr" && tabChanged) renderMehr();
   }
 
-  // ---------- Tageswechsel, Rückkehr in den Tab ----------
+  // ---------- Tageswechsel, Durst mit der Zeit, Rückkehr in den Tab ----------
   var lastDay = dayKey();
-  function checkDay() { var k = dayKey(); if (k !== lastDay) { lastDay = k; renderAll(); } }
-  setInterval(checkDay, 60000);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) { checkDay(); processHash(); } });
-  window.addEventListener("pageshow", function () { checkDay(); });
+  function tick() { var k = dayKey(); if (k !== lastDay) { lastDay = k; renderAll(); } else renderPet(); }
+  setInterval(tick, 60000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { tick(); processHash(); } });
+  window.addEventListener("pageshow", tick);
   window.addEventListener("hashchange", processHash);
   window.addEventListener("pagehide", flushSave);
 

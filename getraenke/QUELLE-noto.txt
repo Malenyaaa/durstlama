@@ -1,0 +1,9 @@
+Tier-Animationen (*.json) und Standbilder (*.svg) in diesem Ordner sowie die animierten
+Getränke unter getraenke/ (*.json, *.svg):
+
+Noto Emoji, animiert, von Google
+https://googlefonts.github.io/noto-emoji-animation/
+Lizenz: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Die Dateien sind unverändert übernommen.
