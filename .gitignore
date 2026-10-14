@@ -1,6 +1,7 @@
 # Exportierte Kurzbefehle sind mit der Apple-ID signiert
 *.shortcut
 # Eigene Sicherungen der App
+trinkimal-*.json
 durstlama-*.json
 *.local.*
 .env*

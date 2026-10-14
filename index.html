@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Durstlama</title>
+<title>Trinkimal</title>
 <meta name="description" content="Kostenloser Trink-Tracker mit Tier. Ein Tipp pro Glas, iOS-Kurzbefehle, alle Daten bleiben auf dem Gerät.">
 <meta name="theme-color" content="#FDF2F7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1E1726" media="(prefers-color-scheme: dark)">
@@ -277,7 +277,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 <body>
 <div class="app">
   <header class="top">
-    <h1 class="brand">Durst<span>lama</span></h1>
+    <h1 class="brand">Trink<span>imal</span></h1>
     <span class="date" id="today-label"></span>
   </header>
 
@@ -367,10 +367,10 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     <details class="more" id="kurz-box">
       <summary>Kurzbefehle fürs iPhone</summary>
       <div class="more-body">
-        <p>Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Durstlama das Getränk sofort ein. Mit der App Kurzbefehle wird daraus ein Knopf, ein Widget, ein Siri-Satz oder zweimal hinten aufs iPhone klopfen.</p>
-        <p class="note">Kurzbefehle öffnen Links immer in Safari. Nutze Durstlama deshalb auch sonst in Safari, nicht als Web-App vom Home-Bildschirm. Die hätte einen eigenen, getrennten Speicher.</p>
+        <p>Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Trinkimal das Getränk sofort ein. Mit der App Kurzbefehle wird daraus ein Knopf, ein Widget, ein Siri-Satz oder zweimal hinten aufs iPhone klopfen.</p>
+        <p class="note">Kurzbefehle öffnen Links immer in Safari. Nutze Trinkimal deshalb auch sonst in Safari, nicht als Web-App vom Home-Bildschirm. Die hätte einen eigenen, getrennten Speicher.</p>
         <div class="links" id="links"></div>
-        <p class="note">Andere Menge: hinten anhängen, zum Beispiel <code>#wasser-500</code>. Öffnest du denselben Link ohne Zeitstempel zweimal innerhalb von 90 Sekunden, fragt Durstlama nach, statt doppelt einzutragen.</p>
+        <p class="note">Andere Menge: hinten anhängen, zum Beispiel <code>#wasser-500</code>. Öffnest du denselben Link ohne Zeitstempel zweimal innerhalb von 90 Sekunden, fragt Trinkimal nach, statt doppelt einzutragen.</p>
 
         <h3>Variante A: ein Menü, Safari geht kurz auf</h3>
         <ol class="steps">
@@ -383,14 +383,14 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         <p class="note">Der Zeitstempel sorgt dafür, dass nichts doppelt gezählt wird, auch wenn Safari die Seite später neu lädt. Starten: „Hey Siri, Trinken“, das Kurzbefehle-Widget, oder Einstellungen → Bedienungshilfen → Tippen → <span class="k">Auf Rückseite tippen</span> → Doppeltippen → Trinken.</p>
 
         <h3>Variante B: still eintragen, ohne Safari</h3>
-        <p class="note">Der Kurzbefehl schreibt den Eintrag nur in eine Textdatei in iCloud Drive. Beim nächsten Öffnen holt Durstlama alles auf einmal nach, mit der richtigen Uhrzeit.</p>
+        <p class="note">Der Kurzbefehl schreibt den Eintrag nur in eine Textdatei in iCloud Drive. Beim nächsten Öffnen holt Trinkimal alles auf einmal nach, mit der richtigen Uhrzeit.</p>
         <ol class="steps">
           <li>Kurzbefehl <span class="k">Trinken still</span>: <span class="k">Aus Menü auswählen</span>, pro Zeile <span class="k">Aktuelles Datum</span> und <span class="k">Datum formatieren</span> wie oben.</li>
           <li>Dann Aktion <span class="k">Text</span> mit <code>wasser-250-</code> plus <span class="k">Formatiertes Datum</span>.</li>
-          <li>Dann <span class="k">An Textdatei anhängen</span>, Datei <code>Shortcuts/durstlama.txt</code>. Optional <span class="k">Mitteilung anzeigen</span> „Wasser notiert“.</li>
-          <li>Zweiter Kurzbefehl <span class="k">Durstlama öffnen</span>: <span class="k">Datei abrufen</span> <code>Shortcuts/durstlama.txt</code>, dann <span class="k">Text ersetzen</span>: Zeilenumbruch durch <code>_</code> ersetzen.</li>
+          <li>Dann <span class="k">An Textdatei anhängen</span>, Datei <code>Shortcuts/trinkimal.txt</code>. Optional <span class="k">Mitteilung anzeigen</span> „Wasser notiert“.</li>
+          <li>Zweiter Kurzbefehl <span class="k">Trinkimal öffnen</span>: <span class="k">Datei abrufen</span> <code>Shortcuts/trinkimal.txt</code>, dann <span class="k">Text ersetzen</span>: Zeilenumbruch durch <code>_</code> ersetzen.</li>
           <li>Dann <span class="k">URL</span>: <code id="queue-url"></code> plus <span class="k">Geänderter Text</span>, dann <span class="k">URLs öffnen</span>.</li>
-          <li>Zum Schluss einen leeren <span class="k">Text</span> mit <span class="k">Datei sichern</span> nach <code>Shortcuts/durstlama.txt</code> schreiben, Ersetzen an.</li>
+          <li>Zum Schluss einen leeren <span class="k">Text</span> mit <span class="k">Datei sichern</span> nach <code>Shortcuts/trinkimal.txt</code> schreiben, Ersetzen an.</li>
         </ol>
 
         <h3>Apple Health und Erinnerungen</h3>
@@ -400,7 +400,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 
     <div class="card">
       <h3>Sicherung</h3>
-      <p class="note">Durstlama speichert alles nur in diesem Browser. iOS kann Website-Daten löschen, wenn du die Seite lange nicht öffnest. Sichere deshalb ab und zu eine Datei, zum Beispiel in iCloud Drive.</p>
+      <p class="note">Trinkimal speichert alles nur in diesem Browser. iOS kann Website-Daten löschen, wenn du die Seite lange nicht öffnest. Sichere deshalb ab und zu eine Datei, zum Beispiel in iCloud Drive.</p>
       <div class="row-btns">
         <button class="primary" id="export-btn" type="button">Sicherung speichern</button>
         <button class="pill" id="import-btn" type="button">Sicherung laden</button>
@@ -409,7 +409,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       <p class="note">Beim Laden kommen Einträge aus der Datei dazu, vorhandene bleiben. Tier, Getränke und Ziel werden aus der Datei übernommen.</p>
     </div>
 
-    <p class="foot-note" id="foot-note">Alle Daten bleiben in diesem Browser. Durstlama schickt nichts ins Netz.</p>
+    <p class="foot-note" id="foot-note">Alle Daten bleiben in diesem Browser. Trinkimal schickt nichts ins Netz.</p>
     <p class="foot-note">Tiere und Getränke-Animationen: Google Noto Emoji (CC BY 4.0). Wasser, Glas, Milch, Becher: Microsoft Fluent Emoji (MIT). Abspielen: lottie-web (MIT). Schrift: Fredoka (OFL).</p>
   </section>
 </div>
@@ -690,7 +690,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       toast((added.length ? added.length + " Einträge übernommen. " : "") + "Ein Getränk mit dem Kürzel „" + unknown[0] + "“ gibt es nicht. Unter Mehr → Kurzbefehle stehen die richtigen Links.", null, null, 10000);
       return;
     }
-    if (bad && !added.length) { toast("Mit diesem Link kann Durstlama nichts anfangen. Unter Mehr → Kurzbefehle stehen die richtigen Links.", null, null, 10000); return; }
+    if (bad && !added.length) { toast("Mit diesem Link kann Trinkimal nichts anfangen. Unter Mehr → Kurzbefehle stehen die richtigen Links.", null, null, 10000); return; }
     if (added.length === 1) {
       var e1 = added[0];
       toast(e1.n + ", " + fmt(e1.ml) + " ml eingetragen", "Rückgängig", function () { removeEntry(e1, true); }, UNDO_MS);
@@ -1082,8 +1082,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   // ---------- Sicherung ----------
   $("#export-btn").addEventListener("click", function () {
     flushSave();
-    var data = { app: "durstlama", version: 1, exported: new Date().toISOString(), settings: settings, days: days };
-    var name = "durstlama-" + dayKey() + ".json";
+    var data = { app: "trinkimal", version: 1, exported: new Date().toISOString(), settings: settings, days: days };
+    var name = "trinkimal-" + dayKey() + ".json";
     var blob = new Blob([JSON.stringify(data, null, 1)], { type: "application/json" });
     var file = null;
     try { file = new File([blob], name, { type: "application/json" }); } catch (e) {}
@@ -1108,8 +1108,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     if (!f) return;
     f.text().then(function (txt) {
       var data;
-      try { data = JSON.parse(txt); } catch (e) { toast("Die Datei ist keine Durstlama-Sicherung.", null, null, 8000); return; }
-      if (!data || data.app !== "durstlama" || typeof data.days !== "object") { toast("Die Datei ist keine Durstlama-Sicherung.", null, null, 8000); return; }
+      try { data = JSON.parse(txt); } catch (e) { toast("Die Datei ist keine Trinkimal-Sicherung.", null, null, 8000); return; }
+      if (!data || (data.app !== "trinkimal" && data.app !== "durstlama") || typeof data.days !== "object") { toast("Die Datei ist keine Trinkimal-Sicherung.", null, null, 8000); return; }
       var n = 0;
       Object.keys(data.days || {}).forEach(function (k) {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !Array.isArray(data.days[k])) return;

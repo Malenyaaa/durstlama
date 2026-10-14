@@ -1,4 +1,4 @@
-# Durstlama
+# Trinkimal
 
 Ein kostenloser Trink-Tracker mit Tier. Ein Tipp auf ein Getränk trägt es ein, mehr nicht.
 Dein Tier sitzt animiert im Teich, und je mehr du trinkst, desto höher steht das Wasser. Es trinkt
@@ -10,7 +10,7 @@ nicht. Beim Tagesziel hüpft es, und Herzen steigen auf.
 (Tipp aufs Tier oder **Mehr → Dein Tier**). Die Getränke-Knöpfe sind ebenfalls animiert:
 Kaffee dampft, Bubble Tea blubbert.
 
-**Öffnen:** https://malenyaaa.github.io/durstlama/
+**Öffnen:** https://malenyaaa.github.io/trinkimal/
 
 ## Was es kann
 
@@ -37,7 +37,7 @@ Sicherung** einen Export. Ab und zu eine Sicherung in iCloud Drive schadet nicht
 
 ## Kurzbefehle
 
-Kurzbefehle öffnen Links immer in **Safari**. Nutze Durstlama deshalb auch sonst in Safari und
+Kurzbefehle öffnen Links immer in **Safari**. Nutze Trinkimal deshalb auch sonst in Safari und
 nicht als Web-App vom Home-Bildschirm, die hat einen eigenen Speicher. Als App-Symbol eignet
 sich ein Kurzbefehl, der die Seite öffnet.
 
@@ -45,10 +45,10 @@ sich ein Kurzbefehl, der die Seite öffnet.
 
 | Link | Wirkung |
 | --- | --- |
-| `…/durstlama/#wasser` | Wasser mit Standardmenge eintragen |
-| `…/durstlama/#wasser-500` | 500 ml Wasser |
-| `…/durstlama/#wasser-250-20261014143005` | mit Zeitstempel `JJJJMMTTHHMMSS`: Eintrag zu dieser Uhrzeit, wird nie doppelt gezählt |
-| `…/durstlama/#q_wasser-250-20261014143005_kaffee-200-20261014150000` | mehrere Einträge auf einmal, getrennt durch `_` |
+| `…/trinkimal/#wasser` | Wasser mit Standardmenge eintragen |
+| `…/trinkimal/#wasser-500` | 500 ml Wasser |
+| `…/trinkimal/#wasser-250-20261014143005` | mit Zeitstempel `JJJJMMTTHHMMSS`: Eintrag zu dieser Uhrzeit, wird nie doppelt gezählt |
+| `…/trinkimal/#q_wasser-250-20261014143005_kaffee-200-20261014150000` | mehrere Einträge auf einmal, getrennt durch `_` |
 
 Die Kürzel stehen in der App unter **Mehr → Kurzbefehle** und bei jedem Getränk. Ein Link ohne
 Zeitstempel, der innerhalb von 90 Sekunden zweimal geöffnet wird, wird nur nach Rückfrage
@@ -59,7 +59,7 @@ damit ein Neuladen nichts doppelt zählt.
 
 1. Kurzbefehl **Trinken** anlegen, Aktion **Aus Menü auswählen**, je Getränk eine Zeile.
 2. Unter jede Zeile: **Aktuelles Datum** → **Datum formatieren** (Eigenes Format `yyyyMMddHHmmss`)
-   → **URL** `https://malenyaaa.github.io/durstlama/#wasser-250-` + *Formatiertes Datum*
+   → **URL** `https://malenyaaa.github.io/trinkimal/#wasser-250-` + *Formatiertes Datum*
    → **URLs öffnen**.
 3. Starten per Siri („Trinken“), Widget oder Einstellungen → Bedienungshilfen → Tippen →
    Auf Rückseite tippen.
@@ -68,13 +68,13 @@ damit ein Neuladen nichts doppelt zählt.
 
 1. Kurzbefehl **Trinken still**: wie oben, aber statt *URL öffnen* eine Aktion **Text**
    `wasser-250-` + *Formatiertes Datum* und dann **An Textdatei anhängen**
-   (`Shortcuts/durstlama.txt`).
-2. Kurzbefehl **Durstlama öffnen**: **Datei abrufen** `Shortcuts/durstlama.txt` → **Text ersetzen**
-   (Zeilenumbruch durch `_`) → **URL** `https://malenyaaa.github.io/durstlama/#q_` + *Geänderter Text*
-   → **URLs öffnen** → leeren **Text** mit **Datei sichern** nach `Shortcuts/durstlama.txt`
+   (`Shortcuts/trinkimal.txt`).
+2. Kurzbefehl **Trinkimal öffnen**: **Datei abrufen** `Shortcuts/trinkimal.txt` → **Text ersetzen**
+   (Zeilenumbruch durch `_`) → **URL** `https://malenyaaa.github.io/trinkimal/#q_` + *Geänderter Text*
+   → **URLs öffnen** → leeren **Text** mit **Datei sichern** nach `Shortcuts/trinkimal.txt`
    (Ersetzen an).
 
-Doppelt übertragene Einträge erkennt Durstlama am Zeitstempel.
+Doppelt übertragene Einträge erkennt Trinkimal am Zeitstempel.
 
 ### Apple Health
 
@@ -112,7 +112,7 @@ Orientierung in der App: rund 1,5 Liter aus Getränken
 am Tag (Deutsche Gesellschaft für Ernährung), bis etwa 400 mg Koffein (EFSA), höchstens 50 g
 freier Zucker (WHO).
 
-Durstlama ist kein Medizinprodukt.
+Trinkimal ist kein Medizinprodukt.
 
 ## Aufbau
 
