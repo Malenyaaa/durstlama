@@ -1228,9 +1228,13 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       "Hicks! Ich glaub, ein Wasser hinterher wäre jetzt schlau."
     ],
     alkohol: [
-      "Zum Wohl! {n} zählt bei mir nur halb. Ein Wasser dazu, und wir sind quitt.",
+      "Zum Wohl! {n} zählt bei mir nur {p} %. Ein Wasser dazu, und wir sind quitt.",
       "Ui, {n}! Ich nehm dazu ein Glas Wasser. Du auch?",
       "Prost! Mein Teich hätte gern noch ein Wasser hinterher."
+    ],
+    wenig: [
+      "{n} zählt bei mir nur {p} %. Ein Schluck Wasser dazu?",
+      "Lecker! Für meinen Teich zählt {n} nur {p} %. Noch {rest} ml."
     ],
     suess: [
       "Mmh, {n}! Ich hab jetzt einen Zuckerschnurrbart.",
@@ -1369,7 +1373,11 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var nowMin = now.getHours() * 60 + now.getMinutes(), slot = Math.floor(nowMin / 30);
     var kase, seed = "";
     if (sum >= goal) { kase = "geschafft"; thirst = 0; seed = list.length; }
-    else if (recentLow) { kase = recentLow.e === 0 ? "alkohol0" : "alkohol"; seed = newest.id; }
+    else if (recentLow) {
+      // Prost-Sprüche nur bei Alkohol; sonst neutral, etwa bei einem selbst niedrig gestellten Getränk
+      var alc = ["wein", "sekt", "bier"].indexOf(recentLow.d) >= 0;
+      kase = alc ? (recentLow.e === 0 ? "alkohol0" : "alkohol") : "wenig"; seed = newest.id;
+    }
     else if (recentSweet) { kase = "suess"; seed = newest.id; }
     else if (!awake) { kase = "nacht"; seed = slot; }
     else if (noneYet && thirst === 0) { kase = "morgen"; seed = slot; }
@@ -1385,7 +1393,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var line = pool[hashStr(kase + dayKey() + seed + settings.pet) % pool.length];
     var drinkName = (recentLow || recentSweet || {}).n || "";
     var says = line.replace(/\{rest\}/g, fmt(Math.max(0, goal - sum))).replace(/\{h\}/g, Math.floor(since))
-      .replace(/\{n\}/g, drinkName).replace(/\{tier\}/g, pet.name);
+      .replace(/\{n\}/g, drinkName).replace(/\{tier\}/g, pet.name)
+      .replace(/\{p\}/g, recentLow && recentLow.ml ? Math.round(recentLow.e / recentLow.ml * 100) : 100);
     if (newPetMsg && Date.now() < newPetMsg.until) says = newPetMsg.text;
     $("#says").textContent = says;
 
