@@ -1301,20 +1301,15 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     // Timmy: angelehnt an den Buckelwal vor Timmendorfer Strand (Frühjahr 2026); ersetzt die allgemeinen Sprüche
     wal: { only: true,
       geschafft: [
-        "Teich voll! Schneller als jede Rettungsrinne, und ganz ohne Pressekonferenz.",
-        "Ziel geschafft. Kein Bagger, kein Krisenstab, keine Sondersitzung. So geht Walrettung.",
         "Voll! Das hätte ein Ministerium nicht mal in drei Wochen hinbekommen.",
-        "Ich schwimme! Bitte keinen Livestream, die Gaffer von Timmendorf haben mir gereicht.",
         "Geschafft! Ab sofort gilt Timmy offiziell als gerettet. Diesmal wirklich."
       ],
       anfang: [
-        "Ein Schluck! Erster Erfolg der Rettungsmission, ich lade zur Pressekonferenz. Noch {rest} ml.",
         "Danke! Die Experten am Ufer streiten noch, ob das reicht. Spoiler: nein. Noch {rest} ml.",
         "Erst mal Wasser. Ob man mich retten oder sprengen sollte, klärt später eine Talkshow. Noch {rest} ml."
       ],
       mitte: [
         "Halbvoll! Die Behörde prüft noch, ob halbvoll schon als gerettet gilt. Noch {rest} ml.",
-        "Schon besser! Am Ufer filmen sie mich im Hochformat. Noch {rest} ml.",
         "Halbzeit! Ein Talkshow-Gast weiß schon, wie er es besser gemacht hätte. Noch {rest} ml."
       ],
       fast: [
@@ -1324,34 +1319,21 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       ],
       morgen: [
         "Guten Morgen! Wer heute für mich zuständig ist, entscheidet der Krisenstab nach dem Frühstück.",
-        "Morgen! Die ersten Schaulustigen sind schon da. Wasser noch nicht."
       ],
       nochnix: [
-        "Ich lieg auf dem Trockenen. Der Krisenstab tagt. Ein Glas Wasser wäre schneller.",
-        "Teich leer. Drei Experten, vier Meinungen, null Wasser.",
         "Hallo? Hier liegt ein Wal. Muss ich erst viral gehen?"
       ],
       durst1: [
         "Seit {h} Stunden nichts. Die zuständige Stelle hat gerade eine zuständige Stelle angerufen.",
         "{h} Stunden trocken. Ich hab inzwischen mehr Follower als Wasser.",
-        "Seit {h} Stunden nichts. Soll ich schon mal eine Pressekonferenz einberufen?"
       ],
       durst2: [
         "{h} Stunden auf Grund! Im Netz läuft schon die Umfrage: retten oder sprengen?",
-        "Ich steck fest. Das Ministerium prüft, der Bagger wartet, die Talkshow lädt ein. Ich will nur Wasser.",
         "{h} Stunden ohne Wasser. Bitte keinen Wal-O-Mat, keine Sterbehilfe-Debatte, einfach ein Glas.",
         "Bevor hier jemand „sprengen“ googelt: Ich hätte einfach gern Wasser.",
-        "Ich hab gehört, du bist fürs Sprengen. Trink lieber was, dann muss keiner abstimmen."
       ],
-      nacht: ["Zzz … ich träum vom Atlantik. Ohne Schlepper, ohne Kameras, ohne Krisenstab."],
       suess: [
-        "{n}? In der Ostsee gab's nur Salzwasser und Schlagzeilen. Noch {rest} ml.",
         "{n}! Süßer als jede Spendengala. Noch {rest} ml."
-      ],
-      wenig: ["{n} zählt bei mir nur {p} %. Ungefähr die Erfolgsquote meiner Rettung."],
-      alkohol: [
-        "Prost! Auf alle, die schon immer wussten, wie man Wale rettet. Also auf alle.",
-        "Zum Wohl! So haben die Experten am Ufer auch angefangen. Ich nehm lieber Wasser."
       ],
       alkohol0: ["Prost! Ein Wasser dazu, sonst steh ich morgen wieder in der Zeitung."]
     },
@@ -1407,7 +1389,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     else { kase = "anfang"; seed = list.length; }
     var pool = SAYS[kase].slice();
     var own = PET_SAYS[settings.pet];
-    if (own && own[kase]) pool = own.only ? own[kase].slice() : pool.concat(own[kase]);
+    if (own && own[kase] && own[kase].length) pool = own.only ? own[kase].slice() : pool.concat(own[kase]);   // fehlt der Fall, gelten die allgemeinen
     var line = pool[hashStr(kase + dayKey() + seed + settings.pet) % pool.length];
     var drinkName = (recentLow || recentSweet || {}).n || "";
     var says = line.replace(/\{rest\}/g, fmt(Math.max(0, goal - sum))).replace(/\{h\}/g, Math.floor(since))
