@@ -1,7 +1,7 @@
 // Trinkimal Service Worker: hält die App für den Offline-Start bereit.
 // Server-Anfragen (/api/) gehen immer direkt ans Netz und werden nie zwischengespeichert.
 // Bei jeder Änderung an den Dateien unten FASSUNG hochzählen, dann holen sich die Geräte alles neu.
-var FASSUNG = "trinkimal-16";
+var FASSUNG = "trinkimal-17";
 var GRUND = [
   "./", "index.html", "manifest.webmanifest", "vendor/lottie_light.min.js",
   "fonts/fredoka-latin.woff2", "icons/icon.svg", "icons/icon-192.png", "icons/apple-touch-icon.png"

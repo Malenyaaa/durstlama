@@ -1261,6 +1261,11 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       "Ächz. {h} Stunden kein Tropfen. Ich werd langsam zur Rosine.",
       "Mir hängt die Zunge raus! {h} Stunden Wüste, ich seh schon Kamele."
     ],
+    durst3: [
+      "{h} Stunden nichts! Ich bin jetzt offiziell eine Rosine.",
+      "{h} Stunden Wüste. Ich hab angefangen, mit einem Kaktus zu reden.",
+      "Hallo? Ich bin noch da. Glaub ich. {h} Stunden ohne Wasser."
+    ],
     durst1: [
       "Psst … seit {h} Stunden nichts. Kleiner Schluck gefällig?",
       "Mein Teich fragt, ob du ihn vermisst. Seit {h} Stunden nichts.",
@@ -1302,7 +1307,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     wal: { only: true,
       geschafft: [
         "Voll! Das hätte ein Ministerium nicht mal in drei Wochen hinbekommen.",
-        "Geschafft! Ab sofort gilt Timmy offiziell als gerettet. Diesmal wirklich."
+        "Geschafft! Ab sofort gilt Timmy offiziell als gerettet. Diesmal wirklich.",
+        "Geschafft! Die Sprengung ist hiermit offiziell abgesagt."
       ],
       anfang: [
         "Danke! Die Experten am Ufer streiten noch, ob das reicht. Spoiler: nein. Noch {rest} ml.",
@@ -1321,7 +1327,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         "Guten Morgen! Wer heute für mich zuständig ist, entscheidet der Krisenstab nach dem Frühstück.",
       ],
       nochnix: [
-        "Hallo? Hier liegt ein Wal. Muss ich erst viral gehen?"
+        "Hallo? Hier liegt ein Wal. Muss ich erst viral gehen?",
+        "Ich warte auf Wasser wie auf eine Genehmigung vom Amt."
       ],
       durst1: [
         "Seit {h} Stunden nichts. Die zuständige Stelle hat gerade eine zuständige Stelle angerufen.",
@@ -1331,10 +1338,14 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         "{h} Stunden auf Grund! Im Netz läuft schon die Umfrage: retten oder sprengen?",
         "{h} Stunden ohne Wasser. Bitte keinen Wal-O-Mat, keine Sterbehilfe-Debatte, einfach ein Glas.",
         "Bevor hier jemand „sprengen“ googelt: Ich hätte einfach gern Wasser.",
+        "{h} Stunden trocken! Der Wal-O-Mat steht bei 61 % für Sprengen. Trink, bevor die Umfrage endet."
       ],
       suess: [
-        "{n}! Süßer als jede Spendengala. Noch {rest} ml."
+        "{n}! Süßer als jede Spendengala. Noch {rest} ml.",
+        "{n}? Davon hätte die Ostsee auch gern was. Noch {rest} ml."
       ],
+      nacht: ["Zzz … ich träum von einer Behörde, die nachts arbeitet."],
+      durst3: ["Bitte sprengt mich einfach."],
       alkohol0: ["Prost! Ein Wasser dazu, sonst steh ich morgen wieder in der Zeitung."]
     },
     phoenix: { geschafft: ["Ich leuchte vor Freude! Ziel geschafft."] },
@@ -1367,7 +1378,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       var morning = new Date(now); morning.setHours(7, 0, 0, 0);
       since = awakeHours(noneYet ? morning.getTime() : lastT, now.getTime());
     }
-    var thirst = !awake ? 0 : since >= 4 ? 2 : since >= 2 ? 1 : 0;
+    var thirst = !awake ? 0 : since >= 8 ? 3 : since >= 4 ? 2 : since >= 2 ? 1 : 0;
     var pet = PETS[settings.pet] || PETS.panda;
     // Welcher Fall gilt? Dann ein Spruch aus SAYS, der stehen bleibt, bis sich etwas ändert
     var nowMin = now.getHours() * 60 + now.getMinutes(), slot = Math.floor(nowMin / 30);
@@ -1382,6 +1393,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     else if (!awake) { kase = "nacht"; seed = slot; }
     else if (noneYet && thirst === 0) { kase = "morgen"; seed = slot; }
     else if (noneYet) { kase = "nochnix"; seed = slot; }
+    else if (thirst === 3) { kase = "durst3"; seed = slot; }
     else if (thirst === 2) { kase = "durst2"; seed = slot; }
     else if (thirst === 1) { kase = "durst1"; seed = slot; }
     else if (pct >= 0.75) { kase = "fast"; seed = list.length; }
@@ -1410,7 +1422,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     $("#water-front").style.height = h;
     var p = $("#pond");
     p.classList.toggle("thirsty", thirst === 1);
-    p.classList.toggle("parched", thirst === 2);
+    p.classList.toggle("parched", thirst >= 2);
     p.classList.toggle("happy", sum >= goal);
 
     $("#pond-wrap").classList.toggle("over", sum > goal);
