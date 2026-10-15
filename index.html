@@ -304,6 +304,46 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 .tabbar button[aria-selected="true"] { background: var(--pink-ink); color: #fff; }
 @media (prefers-color-scheme: dark) { .tabbar button[aria-selected="true"] { color: #2A1230; } }
 
+/* Monatskalender */
+.month-head { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; align-items: center; text-align: center; }
+.mnav { border: 0; background: var(--soft); width: 36px; height: 36px; border-radius: 50%; font-size: 22px; line-height: 1; color: var(--ink); }
+.mnav:disabled { opacity: .35; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.cal .wd { font-size: 12px; color: var(--muted); padding-bottom: 2px; }
+.cal button { border: 0; background: transparent; padding: 3px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12.5px; color: var(--muted); border-radius: 10px; font-variant-numeric: tabular-nums; }
+.cal button:disabled { opacity: .35; }
+.cal .ring { width: 30px; height: 30px; border-radius: 50%; background: var(--soft); position: relative; overflow: hidden; }
+.cal .ring i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--water); }
+.cal .hit .ring { background: var(--water-deep); }
+.cal .hit .ring::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 15px; font-weight: 700; }
+.cal .today { color: var(--pink-ink); font-weight: 700; }
+.cal .today .ring { box-shadow: 0 0 0 2px var(--pink-ink); }
+.cal .sel { background: var(--soft); }
+
+/* Einstieg beim ersten Start */
+.onb { position: fixed; inset: 0; z-index: 40; background: rgba(74, 56, 88, .35); display: flex; align-items: flex-end; justify-content: center;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+@media (min-height: 700px) { .onb { align-items: center; } }
+.onb-card { background: var(--bg); border-radius: 28px; padding: 22px 20px 18px; width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+.onb-step { display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.onb-step h2 { font-size: 23px; }
+.onb-dots { display: flex; justify-content: center; gap: 6px; }
+.onb-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--soft); }
+.onb-dots i.on { background: var(--pink-ink); width: 22px; border-radius: 4px; }
+.onb-pets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.onb-pets button { border: 0; background: var(--surface); border-radius: 22px; padding: 12px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 600; box-shadow: var(--shadow); }
+.onb-pets button .art { width: 70px; height: 70px; display: block; }
+.onb-pets button .art img, .onb-pets button .art svg { width: 100% !important; height: 100% !important; }
+.onb-pets button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--pink-ink) inset, var(--shadow); }
+.onb-goals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.onb-goals button { border: 0; background: var(--surface); border-radius: 18px; padding: 14px 8px; font-size: 20px; font-weight: 700; box-shadow: var(--shadow); }
+.onb-goals button small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); }
+.onb-goals button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--pink-ink) inset, var(--shadow); }
+.onb-list { text-align: left; margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; }
+.onb-btns { display: flex; justify-content: space-between; gap: 10px; }
+.onb-btns .primary { flex: 1; }
+
 .toast {
   position: fixed; left: 0; right: 0; z-index: 30; bottom: calc(76px + env(safe-area-inset-bottom, 0px));
   padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
@@ -374,6 +414,16 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       </div>
     </div>
     <div class="card" id="week-chart"></div>
+    <div class="card" id="month-card">
+      <div class="month-head">
+        <button class="mnav" id="month-prev" type="button" aria-label="Voriger Monat">‹</button>
+        <h3 id="month-title"></h3>
+        <button class="mnav" id="month-next" type="button" aria-label="Nächster Monat">›</button>
+      </div>
+      <div class="cal" id="cal" role="grid"></div>
+      <p class="note" id="month-sum"></p>
+      <p class="note" id="day-info" aria-live="polite"></p>
+    </div>
     <div class="card">
       <h3>Diese Woche getrunken</h3>
       <div class="rank" id="rank"></div>
@@ -537,6 +587,36 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     <button role="tab" id="t-mehr" data-tab="mehr" aria-controls="p-mehr" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12 h.01 M12 12 h.01 M19 12 h.01"/></svg>Mehr</button>
   </div>
 </nav>
+
+<div class="onb" id="onb" role="dialog" aria-modal="true" aria-labelledby="onb-title" hidden>
+  <div class="onb-card">
+    <div class="onb-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <section class="onb-step" data-step="0">
+      <h2 id="onb-title">Willkommen bei Trinkimal!</h2>
+      <p>Such dir ein Tier aus. Es lebt in deinem Teich und trinkt mit dir mit.</p>
+      <div class="onb-pets" id="onb-pets"></div>
+      <p class="note">26 weitere Tiere schaltest du durchs Trinken frei, manche sind richtig selten.</p>
+    </section>
+    <section class="onb-step" data-step="1" hidden>
+      <h2>Wie viel willst du am Tag trinken?</h2>
+      <div class="onb-goals" id="onb-goals"></div>
+      <p class="note">Für Erwachsene sind rund 1,5 Liter aus Getränken üblich, bei Hitze oder Sport mehr. Du kannst es jederzeit unter Mehr ändern.</p>
+    </section>
+    <section class="onb-step" data-step="2" hidden>
+      <h2>So einfach geht’s</h2>
+      <ul class="onb-list">
+        <li><b>Tipp aufs Getränk</b>, schon ist es eingetragen. Vertippt? Unten auf Rückgängig.</li>
+        <li><b>Der Teich füllt sich</b>, beim Tagesziel ist er randvoll.</li>
+        <li><b>Trinkst du lange nichts</b>, bekommt dein Tier Durst.</li>
+        <li><b>Mehr</b> unten rechts: Tiere, Ziel, Getränke und als App installieren.</li>
+      </ul>
+    </section>
+    <div class="onb-btns">
+      <button class="pill" id="onb-back" type="button">Zurück</button>
+      <button class="primary" id="onb-next" type="button">Weiter</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast" hidden>
   <div class="toast-in"><span id="toast-text" role="status" aria-live="polite"></span><button id="toast-btn" type="button"></button></div>
@@ -801,11 +881,13 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   }
 
   var settings = sanitizeSettings(sGet("dl.settings"));
+  var firstStart = !sGet("dl.settings") && !sGet("dl.onb");
   var days = {};
   sKeys().forEach(function (k) {
     var m = /^dl\.day\.(\d{4}-\d{2}-\d{2})$/.exec(k || "");
     if (m) { var arr = sGet(k); if (Array.isArray(arr)) days[m[1]] = arr.map(sanitizeEntry).filter(Boolean); }
   });
+  firstStart = firstStart && !Object.keys(days).length;   // wer schon Einträge hat, kennt die App
 
   function saveSettings() { settings.ts = Date.now(); sSet("dl.settings", settings); queueSync(); }
 
@@ -1199,6 +1281,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var wk = $("#week-chart");
     wk.innerHTML = '<h3>Letzte 7 Tage, in Litern</h3>' + s;
     wk.appendChild(el("p", "note", "Die rosa Linie ist dein Ziel von " + liter(goal) + " Litern. Dunkelblau: Ziel geschafft."));
+    renderMonth();
 
     var by = {};
     week.forEach(function (x) { entriesFor(x.k).forEach(function (e) { var b = by[e.d] || (by[e.d] = { n: e.n, c: e.c, ml: 0 }); b.ml += e.ml; }); });
@@ -1749,10 +1832,104 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     fn.classList.add("warn");
   }
 
+  // ---------- Monatskalender ----------
+  var monthOff = 0, selDay = null;
+  function renderMonth() {
+    var now = new Date(), first = new Date(now.getFullYear(), now.getMonth() + monthOff, 1);
+    var y = first.getFullYear(), m = first.getMonth(), goal = settings.goal, today = dayKey();
+    $("#month-title").textContent = first.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+    var keys = Object.keys(days).filter(function (k) { return days[k].length; }).sort();
+    var oldest = keys.length ? new Date(keys[0] + "T12:00:00") : now;
+    $("#month-prev").disabled = y * 12 + m <= oldest.getFullYear() * 12 + oldest.getMonth();
+    $("#month-next").disabled = monthOff >= 0;
+    var cal = $("#cal"); cal.textContent = "";
+    ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].forEach(function (w) { cal.appendChild(el("span", "wd", w)); });
+    for (var i = 0; i < (first.getDay() + 6) % 7; i++) cal.appendChild(el("span"));
+    var dim = new Date(y, m + 1, 0).getDate(), hits = 0, past = 0;
+    for (var d = 1; d <= dim; d++) {
+      (function (date) {
+        var k = dayKey(date), sum = daySum(k), hit = sum >= goal, future = k > today;
+        if (!future) past++;
+        if (hit) hits++;
+        var b = el("button", (hit ? "hit" : "") + (k === today ? " today" : "") + (k === selDay ? " sel" : "")); b.type = "button";
+        var ring = el("span", "ring");
+        if (!hit && sum > 0) { var w = el("i"); w.style.height = Math.min(100, sum / goal * 100) + "%"; ring.appendChild(w); }
+        b.appendChild(ring);
+        b.appendChild(el("span", null, String(date.getDate())));
+        b.disabled = future;
+        b.setAttribute("aria-label", date.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }) + ": " +
+          liter(sum) + " Liter" + (hit ? ", Ziel geschafft" : ""));
+        b.addEventListener("click", function () { selDay = k; renderMonth(); });
+        cal.appendChild(b);
+      })(new Date(y, m, d));
+    }
+    $("#month-sum").textContent = hits + " von " + past + (past === 1 ? " Tag" : " Tagen") + " Ziel geschafft" + (monthOff === 0 ? " (bisher)" : "") + ".";
+    var info = $("#day-info");
+    if (selDay && selDay.slice(0, 7) === dayKey(first).slice(0, 7)) {
+      var list = entriesFor(selDay), sum = daySum(selDay);
+      var names = {}; list.forEach(function (e) { names[e.n] = (names[e.n] || 0) + 1; });
+      var top = Object.keys(names).sort(function (a, b) { return names[b] - names[a]; }).slice(0, 3);
+      info.textContent = new Date(selDay + "T12:00:00").toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }) + ": " +
+        liter(sum) + " von " + liter(goal) + " Litern" + (list.length ? ", " + list.length + (list.length === 1 ? " Getränk" : " Getränke") + " (" + top.join(", ") + ")" : ", nichts eingetragen") + ".";
+      info.hidden = false;
+    } else info.hidden = true;
+  }
+  $("#month-prev").addEventListener("click", function () { monthOff--; selDay = null; renderMonth(); });
+  $("#month-next").addEventListener("click", function () { if (monthOff < 0) { monthOff++; selDay = null; renderMonth(); } });
+
+  // ---------- Einstieg beim ersten Start ----------
+  function onboarding() {
+    var step = 0, anims = [], onb = $("#onb");
+    var pets = $("#onb-pets"), goals = $("#onb-goals");
+    ["panda", "katze", "hase"].forEach(function (k) {
+      var b = el("button"); b.type = "button";
+      var box = el("span", "art"); b.appendChild(box);
+      var a = animInto(box, "tiere/" + k); if (a) anims.push(a);
+      b.appendChild(el("span", null, PETS[k].name));
+      b.setAttribute("aria-pressed", String(settings.pet === k));
+      b.addEventListener("click", function () {
+        settings.pet = k;
+        pets.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      });
+      pets.appendChild(b);
+    });
+    [[1500, "Grundbedarf"], [2000, "üblich"], [2500, "viel unterwegs"], [3000, "Sport und Hitze"]].forEach(function (g) {
+      var b = el("button"); b.type = "button";
+      b.appendChild(document.createTextNode(liter(g[0]) + " l"));
+      b.appendChild(el("small", null, g[1]));
+      b.setAttribute("aria-pressed", String(settings.goal === g[0]));
+      b.addEventListener("click", function () {
+        settings.goal = g[0];
+        goals.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      });
+      goals.appendChild(b);
+    });
+    function show() {
+      onb.querySelectorAll(".onb-step").forEach(function (s) { s.hidden = Number(s.dataset.step) !== step; });
+      onb.querySelectorAll(".onb-dots i").forEach(function (d, i) { d.className = i === step ? "on" : ""; });
+      $("#onb-back").style.visibility = step ? "visible" : "hidden";
+      $("#onb-next").textContent = step === 2 ? "Los geht’s" : "Weiter";
+    }
+    $("#onb-back").addEventListener("click", function () { if (step) { step--; show(); } });
+    $("#onb-next").addEventListener("click", function () {
+      if (step < 2) { step++; show(); return; }
+      anims.forEach(function (a) { a.destroy(); });
+      // Sehr alter Zeitstempel: meldet man sich danach an, gewinnen die Einstellungen aus dem Konto
+      settings.ts = 1; sSet("dl.settings", settings); sSet("dl.onb", 1);
+      onb.hidden = true; shownPet = null;
+      renderAll(true);
+      $("#tiles").querySelector("button") && $("#tiles").querySelector("button").focus();
+    });
+    show();
+    onb.hidden = false;
+    $("#onb-next").focus();
+  }
+
   // Wer schon ein Tier hatte, das jetzt gesperrt wäre, behält es
   if (!unlockInfo(settings.pet, unlockStats()).open) { settings.geschenkt.push(settings.pet); sSet("dl.settings", settings); }
   renderAll(true);
   processHash();
+  if (firstStart) onboarding();
   detectServer().then(function (ok) {
     srv.ok = ok;
     renderAccount();
