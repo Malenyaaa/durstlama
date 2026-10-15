@@ -1,0 +1,44 @@
+# Trinkimal mit eigenem Server (PocketBase)
+#
+# Starten oder aktualisieren:   docker compose up -d --build
+# Erstes Admin-Konto:           docker compose exec trinkimal /pb/pocketbase superuser upsert du@example.de EinLangesPasswort --dir=/pb/pb_data
+# Danach im Browser:            http://ADRESSE-DES-SERVERS:8090/_/
+#
+# Die Daten liegen im Volume "trinkimal_daten" und bleiben bei Updates erhalten.
+
+services:
+  trinkimal:
+    build: .
+    image: trinkimal:latest
+    container_name: trinkimal
+    restart: unless-stopped
+    ports:
+      # Ohne HTTPS-Proxy: von außen über Port 8090 erreichbar.
+      # Mit Caddy (unten): diese Zeile durch "127.0.0.1:8090:8090" ersetzen oder ganz entfernen.
+      - "8090:8090"
+    volumes:
+      - trinkimal_daten:/pb/pb_data
+
+  # --- Optional: HTTPS mit Caddy --------------------------------------------
+  # Voraussetzung: eine Domain (hier trinkimal.example.de), die auf diesen Server zeigt,
+  # und die Ports 80 und 443 sind frei und vom Internet aus erreichbar.
+  # 1. Domain in server/Caddyfile eintragen.
+  # 2. Die Zeilen unten und das Volume caddy_daten ganz unten einkommentieren (# entfernen).
+  # 3. docker compose up -d --build
+  #
+  # caddy:
+  #   image: caddy:2.11
+  #   container_name: trinkimal-caddy
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - trinkimal
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./server/Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_daten:/data
+
+volumes:
+  trinkimal_daten:
+  # caddy_daten:

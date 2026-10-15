@@ -1,13 +1,13 @@
 {
   "name": "Trinkimal",
   "short_name": "Trinkimal",
-  "description": "Trink-Tracker mit Lama. Ein Tipp pro Glas, alle Daten bleiben auf dem Gerät.",
+  "description": "Trink-Tracker mit animiertem Tier. Ein Tipp pro Glas, auch offline.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
-  "display": "browser",
-  "background_color": "#E8F3F5",
-  "theme_color": "#2394C2",
+  "display": "standalone",
+  "background_color": "#FDF2F7",
+  "theme_color": "#FDF2F7",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

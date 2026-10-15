@@ -1,0 +1,25 @@
+# Nur App-Dateien und server/pb_* werden ins Abbild kopiert (siehe Dockerfile).
+# Alles hier bleibt zusätzlich ganz draußen, damit der Bau schnell geht und nichts Privates mitkommt.
+.git
+.gitignore
+.dockerignore
+.vscode
+.env*
+*.local.*
+*.shortcut
+trinkimal-*.json
+durstlama-*.json
+node_modules
+Dockerfile
+docker-compose.yml
+README.md
+LICENSE
+server/pb_data
+server/*.sh
+server/*.ps1
+server/*.service
+server/*.md
+server/Caddyfile
+**/.DS_Store
+**/Thumbs.db
+**/desktop.ini

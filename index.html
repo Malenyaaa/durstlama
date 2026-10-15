@@ -7,6 +7,10 @@
 <meta name="description" content="Kostenloser Trink-Tracker mit Tier. Ein Tipp pro Glas, iOS-Kurzbefehle, alle Daten bleiben auf dem Gerät.">
 <meta name="theme-color" content="#FDF2F7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1E1726" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trinkimal">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -200,7 +204,7 @@ p { margin: 0; }
 
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
-.field select, .field input[type="number"], .field input[type="text"] { width: 100%; border: 0; background: var(--soft); border-radius: 12px; padding: 9px 12px; font-size: 16px; min-width: 0; font-variant-numeric: tabular-nums; }
+.field select, .field input[type="number"], .field input[type="text"], .field input[type="email"], .field input[type="password"] { width: 100%; border: 0; background: var(--soft); border-radius: 12px; padding: 9px 12px; font-size: 16px; min-width: 0; font-variant-numeric: tabular-nums; }
 .goal-row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
 .goal-row .field { flex: 1 1 130px; }
 .presets { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -229,6 +233,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 .primary { border: 0; background: var(--pink-ink); color: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 600; }
 @media (prefers-color-scheme: dark) { .primary { color: #2A1230; } }
 .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.login { display: flex; flex-direction: column; gap: 10px; }
+#acct-in { display: flex; flex-direction: column; gap: 8px; }
 .arch-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 
 .steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
@@ -332,6 +338,25 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 
   <!-- MEHR -->
   <section class="panel" id="p-mehr" role="tabpanel" aria-labelledby="t-mehr" hidden>
+    <div class="card" id="acct-card" hidden>
+      <h3>Konto auf deinem Server</h3>
+      <p class="note foot-note warn" id="acct-msg" hidden></p>
+      <form id="acct-out" class="login" autocomplete="on">
+        <p class="note">Mit Anmeldung siehst du auf jedem Gerät dieselben Einträge, und Kurzbefehle können still eintragen. Konten legt der Besitzer des Servers an.</p>
+        <div class="field"><label for="login-email">E-Mail</label><input type="email" id="login-email" autocomplete="username" required></div>
+        <div class="field"><label for="login-pw">Passwort</label><input type="password" id="login-pw" autocomplete="current-password" required></div>
+        <div class="row-btns"><button class="primary" id="login-btn" type="submit">Anmelden</button></div>
+      </form>
+      <div id="acct-in" hidden>
+        <p id="acct-who"></p>
+        <p class="note" id="acct-sync"></p>
+        <div class="row-btns">
+          <button class="pill" id="sync-btn" type="button">Jetzt abgleichen</button>
+          <button class="pill" id="logout-btn" type="button">Abmelden</button>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <h3>Dein Tier</h3>
       <div class="pets" id="pet-pick" role="group" aria-label="Tier auswählen"></div>
@@ -367,6 +392,23 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     <details class="more" id="kurz-box">
       <summary>Kurzbefehle fürs iPhone</summary>
       <div class="more-body">
+        <div id="silent-box" class="more-body" hidden>
+          <h3>Still eintragen über deinen Server</h3>
+          <p class="note">Damit öffnet sich gar nichts: Der Kurzbefehl schickt das Getränk direkt an deinen Server und zeigt danach kurz „Wasser, 250 ml eingetragen. Heute 1.250 von 2.000 ml.“</p>
+          <div class="row-btns"><button class="primary" id="key-btn" type="button">Schlüssel erzeugen</button></div>
+          <div id="key-out" hidden>
+            <div class="link-row" style="grid-template-columns: minmax(0, 1fr) auto;"><code id="key-val"></code><button class="small" id="key-copy" type="button">Kopieren</button></div>
+            <p class="note">Nur jetzt sichtbar, gleich in den Kurzbefehl kopieren. Ein neuer Schlüssel macht den alten ungültig.</p>
+          </div>
+          <ol class="steps">
+            <li>Neuer Kurzbefehl, Aktion <span class="k">Inhalte von URL abrufen</span>, URL: <code id="log-url"></code></li>
+            <li>In der Aktion auf den Pfeil: Methode <span class="k">POST</span>, unter <span class="k">Header</span> einen Eintrag <code>X-Trinkimal-Key</code> mit deinem Schlüssel.</li>
+            <li><span class="k">Anfragetext</span>: JSON, Feld <code>drink</code> (Text) mit dem Kürzel, zum Beispiel <code>wasser</code>. Für eine andere Menge ein Feld <code>ml</code> (Zahl).</li>
+            <li>Darunter <span class="k">Wörterbuchwert abrufen</span> mit Schlüssel <code>text</code>, dann <span class="k">Mitteilung anzeigen</span> mit diesem Wert.</li>
+          </ol>
+          <p class="note">Mehrere Getränke in einem Kurzbefehl: vorne <span class="k">Aus Menü auswählen</span>, in jede Zeile dieselben Aktionen mit anderem Kürzel. Die Einträge erscheinen in der App beim nächsten Abgleich.</p>
+          <h3>Ohne Server: per Link</h3>
+        </div>
         <p>Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Trinkimal das Getränk sofort ein. Mit der App Kurzbefehle wird daraus ein Knopf, ein Widget, ein Siri-Satz oder zweimal hinten aufs iPhone klopfen.</p>
         <p class="note">Kurzbefehle öffnen Links immer in Safari. Nutze Trinkimal deshalb auch sonst in Safari, nicht als Web-App vom Home-Bildschirm. Die hätte einen eigenen, getrennten Speicher.</p>
         <div class="links" id="links"></div>
@@ -407,6 +449,13 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         <input type="file" id="import-file" accept="application/json,.json" hidden>
       </div>
       <p class="note">Beim Laden kommen Einträge aus der Datei dazu, vorhandene bleiben. Tier, Getränke und Ziel werden aus der Datei übernommen.</p>
+    </div>
+
+    <div class="card" id="install-card">
+      <h3>Als App aufs Handy</h3>
+      <p class="note">iPhone: in Safari unten auf <span class="k">Teilen</span>, dann <span class="k">Zum Home-Bildschirm</span>. Android: im Browser-Menü <span class="k">App installieren</span>. Danach startet Trinkimal wie eine App und funktioniert auch ohne Netz.</p>
+      <p class="note" id="install-split">Ohne eigenen Server hat die App vom Home-Bildschirm einen eigenen Speicher, getrennt von Safari. Kurzbefehl-Links landen dann in Safari, nicht in der App.</p>
+      <div class="row-btns"><button class="primary" id="install-btn" type="button" hidden>Installieren</button></div>
     </div>
 
     <p class="foot-note" id="foot-note">Alle Daten bleiben in diesem Browser. Trinkimal schickt nichts ins Netz.</p>
@@ -552,12 +601,12 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       var old = OLD_F.hasOwnProperty(d.id) ? OLD_F[d.id] : 100;
       if (DEF_ICON.hasOwnProperty(d.id) && d.f === old) d.f = HYD.hasOwnProperty(d.id) ? HYD[d.id] : 100;
     });
-    return { v: 2, goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda" };
+    return { v: 2, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda" };
   }
   function sanitizeEntry(e) {
-    if (!e || typeof e.id !== "string" || !isFinite(e.t)) return null;
+    if (!e || typeof e.id !== "string" || !/^[A-Za-z0-9_-]{1,60}$/.test(e.id) || !(Number(e.t) > 0)) return null;
     return {
-      id: e.id.slice(0, 60), t: Number(e.t), d: String(e.d || ""), n: String(e.n || "Getränk").slice(0, 30),
+      id: e.id, t: Number(e.t), d: String(e.d || "").slice(0, 24), n: String(e.n || "Getränk").slice(0, 30),
       c: /^#[0-9a-fA-F]{6}$/.test(e.c) ? e.c : "#4FB3E8", ml: num(e.ml, 0, 5000, 0), e: num(e.e, 0, 7500, 0),
       caf: num(e.caf, 0, 5000, 0), sug: num(e.sug, 0, 1000, 0)
     };
@@ -570,7 +619,13 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     if (m) { var arr = sGet(k); if (Array.isArray(arr)) days[m[1]] = arr.map(sanitizeEntry).filter(Boolean); }
   });
 
-  function saveSettings() { sSet("dl.settings", settings); }
+  function saveSettings() { settings.ts = Date.now(); sSet("dl.settings", settings); queueSync(); }
+
+  // Noch nicht beim Server angekommene Änderungen (Eintrags-IDs)
+  // add/del: noch hochzuladen; gone: hier gelöscht (für Rückgängig); undel: Löschung rückgängig gemacht
+  var pend = sGet("dl.pending") || {};
+  ["add", "del", "gone", "undel"].forEach(function (k) { if (!Array.isArray(pend[k])) pend[k] = []; });
+  function savePend() { sSet("dl.pending", pend); }
   function saveDay(day) {
     var arr = days[day] || [];
     if (arr.length) sSet("dl.day." + day, arr); else { sDel("dl.day." + day); delete days[day]; }
@@ -596,13 +651,33 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       e: Math.round(ml * drink.f / 100), caf: Math.round(ml * drink.caf / 100), sug: Math.round(ml * drink.sug / 10) / 10
     };
   }
-  function addEntry(e) {
+  // remote = kommt vom Server, muss also nicht wieder hochgeladen werden
+  function addEntry(e, remote) {
     var day = dayKey(new Date(e.t));
     var arr = days[day] || (days[day] = []);
     if (arr.some(function (x) { return x.id === e.id; })) return false;
     arr.push(e);
     saveDay(day);
+    if (!remote) {
+      pend.del = pend.del.filter(function (id) { return id !== e.id; });
+      if (pend.gone.indexOf(e.id) >= 0 && pend.undel.indexOf(e.id) < 0) pend.undel.push(e.id);
+      if (pend.add.indexOf(e.id) < 0) pend.add.push(e.id);
+      savePend(); queueSync();
+    }
     return true;
+  }
+  function dropEntry(e, remote) {
+    var day = dayKey(new Date(e.t));
+    days[day] = entriesFor(day).filter(function (x) { return x.id !== e.id; });
+    saveDay(day);
+    if (!remote) {
+      var wasPending = pend.add.indexOf(e.id) >= 0;
+      pend.add = pend.add.filter(function (id) { return id !== e.id; });
+      if (!wasPending && pend.del.indexOf(e.id) < 0) pend.del.push(e.id);
+      pend.gone.push(e.id);
+      if (pend.gone.length > 300) pend.gone = pend.gone.slice(-300);
+      savePend(); queueSync();
+    }
   }
   function logDrink(drink, ml) {
     var amount = ml || drink.ml;
@@ -626,9 +701,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function sip() { restart("sip", 950); }
   function cheer() { setTimeout(function () { restart("cheer", 1700); }, 900); }
   function removeEntry(e, silent) {
-    var day = dayKey(new Date(e.t));
-    days[day] = entriesFor(day).filter(function (x) { return x.id !== e.id; });
-    saveDay(day);
+    dropEntry(e);
     renderAll();
     if (silent) { toast("Eintrag entfernt", null); return; }
     toast((e.n || "Eintrag") + " gelöscht", "Zurückholen", function () { addEntry(e); renderAll(); toast("Wieder da", null); }, UNDO_MS);
@@ -696,7 +769,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       toast(e1.n + ", " + fmt(e1.ml) + " ml eingetragen", "Rückgängig", function () { removeEntry(e1, true); }, UNDO_MS);
     } else if (added.length > 1) {
       toast(added.length + " Einträge übernommen" + (dup ? ", " + dup + " waren schon da" : ""), "Rückgängig", function () {
-        added.forEach(function (e) { var d = dayKey(new Date(e.t)); days[d] = entriesFor(d).filter(function (x) { return x.id !== e.id; }); saveDay(d); });
+        added.forEach(function (e) { dropEntry(e); });
         renderAll(); toast("Einträge entfernt", null);
       }, UNDO_MS);
     } else if (dup) {
@@ -969,6 +1042,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   }
 
   function renderMehr() {
+    renderAccount();
     renderPetPick();
     $("#goal-input").value = settings.goal;
     var pr = $("#goal-presets"); pr.textContent = "";
@@ -1148,6 +1222,235 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     try { navigator.clipboard.writeText(text).then(ok, fail); } catch (e) { fail(); }
   }
 
+  // ---------- Eigener Server (PocketBase) ----------
+  // Liefert ein PocketBase-Server diese Seite aus, gleicht Trinkimal Einträge und Einstellungen
+  // mit dem Konto dort ab. Ohne Server (z. B. GitHub Pages) bleibt alles im Gerät.
+  var srv = { ok: false, base: "", auth: sGet("dl.auth") };
+  var syncTimer = null, syncing = false, syncAgain = false, badEntries = 0, lastSyncAt = 0, lastRefresh = 0, syncErr = "";
+  function api(path, opt) {
+    opt = opt || {};
+    var h = { "Content-Type": "application/json" };
+    if (srv.auth && srv.auth.token) h.Authorization = srv.auth.token;
+    return fetch(srv.base + "/api/" + path, { method: opt.method || "GET", headers: h, cache: "no-store", body: opt.body ? JSON.stringify(opt.body) : undefined })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) { var err = new Error(j.message || "HTTP " + r.status); err.status = r.status; err.data = j.data || {}; throw err; }
+          return j;
+        });
+      });
+  }
+  function quote(s) { return '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"'; }
+  function queueSync(ms) {
+    if (!srv || !srv.ok || !srv.auth) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(sync, ms == null ? 1200 : ms);
+  }
+  function findEntry(eid) {
+    for (var d in days) { var a = days[d]; for (var i = 0; i < a.length; i++) if (a[i].id === eid) return a[i]; }
+    return null;
+  }
+  function pendDone(kind, eid) { pend[kind] = pend[kind].filter(function (x) { return x !== eid; }); savePend(); }
+  function remoteByEid(eid) {
+    return api("collections/trinkimal_entries/records?perPage=1&filter=" + encodeURIComponent("eid = " + quote(eid)))
+      .then(function (j) { return (j.items && j.items[0]) || null; });
+  }
+
+  function sync() {
+    if (!srv.ok || !srv.auth) return Promise.resolve();
+    if (syncing) { syncAgain = true; return Promise.resolve(); }
+    syncing = true; badEntries = 0;
+    var uid = srv.auth.id;
+    // Anmeldung alle 10 Minuten auffrischen; ein ungültiges Konto meldet der Server sonst nicht eindeutig
+    var chain = Date.now() - lastRefresh > 6e5 ? refreshAuth().then(function () { if (!srv.auth) { var x = new Error("auth"); x.status = 401; throw x; } }) : Promise.resolve();
+    pend.add.slice().forEach(function (eid) {
+      chain = chain.then(function () {
+        var e = findEntry(eid);
+        if (!e) { pendDone("add", eid); return; }
+        var body = { owner: uid, eid: e.id, t: e.t, d: e.d, n: e.n, c: e.c, ml: e.ml, e: e.e, caf: e.caf, sug: e.sug, deleted: false };
+        return api("collections/trinkimal_entries/records", { method: "POST", body: body }).then(function () { pendDone("add", eid); pendDone("undel", eid); }, function (err) {
+          if (err.status === 400 && err.data && err.data.eid) {
+            // Schon auf dem Server. Gelöscht dort: nur bei eigenem Rückgängig wiederherstellen,
+            // sonst gilt die Löschung (z. B. von einem anderen Gerät) auch hier.
+            return remoteByEid(eid).then(function (r) {
+              if (r && r.deleted) {
+                if (pend.undel.indexOf(eid) >= 0) return api("collections/trinkimal_entries/records/" + r.id, { method: "PATCH", body: { deleted: false } });
+                dropEntry(e, true);
+              }
+            }).then(function () { pendDone("add", eid); pendDone("undel", eid); });
+          }
+          if (err.status === 400) { pendDone("add", eid); badEntries++; return; }   // passt nicht zum Server, nicht ewig wiederholen
+          throw err;
+        });
+      });
+    });
+    pend.del.slice().forEach(function (eid) {
+      chain = chain.then(function () {
+        return remoteByEid(eid).then(function (r) {
+          if (r && !r.deleted) return api("collections/trinkimal_entries/records/" + r.id, { method: "PATCH", body: { deleted: true } });
+        }).then(function () { pendDone("del", eid); });
+      });
+    });
+    return chain.then(pullEntries).then(syncSettings).then(function () {
+      syncing = false; lastSyncAt = Date.now();
+      syncErr = badEntries ? badEntries + (badEntries === 1 ? " Eintrag passte" : " Einträge passten") + " nicht zum Server und bleibt nur auf diesem Gerät." : "";
+      renderAll(); renderAccount();
+      if (syncAgain) { syncAgain = false; queueSync(0); }
+    }, function (err) {
+      syncing = false;
+      if (err && err.status === 401) { srv.auth = null; sDel("dl.auth"); syncErr = "Die Anmeldung ist abgelaufen. Bitte neu anmelden."; }
+      else syncErr = "Der Server ist gerade nicht erreichbar. Neue Einträge werden später abgeglichen.";
+      renderAccount();
+    });
+  }
+
+  // Alles holen, was sich seit dem letzten Abgleich geändert hat (auch Einträge per Kurzbefehl)
+  function pullEntries() {
+    var since = sGet("dl.lastpull") || "";
+    var newest = since;
+    function page(n) {
+      var f = since ? "&filter=" + encodeURIComponent("updated >= " + quote(since)) : "";
+      return api("collections/trinkimal_entries/records?perPage=500&sort=updated&page=" + n + f).then(function (j) {
+        (j.items || []).forEach(function (r) {
+          if (r.updated > newest) newest = r.updated;
+          if (pend.add.indexOf(r.eid) >= 0 || pend.del.indexOf(r.eid) >= 0) return;
+          var have = findEntry(r.eid);
+          if (r.deleted) { if (have) dropEntry(have, true); return; }
+          if (have) return;
+          var e = sanitizeEntry({ id: r.eid, t: r.t, d: r.d, n: r.n, c: r.c, ml: r.ml, e: r.e, caf: r.caf, sug: r.sug });
+          if (e) addEntry(e, true);
+        });
+        if (j.page < j.totalPages) return page(n + 1);
+      });
+    }
+    return page(1).then(function () { if (newest) sSet("dl.lastpull", newest); });
+  }
+
+  // Einstellungen: die zuletzt geänderte Fassung gewinnt
+  function settingsPayload() { var d = clone(settings); d.tzo = new Date().getTimezoneOffset(); return d; }
+  function syncSettings() {
+    return api("collections/trinkimal_settings/records?perPage=1").then(function (j) {
+      var r = j.items && j.items[0];
+      var mine = settingsPayload();
+      if (!r) return api("collections/trinkimal_settings/records", { method: "POST", body: { owner: srv.auth.id, data: mine } });
+      var theirs = r.data || {};
+      if ((theirs.ts || 0) > (settings.ts || 0)) {
+        settings = sanitizeSettings(theirs);
+        sSet("dl.settings", settings);
+        tileSig = "";
+        var a = document.activeElement;
+        if (tab === "mehr" && !(a && $("#p-mehr").contains(a) && a.tagName === "INPUT")) renderMehr();
+      } else if ((theirs.ts || 0) < (settings.ts || 0) || theirs.tzo !== mine.tzo) {
+        return api("collections/trinkimal_settings/records/" + r.id, { method: "PATCH", body: { data: mine } });
+      }
+    });
+  }
+
+  function allEntryIds() { var ids = []; for (var d in days) days[d].forEach(function (e) { ids.push(e.id); }); return ids; }
+  function login(email, pw) {
+    return api("collections/users/auth-with-password", { method: "POST", body: { identity: email, password: pw } }).then(function (j) {
+      srv.auth = { token: j.token, id: j.record.id, email: j.record.email };
+      sSet("dl.auth", srv.auth);
+      lastRefresh = Date.now();
+      var linked = sGet("dl.linked");
+      if (!linked) {
+        // Erste Anmeldung auf diesem Gerät: alles, was schon hier liegt, ins Konto übernehmen
+        pend.add = allEntryIds(); pend.del = []; savePend();
+        sDel("dl.lastpull");
+      } else if (linked !== j.record.id) {
+        // Anderes Konto als zuletzt: dessen Daten nicht vermischen. Sie bleiben auf dem Server,
+        // auf diesem Gerät wird neu vom Server geladen.
+        Object.keys(days).forEach(function (d) { sDel("dl.day." + d); });
+        days = {};
+        pend = { add: [], del: [], gone: [], undel: [] }; savePend();
+        settings.ts = 0; sSet("dl.settings", settings);
+        sDel("dl.lastpull");
+        toast("Anderes Konto: Die Einträge des vorigen Kontos wurden von diesem Gerät entfernt. Sie liegen weiter auf dem Server.", null, null, 9000);
+      }
+      sSet("dl.linked", j.record.id);
+      syncErr = "";
+      return sync();
+    });
+  }
+  function refreshAuth() {
+    return api("collections/users/auth-refresh", { method: "POST" }).then(function (j) {
+      srv.auth.token = j.token; sSet("dl.auth", srv.auth); lastRefresh = Date.now();
+    }, function (err) {
+      if (err.status === 401 || err.status === 403) { srv.auth = null; sDel("dl.auth"); syncErr = "Die Anmeldung ist abgelaufen. Bitte neu anmelden."; }
+    });
+  }
+
+  function renderAccount() {
+    var card = $("#acct-card");
+    card.hidden = !srv.ok;
+    $("#silent-box").hidden = !(srv.ok && srv.auth);
+    if (!srv.ok) return;
+    $("#acct-out").hidden = !!srv.auth;
+    $("#acct-in").hidden = !srv.auth;
+    var msg = $("#acct-msg");
+    msg.textContent = syncErr; msg.hidden = !syncErr;
+    if (srv.auth) {
+      $("#acct-who").textContent = "Angemeldet als " + (srv.auth.email || "du");
+      var n = pend.add.length + pend.del.length;
+      var t = lastSyncAt ? new Date(lastSyncAt) : null;
+      $("#acct-sync").textContent = syncing ? "Gleiche ab …" :
+        (t ? "Zuletzt abgeglichen um " + pad(t.getHours()) + ":" + pad(t.getMinutes()) + " Uhr." : "Noch nicht abgeglichen.") +
+        (n ? " " + n + (n === 1 ? " Änderung wartet." : " Änderungen warten.") : "");
+    }
+    $("#log-url").textContent = srv.base + "/api/trinkimal/log";
+    $("#install-split").hidden = true;
+    if (storageOk) $("#foot-note").textContent = srv.auth
+      ? "Deine Daten liegen in diesem Browser und in deinem Konto auf diesem Server, sonst nirgends."
+      : "Ohne Anmeldung bleiben alle Daten in diesem Browser.";
+  }
+  $("#acct-out").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var btn = $("#login-btn");
+    btn.textContent = "Melde an …";
+    login($("#login-email").value.trim(), $("#login-pw").value).then(function () {
+      $("#login-pw").value = "";
+      toast("Angemeldet. Deine Einträge werden jetzt abgeglichen.", null);
+    }, function (err) {
+      syncErr = err.status === 400 ? "E-Mail oder Passwort stimmt nicht." : "Der Server antwortet nicht. Später noch einmal versuchen.";
+      renderAccount();
+    }).then(function () { btn.textContent = "Anmelden"; });
+  });
+  $("#sync-btn").addEventListener("click", function () { queueSync(0); renderAccount(); });
+  $("#logout-btn").addEventListener("click", function () {
+    srv.auth = null; sDel("dl.auth"); syncErr = "";
+    renderAccount();
+    toast("Abgemeldet. Die Einträge bleiben auf diesem Gerät.", null);
+  });
+  $("#key-btn").addEventListener("click", function () {
+    api("trinkimal/key", { method: "POST" }).then(function (j) {
+      $("#key-val").textContent = j.key;
+      $("#key-out").hidden = false;
+    }, function () { toast("Der Schlüssel ließ sich nicht erzeugen. Ist der Server erreichbar?", null); });
+  });
+  $("#key-copy").addEventListener("click", function () { copy($("#key-val").textContent, $("#key-val"), this); });
+
+  function detectServer() {
+    if (location.protocol === "file:") return Promise.resolve(false);
+    srv.base = location.origin;
+    return fetch(srv.base + "/api/health", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { return !!(j && j.code === 200); }, function () { return false; });
+  }
+
+  // ---------- Als App installieren ----------
+  var installEvt = null;
+  window.addEventListener("beforeinstallprompt", function (ev) { ev.preventDefault(); installEvt = ev; $("#install-btn").hidden = false; });
+  $("#install-btn").addEventListener("click", function () {
+    if (!installEvt) return;
+    installEvt.prompt();
+    installEvt = null; this.hidden = true;
+  });
+  var standalone = false;
+  try { standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) {}
+  $("#install-card").hidden = standalone;
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+
   // ---------- Reiter ----------
   var tab = "heute";
   var TABS = ["heute", "woche", "mehr"];
@@ -1182,7 +1485,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   var lastDay = dayKey();
   function tick() { var k = dayKey(); if (k !== lastDay) { lastDay = k; renderAll(); } else renderPet(); }
   setInterval(tick, 60000);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) { tick(); processHash(); } });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { tick(); processHash(); queueSync(0); } });
+  window.addEventListener("online", function () { queueSync(0); });
+  setInterval(function () { if (!document.hidden) queueSync(0); }, 60000);
   window.addEventListener("pageshow", tick);
   window.addEventListener("hashchange", processHash);
   window.addEventListener("pagehide", flushSave);
@@ -1195,6 +1500,11 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 
   renderAll(true);
   processHash();
+  detectServer().then(function (ok) {
+    srv.ok = ok;
+    renderAccount();
+    if (ok && srv.auth) refreshAuth().then(function () { renderAccount(); return sync(); });
+  });
 })();
 </script>
 </body>

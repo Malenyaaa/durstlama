@@ -1,0 +1,16 @@
+# Caddy holt das HTTPS-Zertifikat für diese Domain selbst und leitet alles an Trinkimal weiter.
+# trinkimal.example.de durch deine eigene Domain ersetzen.
+#
+# Im Docker-Compose heißt der Trinkimal-Container "trinkimal".
+# Läuft Caddy ohne Docker auf demselben Rechner, stattdessen 127.0.0.1:8090 eintragen.
+
+trinkimal.example.de {
+	request_body {
+		max_size 10MB
+	}
+	reverse_proxy trinkimal:8090 {
+		transport http {
+			read_timeout 360s
+		}
+	}
+}
