@@ -417,7 +417,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       <div class="kpis">
         <div class="kpi"><b id="k-avg">0</b><span>Liter am Tag im Schnitt</span></div>
         <div class="kpi"><b id="k-hit">0/7</b><span>Tage Ziel geschafft</span></div>
-        <div class="kpi"><b id="k-streak">0</b><span>Tage am Stück</span></div>
+        <div class="kpi"><b id="k-streak">0</b><span id="k-streak-l">Tage am Stück</span></div>
       </div>
     </div>
     <div class="card" id="week-chart"></div>
@@ -470,7 +470,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         <p class="note">Die Deutsche Gesellschaft für Ernährung nennt für Erwachsene rund 1,5 Liter aus Getränken am Tag. Bei Hitze, Sport oder Arbeit draußen ist es mehr.</p>
       </div>
       <div class="card">
-        <label class="switch-row" for="streak-toggle"><span><b>Serie anzeigen</b><small>Wie viele Tage am Stück du dein Ziel geschafft hast. Ausgeschaltet setzt dich nichts unter Druck; Tiere mit Serien-Bedingung lassen sich trotzdem freischalten.</small></span><input type="checkbox" id="streak-toggle" role="switch"></label>
+        <label class="switch-row" for="streak-toggle"><span><b>Serie pausieren</b><small>Für Urlaub oder wenn du krank bist: Pausierte Tage zählen weder für noch gegen deine Serie. Schaltest du die Pause aus, geht es dort weiter, wo du warst. Das gilt auch für Tiere mit Serien-Bedingung.</small></span><input type="checkbox" id="streak-toggle" role="switch"></label>
       </div>
     </div>
 
@@ -748,6 +748,18 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   // Kennzahlen für das Freischalten, immer neu aus allen Einträgen (rückwirkend, auf allen Geräten gleich)
   function iconOf(id) { var d = drinkById(id); return d ? d.icon : (DEF_ICON[id] || "becher"); }
   function nextDay(k) { var d = new Date(k + "T12:00:00"); d.setDate(d.getDate() + 1); return dayKey(d); }
+  var DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  // Pausierte Tage (Urlaub, krank) zählen weder für noch gegen eine Serie
+  function paused(k) {
+    if (settings.pauseSince && k >= settings.pauseSince) return true;
+    return (settings.pauses || []).some(function (p) { return k >= p[0] && k <= p[1]; });
+  }
+  // Folgt k lückenlos auf prev, wenn man pausierte Tage dazwischen überspringt?
+  function follows(prev, k) {
+    var x = nextDay(prev);
+    for (var i = 0; x < k && paused(x) && i < 800; i++) x = nextDay(x);
+    return x === k;
+  }
   function unlockStats() {
     var s = { entries: 0, hit: 0, active: 0, bestRun: 0, activeRun: 0, comeback: 0, early: 0, late: 0, maxCount: 0, maxKinds: 0,
       custom: 0, milk: 0, waterDay: 0, byEvening: 0, bigDay: 0, lowSugar: 0, perfectWeek: 0, perfectMonth: 0, kinds: 0, total: 0, phoenix: 0 };
@@ -779,13 +791,13 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         var gap = (new Date(k + "T12:00:00") - new Date(prevActive + "T12:00:00")) / 864e5;
         if (gap >= 4) s.comeback = 1;
         if (gap >= 8) pauseEnd = k;   // mindestens 7 Tage ohne Eintrag
-        aRun = gap === 1 ? aRun + 1 : 1;
+        aRun = follows(prevActive, k) ? aRun + 1 : 1;
       } else aRun = 1;
       s.activeRun = Math.max(s.activeRun, aRun);
       prevActive = k;
       if (hit) {
         s.hit++; hitSet[k] = 1;
-        run = prevHit && nextDay(prevHit) === k ? run + 1 : 1;
+        run = prevHit && follows(prevHit, k) ? run + 1 : 1;
         if (run === 1) runStart = k;
         if (pauseEnd && runStart >= pauseEnd) s.phoenix = Math.max(s.phoenix, run);
         prevHit = k;
@@ -914,7 +926,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     return { v: 3, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
       geschenkt: (Array.isArray(s.geschenkt) ? s.geschenkt : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
       frei: (Array.isArray(s.frei) ? s.frei : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
-      showStreak: s.showStreak !== false };
+      pauseSince: DAY_RE.test(s.pauseSince) ? s.pauseSince : null,
+      pauses: (Array.isArray(s.pauses) ? s.pauses : []).filter(function (p) { return Array.isArray(p) && DAY_RE.test(p[0]) && DAY_RE.test(p[1]); }).slice(-100) };
   }
   function sanitizeEntry(e) {
     if (!e || typeof e.id !== "string" || !/^[A-Za-z0-9_-]{1,60}$/.test(e.id) || !(Number(e.t) > 0)) return null;
@@ -1295,9 +1308,11 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function streak() {
     var d = new Date(), n = 0;
     if (!reached(dayKey(d))) d.setDate(d.getDate() - 1);
-    for (var i = 0; i < 1000; i++) {
-      if (!reached(dayKey(d))) break;
-      n++; d.setDate(d.getDate() - 1);
+    for (var i = 0; i < 2000; i++) {
+      var k = dayKey(d);
+      if (reached(k)) n++;
+      else if (!paused(k)) break;   // pausierter Tag ohne Ziel: überspringen, Serie hält
+      d.setDate(d.getDate() - 1);
     }
     return n;
   }
@@ -1310,8 +1325,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     $("#k-avg").textContent = liter(total / 7);
     $("#k-hit").textContent = week.filter(function (x) { return x.sum >= goal; }).length + "/7";
     $("#k-streak").textContent = String(streak());
-    $("#k-streak").parentNode.hidden = !settings.showStreak;
-    $(".kpis").style.gridTemplateColumns = settings.showStreak ? "" : "repeat(2, minmax(0, 1fr))";
+    $("#k-streak-l").textContent = settings.pauseSince ? "Tage am Stück, pausiert" : "Tage am Stück";
 
     var W = 340, H = 180, L = 6, R = 6, T = 22, B = 26;
     var maxV = Math.max(goal * 1.2, Math.max.apply(null, week.map(function (x) { return x.sum; })) * 1.08);
@@ -1399,7 +1413,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function renderSub(name) {
     if (name === "tier") renderPetPick();
     if (name === "ziel") {
-      $("#streak-toggle").checked = settings.showStreak;
+      $("#streak-toggle").checked = !!settings.pauseSince;
       $("#goal-input").value = settings.goal;
       var pr = $("#goal-presets"); pr.textContent = "";
       [1500, 2000, 2500, 3000].forEach(function (v) {
@@ -1532,7 +1546,17 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     saveSettings(); renderDrinkEditor(); renderHeute(); renderKurz();
     toast(name + " angelegt und auf die Startseite gelegt. Kürzel: #" + d.id, null, null, 7000);
   });
-  $("#streak-toggle").addEventListener("change", function () { settings.showStreak = this.checked; saveSettings(); });
+  $("#streak-toggle").addEventListener("change", function () {
+    var today = dayKey();
+    if (this.checked) settings.pauseSince = today;
+    else if (settings.pauseSince) {
+      var y = new Date(); y.setDate(y.getDate() - 1);
+      if (settings.pauseSince <= dayKey(y)) settings.pauses.push([settings.pauseSince, dayKey(y)]);
+      settings.pauseSince = null;
+    }
+    saveSettings();
+    toast(this.checked ? "Serie pausiert. Schalte die Pause aus, wenn es weitergeht." : "Pause beendet, deine Serie läuft weiter.", null);
+  });
   $("#goal-input").addEventListener("input", function () {
     var v = $("#goal-input").value; if (v === "") return;
     settings.goal = num(v, 500, 6000, settings.goal); saveSoon();

@@ -26,7 +26,7 @@ animiert: Kaffee dampft, Bubble Tea blubbert.
 - **Über 30 Getränke** von Wasser über Smoothie und Mate bis alkoholfreies Bier, jedes mit Standardmenge,
   Anrechnung aufs Tagesziel, Koffein und Zucker je 100 ml. Alles änderbar, eigene Getränke dazu.
   Nicht mehr gebrauchte Getränke werden archiviert, alte Einträge bleiben.
-- **Tagesübersicht** mit Koffein- und Zuckersumme, **Wochenansicht** mit Balken, Serie (unter Mehr → Tagesziel abschaltbar),
+- **Tagesübersicht** mit Koffein- und Zuckersumme, **Wochenansicht** mit Balken, Serie (unter Mehr → Tagesziel pausierbar, etwa im Urlaub),
   Monatskalender und
   den meistgetrunkenen Getränken.
 - **iOS-Kurzbefehle:** Jedes Getränk hat einen eigenen Link. Damit wird Trinken zu einem
