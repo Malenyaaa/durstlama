@@ -23,10 +23,11 @@ animiert: Kaffee dampft, Bubble Tea blubbert.
 - **Ein Tipp pro Glas.** Die Lieblingsgetränke liegen als Kacheln auf der Startseite. Für eine
   andere Menge vorher einen Mengen-Knopf wählen (150 bis 500 ml), danach springt er zurück.
   Jeder Eintrag lässt sich einige Sekunden lang rückgängig machen.
-- **Rund 30 Getränke** von Wasser über Mate bis alkoholfreies Bier, jedes mit Standardmenge,
+- **Über 30 Getränke** von Wasser über Smoothie und Mate bis alkoholfreies Bier, jedes mit Standardmenge,
   Anrechnung aufs Tagesziel, Koffein und Zucker je 100 ml. Alles änderbar, eigene Getränke dazu.
   Nicht mehr gebrauchte Getränke werden archiviert, alte Einträge bleiben.
-- **Tagesübersicht** mit Koffein- und Zuckersumme, **Wochenansicht** mit Balken, Serie und
+- **Tagesübersicht** mit Koffein- und Zuckersumme, **Wochenansicht** mit Balken, Serie (unter Mehr → Tagesziel abschaltbar),
+  Monatskalender und
   den meistgetrunkenen Getränken.
 - **iOS-Kurzbefehle:** Jedes Getränk hat einen eigenen Link. Damit wird Trinken zu einem
   Siri-Satz, einem Widget oder zweimal hinten aufs iPhone klopfen.

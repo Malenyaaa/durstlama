@@ -62,8 +62,10 @@ routerAdd("POST", "/api/trinkimal/log", (e) => {
   r.set("sug", Math.round(ml * (Number(drink.sug) || 0) / 10) / 10)
   if (!dup) {
     try { e.app.save(r) } catch (err) {
-      // Gleichzeitig doppelt angekommen: der eindeutige Index hat es abgefangen
+      // Gleichzeitig doppelt angekommen: der eindeutige Index hat es abgefangen.
+      // Nur dann ist es eine Doppelung, wenn der Eintrag jetzt wirklich da ist.
       if (!stamp) throw err
+      try { e.app.findFirstRecordByFilter("trinkimal_entries", "owner = {:o} && eid = {:e}", { o: uid, e: eid }) } catch (_) { throw err }
       dup = true
     }
   }

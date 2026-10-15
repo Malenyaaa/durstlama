@@ -1,3 +1,3 @@
-Die Bilder wasser.png, glas.png, milch.png und becher.png stammen aus
+Die Bilder *.png (Wasser, Glas, Milch, Becher, Bierkrug, Anstoßen, Cocktailglas, Sake, Kokosnuss, Eis) stammen aus
 Microsoft Fluent Emoji (https://github.com/microsoft/fluentui-emoji), MIT-Lizenz,
 siehe LICENSE-fluentui-emoji.txt. Unverändert übernommen.

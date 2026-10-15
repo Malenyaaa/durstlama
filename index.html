@@ -274,6 +274,13 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 .primary { border: 0; background: var(--pink-ink); color: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 600; }
 @media (prefers-color-scheme: dark) { .primary { color: #2A1230; } }
 .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.switch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; cursor: pointer; }
+.switch-row b { display: block; font-weight: 600; }
+.switch-row small { display: block; color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+.switch-row input { appearance: none; -webkit-appearance: none; width: 50px; height: 30px; border-radius: 999px; background: var(--soft); position: relative; transition: background .2s; margin: 0; }
+.switch-row input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform .2s; }
+.switch-row input:checked { background: var(--pink-ink); }
+.switch-row input:checked::after { transform: translateX(20px); }
 .login { display: flex; flex-direction: column; gap: 10px; }
 #acct-in { display: flex; flex-direction: column; gap: 8px; }
 .arch-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
@@ -462,6 +469,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         </div>
         <p class="note">Die Deutsche Gesellschaft für Ernährung nennt für Erwachsene rund 1,5 Liter aus Getränken am Tag. Bei Hitze, Sport oder Arbeit draußen ist es mehr.</p>
       </div>
+      <div class="card">
+        <label class="switch-row" for="streak-toggle"><span><b>Serie anzeigen</b><small>Wie viele Tage am Stück du dein Ziel geschafft hast. Ausgeschaltet setzt dich nichts unter Druck; Tiere mit Serien-Bedingung lassen sich trotzdem freischalten.</small></span><input type="checkbox" id="streak-toggle" role="switch"></label>
+      </div>
     </div>
 
     <div class="sub" id="s-getraenke" hidden>
@@ -634,7 +644,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   // Orangensaft und Bier mit 4 % wie Wasser; Milch besser (Vollmilch 1,32, fettarm 1,44, auf den
   // Wasseranteil bezogen). Wein und Schnaps entwässern kurzzeitig (Polhuis u. a. 2017), Bier nicht.
   // Nicht aufgeführte Getränke zählen 100 %.
-  var HYD = { milch: 130, wein: 50 };
+  var HYD = { milch: 130, wein: 50, sekt: 50 };
   // Werte je 100 ml: caf = Koffein mg, sug = Zucker g; f = Anrechnung aufs Tagesziel in %
   var DEFAULT_DRINKS = [
     ["wasser", "Wasser", 250, 100, 0, 0, "#4FB3E8", true],
@@ -665,7 +675,11 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     ["alkfreibier", "Alkoholfreies Bier", 330, 100, 0, 3, "#E6B947", false],
     ["bier", "Bier", 500, 80, 0, 0, "#DDA524", false],
     ["wein", "Wein", 150, 50, 0, 0, "#A23A5E", false],
-    ["bruehe", "Brühe", 250, 100, 0, 0, "#CFAE3A", false]
+    ["bruehe", "Brühe", 250, 100, 0, 0, "#CFAE3A", false],
+    ["zitronenwasser", "Zitronenwasser", 300, 100, 0, 0.5, "#F2D54B", false],
+    ["smoothie", "Smoothie", 250, 100, 0, 10, "#E8577A", false],
+    ["kokoswasser", "Kokoswasser", 330, 100, 0, 5, "#C9B79A", false],
+    ["sekt", "Sekt", 100, 50, 0, 1, "#E9C46A", false]
   ].map(function (a) { return { id: a[0], name: a[1], ml: a[2], f: HYD.hasOwnProperty(a[0]) ? HYD[a[0]] : 100, caf: a[4], sug: a[5], color: a[6], fav: a[7], archived: false }; });
   // Alte Standardwerte für „zählt %“ bis Einstellungs-Fassung 2; wer sie nie geändert hat, bekommt die neuen
   var OLD_F = { bier: 80, wein: 50 };
@@ -675,14 +689,20 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     wasser: { name: "Wasser", png: true }, glas: { name: "Glas mit Eis", png: true }, milch: { name: "Milch", png: true },
     becher: { name: "Becher mit Strohhalm", png: true }, kaffee: { name: "Heiße Tasse" }, tee: { name: "Tee" },
     saft: { name: "Saftpäckchen" }, mate: { name: "Mate" }, wein: { name: "Wein" }, bier: { name: "Bier" },
-    cocktail: { name: "Cocktail" }, bubbletea: { name: "Bubble Tea" }
+    cocktail: { name: "Cocktail" }, bubbletea: { name: "Bubble Tea" }, eingiessen: { name: "Wasser eingießen" },
+    teekanne: { name: "Teekanne" }, zitrone: { name: "Zitrone" }, orange: { name: "Orange" }, apfel: { name: "Apfel" },
+    erdbeere: { name: "Erdbeere" }, melone: { name: "Melone" }, anstossen: { name: "Anstoßen" }, sektflasche: { name: "Sektflasche" },
+    flaeschchen: { name: "Fläschchen" }, bierkrug: { name: "Bierkrug", png: true }, bieranstossen: { name: "Bier anstoßen", png: true },
+    cocktailglas: { name: "Cocktailglas", png: true }, sake: { name: "Sake", png: true }, kokosnuss: { name: "Kokosnuss", png: true },
+    eis: { name: "Eiswürfel", png: true }
   };
   var DEF_ICON = {
-    wasser: "wasser", sprudel: "wasser", kraeutertee: "tee", schwarztee: "tee", fruechtetee: "tee", gruentee: "tee",
+    wasser: "eingiessen", sprudel: "wasser", kraeutertee: "teekanne", schwarztee: "tee", fruechtetee: "erdbeere", gruentee: "tee",
     kaffee: "kaffee", espresso: "kaffee", cappuccino: "kaffee", koffeinfrei: "kaffee", kakao: "kaffee", bruehe: "kaffee",
-    apfelschorle: "saft", apfelsaft: "saft", osaft: "saft", milch: "milch", hafermilch: "milch",
+    apfelschorle: "apfel", apfelsaft: "apfel", osaft: "orange", milch: "milch", hafermilch: "milch",
     cola: "becher", colazero: "becher", limo: "becher", eistee: "becher", energy: "becher", iso: "becher",
-    tonic: "cocktail", kombucha: "becher", mate: "mate", alkfreibier: "bier", bier: "bier", wein: "wein"
+    tonic: "cocktail", kombucha: "becher", mate: "mate", alkfreibier: "bierkrug", bier: "bier", wein: "wein",
+    zitronenwasser: "zitrone", smoothie: "erdbeere", kokoswasser: "kokosnuss", sekt: "anstossen"
   };
 
   // Tiere unter tiere/: animiert (Noto Emoji, CC BY 4.0), .json + Standbild .svg
@@ -741,7 +761,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         s.entries++; sum += e.e || 0; sug += e.sug || 0;
         kinds[e.d] = 1; kindsDay[e.d] = 1;
         if (e.d === "milch" || e.d === "hafermilch") s.milk++;
-        if (e.d !== "wasser" && e.d !== "sprudel") onlyWater = false;
+        if (e.d !== "wasser" && e.d !== "sprudel" && e.d !== "zitronenwasser") onlyWater = false;
         if (!DEF_ICON.hasOwnProperty(e.d)) s.custom++;
         var h = new Date(e.t).getHours();
         if (h < 8) early = true;
@@ -818,7 +838,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var now = openPets(), seenL = sGet("dl.feiert");
     // Einmal frei bleibt frei, auch wenn später das Ziel steigt oder Einträge fehlen
     var lost = now.filter(function (k) { return PETS[k].need && settings.frei.indexOf(k) < 0; });
-    if (lost.length) { settings.frei = settings.frei.concat(lost); saveSettings(); }
+    if (lost.length) { settings.frei = settings.frei.concat(lost); sSet("dl.settings", settings); queueSync(); }   // ohne ts: keine menschliche Änderung
     if (!Array.isArray(seenL)) { sSet("dl.feiert", now); return; }
     var fresh = now.filter(function (k) { return seenL.indexOf(k) < 0; });
     if (!fresh.length) return;
@@ -885,9 +905,16 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       var old = OLD_F.hasOwnProperty(d.id) ? OLD_F[d.id] : 100;
       if (DEF_ICON.hasOwnProperty(d.id) && d.f === old) d.f = HYD.hasOwnProperty(d.id) ? HYD[d.id] : 100;
     });
-    return { v: 2, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
+    if (s.drinks && !(s.v >= 3)) {
+      // Fassung 3: neue Bilder für Standardgetränke, deren Bild nie geändert wurde, und neue Getränke dazu
+      var OLD_ICON = { wasser: "wasser", kraeutertee: "tee", fruechtetee: "tee", apfelschorle: "saft", apfelsaft: "saft", osaft: "saft", alkfreibier: "bier" };
+      drinks.forEach(function (d) { if (OLD_ICON[d.id] && d.icon === OLD_ICON[d.id]) d.icon = DEF_ICON[d.id]; });
+      DEFAULT_DRINKS.forEach(function (d) { if (!drinks.some(function (x) { return x.id === d.id; })) { var c = sanitizeDrink(clone(d)); c.fav = false; drinks.push(c); } });
+    }
+    return { v: 3, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
       geschenkt: (Array.isArray(s.geschenkt) ? s.geschenkt : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
-      frei: (Array.isArray(s.frei) ? s.frei : []).filter(function (k) { return PETS.hasOwnProperty(k); }) };
+      frei: (Array.isArray(s.frei) ? s.frei : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
+      showStreak: s.showStreak !== false };
   }
   function sanitizeEntry(e) {
     if (!e || typeof e.id !== "string" || !/^[A-Za-z0-9_-]{1,60}$/.test(e.id) || !(Number(e.t) > 0)) return null;
@@ -899,6 +926,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   }
 
   var settings = sanitizeSettings(sGet("dl.settings"));
+  if (sGet("dl.settings") && (sGet("dl.settings").v || 0) < settings.v) sSet("dl.settings", settings);   // neue Fassung merken, ohne ts
   var firstStart = !sGet("dl.settings") && !sGet("dl.onb");
   var days = {};
   sKeys().forEach(function (k) {
@@ -915,6 +943,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   ["add", "del", "gone", "undel"].forEach(function (k) { if (!Array.isArray(pend[k])) pend[k] = []; });
   function savePend() { sSet("dl.pending", pend); }
   var linkedId = sGet("dl.linked");
+  if (!linkedId && (pend.add.length || pend.del.length)) { pend = { add: [], del: [], gone: [], undel: [] }; savePend(); }
   function saveDay(day) {
     var arr = days[day] || [];
     if (arr.length) sSet("dl.day." + day, arr); else { sDel("dl.day." + day); delete days[day]; }
@@ -1281,6 +1310,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     $("#k-avg").textContent = liter(total / 7);
     $("#k-hit").textContent = week.filter(function (x) { return x.sum >= goal; }).length + "/7";
     $("#k-streak").textContent = String(streak());
+    $("#k-streak").parentNode.hidden = !settings.showStreak;
+    $(".kpis").style.gridTemplateColumns = settings.showStreak ? "" : "repeat(2, minmax(0, 1fr))";
 
     var W = 340, H = 180, L = 6, R = 6, T = 22, B = 26;
     var maxV = Math.max(goal * 1.2, Math.max.apply(null, week.map(function (x) { return x.sum; })) * 1.08);
@@ -1368,6 +1399,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function renderSub(name) {
     if (name === "tier") renderPetPick();
     if (name === "ziel") {
+      $("#streak-toggle").checked = settings.showStreak;
       $("#goal-input").value = settings.goal;
       var pr = $("#goal-presets"); pr.textContent = "";
       [1500, 2000, 2500, 3000].forEach(function (v) {
@@ -1500,6 +1532,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     saveSettings(); renderDrinkEditor(); renderHeute(); renderKurz();
     toast(name + " angelegt und auf die Startseite gelegt. Kürzel: #" + d.id, null, null, 7000);
   });
+  $("#streak-toggle").addEventListener("change", function () { settings.showStreak = this.checked; saveSettings(); });
   $("#goal-input").addEventListener("input", function () {
     var v = $("#goal-input").value; if (v === "") return;
     settings.goal = num(v, 500, 6000, settings.goal); saveSoon();
@@ -1686,6 +1719,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       if (r) sDel("dl.freshlink");
       var mine = settingsPayload();
       if (!r) { sDel("dl.freshlink"); return api("collections/trinkimal_settings/records", { method: "POST", body: { owner: srv.auth.id, data: mine } }); }
+      if (!r.data || !Array.isArray(r.data.drinks)) { sDel("dl.freshlink"); return api("collections/trinkimal_settings/records/" + r.id, { method: "PATCH", body: { data: mine } }); }   // leer, etwa vom Schlüssel angelegt
       var theirs = sanitizeSettings(r.data || {});
       var serverWins = fresh || (theirs.ts || 0) > (settings.ts || 0);
       // Nichts geht verloren: Getränke und freigeschaltete Tiere beider Seiten werden zusammengeführt
