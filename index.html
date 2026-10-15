@@ -1776,8 +1776,14 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       (lose[f] || []).forEach(function (k) { if (m[f].indexOf(k) < 0) m[f].push(k); });
     });
     // Vergangene Pausen beider Geräte behalten; die laufende Pause gibt die Gewinnerseite vor
-    var seenP = {};
-    m.pauses = m.pauses.concat(lose.pauses || []).filter(function (p) { var key = p[0] + "|" + p[1]; if (seenP[key]) return false; seenP[key] = 1; return true; }).slice(-100);
+    var seenP = {}, extra = [];
+    // Lief nur auf der anderen Seite eine Pause, und die Gewinnerseite kennt sie gar nicht:
+    // die Tage bis gestern bleiben pausiert, damit die Serie nicht rückwirkend reißt
+    if (lose.pauseSince && !m.pauseSince && !m.pauses.some(function (p) { return p[0] === lose.pauseSince; })) {
+      var y = new Date(); y.setDate(y.getDate() - 1);
+      if (lose.pauseSince <= dayKey(y)) extra.push([lose.pauseSince, dayKey(y)]);
+    }
+    m.pauses = m.pauses.concat(lose.pauses || [], extra).filter(function (p) { var key = p[0] + "|" + p[1]; if (seenP[key]) return false; seenP[key] = 1; return true; }).slice(-100);
     m.ts = Math.max(win.ts || 0, lose.ts || 0);
     return m;
   }
