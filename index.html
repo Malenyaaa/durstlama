@@ -1213,6 +1213,103 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   // Tier und Sprechblase: hängt am Getrunkenen und daran, wie lange der letzte Schluck her ist.
   // Läuft auch jede Minute, ohne Knöpfe und Liste neu zu bauen.
   var shownPet = null, petAnim = null;
+
+  // Sprüche aus Sicht des Tiers: lustig, nie tadelnd. Platzhalter {rest} ml, {h} Stunden, {n} Getränk, {tier} Name
+  var SAYS = {
+    geschafft: [
+      "Bauch voll, Teich voll, Herz voll. Wir sind ein Team!",
+      "Ich schwimm jetzt eine Ehrenrunde. Ziel geschafft!",
+      "Plitsch, platsch! Ich mach ein Freudentänzchen.",
+      "Teich randvoll! Ich bin jetzt offiziell ein Wasserbett.",
+      "Geschafft! Ab jetzt ist alles Bonuswasser."
+    ],
+    alkohol0: [
+      "Prost! Ich trink zur Sicherheit ein Glas Wasser mit. Kommst du mit?",
+      "Hicks! Ich glaub, ein Wasser hinterher wäre jetzt schlau."
+    ],
+    alkohol: [
+      "Zum Wohl! {n} zählt bei mir nur halb. Ein Wasser dazu, und wir sind quitt.",
+      "Ui, {n}! Ich nehm dazu ein Glas Wasser. Du auch?",
+      "Prost! Mein Teich hätte gern noch ein Wasser hinterher."
+    ],
+    suess: [
+      "Mmh, {n}! Ich hab jetzt einen Zuckerschnurrbart.",
+      "Süß! Fast so süß wie ich. Noch {rest} ml.",
+      "{n}! Ich hüpf eine Runde vor Zuckerfreude. Noch {rest} ml."
+    ],
+    nacht: [
+      "Zzz … ich träum von Seerosen.",
+      "Gähn. Nachts trink ich nur im Traum.",
+      "Psst, ich schlaf schon halb. Gute Nacht!"
+    ],
+    morgen: [
+      "Guten Morgen! Mein Teich ist noch ganz verschlafen.",
+      "Morgen! Zähne geputzt, jetzt fehlt nur noch Wasser.",
+      "Aufgewacht! Wer trinkt das erste Glas, du oder du?"
+    ],
+    nochnix: [
+      "Hallo? Mein Teich ist heute noch eine Pfütze.",
+      "Ich hab schon mal ein Glas gesucht. Gefunden! Jetzt fehlt nur der Inhalt.",
+      "Heute noch nix? Mein Teich fühlt sich an wie eine Wüste."
+    ],
+    durst2: [
+      "Ich bin so trocken, ich raschle beim Laufen. Seit {h} Stunden nichts!",
+      "Ächz. {h} Stunden kein Tropfen. Ich werd langsam zur Rosine.",
+      "Mir hängt die Zunge raus! {h} Stunden Wüste, ich seh schon Kamele."
+    ],
+    durst1: [
+      "Psst … seit {h} Stunden nichts. Kleiner Schluck gefällig?",
+      "Mein Teich fragt, ob du ihn vermisst. Seit {h} Stunden nichts.",
+      "Ich hab ein bisschen Durst. Du bestimmt auch, oder?"
+    ],
+    fast: [
+      "Gleich geschafft! Noch {rest} ml bis zur Poolparty.",
+      "Noch {rest} ml! Ich hol schon mal die Schwimmflügel.",
+      "Fast voll! Noch {rest} ml, dann mach ich einen Kopfsprung."
+    ],
+    mitte: [
+      "Lecker! Mein Teich wird langsam gemütlich. Noch {rest} ml.",
+      "Plätscher! Ich kann schon paddeln. Noch {rest} ml.",
+      "Schön nass hier! Noch {rest} ml."
+    ],
+    anfang: [
+      "Danke! Mehr davon, bitte. Noch {rest} ml.",
+      "Mmh, der erste Schluck ist immer der beste! Noch {rest} ml.",
+      "Mein Teich sagt Danke! Noch {rest} ml."
+    ]
+  };
+  // Eigene Sprüche einzelner Tiere, kommen zu den allgemeinen dazu
+  var PET_SAYS = {
+    frosch: { geschafft: ["Quaaak! Ziel geschafft, ich hüpf vor Freude."], nochnix: ["Quak? Mein Seerosenblatt ist ganz trocken."] },
+    pinguin: { geschafft: ["Ich watschel eine Ehrenrunde. Ziel geschafft!"], durst1: ["Ein Pinguin ohne Wasser ist nur ein Vogel im Frack."] },
+    katze: { geschafft: ["Schnurr. Teich voll, ich bin zufrieden. Ausnahmsweise."], anfang: ["Ich mag eigentlich kein Wasser. Aber für dich trink ich mit."] },
+    baer: { geschafft: ["Brumm! Bauch voll, Teich voll, Zeit für ein Nickerchen."] },
+    panda: { geschafft: ["Ich roll mich vor Freude über den Teichrand!"] },
+    hase: { geschafft: ["Ich mach Luftsprünge! Hoppel, hoppel, Ziel geschafft."] },
+    eule: { geschafft: ["Huhu! Ziel geschafft. Sehr weise von dir."], nacht: ["Huhu! Ich bin wach, aber du solltest schlafen."] },
+    biene: { geschafft: ["Summ, summ! Ziel geschafft, das ist süßer als Honig."] },
+    kuh: { geschafft: ["Muuuh! Ziel geschafft, ich bin stolz auf dich."] },
+    schwein: { geschafft: ["Grunz vor Freude! Ziel geschafft."], suess: ["Grunz! Ich mag {n}. Noch {rest} ml."] },
+    affe: { geschafft: ["Uh uh ah ah! Ziel geschafft!"] },
+    loewe: { geschafft: ["Roaar! Ich bin der König des vollen Teichs."] },
+    tiger: { geschafft: ["Rrrr! Gestreift und gut gewässert."] },
+    drache: { geschafft: ["Ich spucke heute Wasser statt Feuer. Ziel geschafft!"] },
+    wal: { geschafft: ["Timmy macht eine riesige Fontäne! Ziel geschafft."], fast: ["Timmy schwimmt schon fast! Noch {rest} ml."] },
+    phoenix: { geschafft: ["Ich leuchte vor Freude! Ziel geschafft."] },
+    fledermaus: { nacht: ["Endlich Nacht! Für mich fängt der Tag jetzt an."], geschafft: ["Ich häng vor Freude kopfüber. Ziel geschafft!"] },
+    faultier: { geschafft: ["Ganz … langsam … Ziel … geschafft. Jetzt erst mal ausruhen."], anfang: ["Kein Stress. Ein Schluck nach dem anderen."] },
+    schildkroete: { fast: ["Langsam, aber sicher. Noch {rest} ml."] },
+    krake: { geschafft: ["Acht Arme, acht Mal Danke! Ziel geschafft."] },
+    einhorn: { geschafft: ["Glitzer, Glitzer! Ziel geschafft, das ist magisch."] },
+    otter: { geschafft: ["Ich treib auf dem Rücken und halt Pfötchen. Ziel geschafft!"] },
+    robbe: { geschafft: ["Ich klatsch mit den Flossen! Ziel geschafft."] }
+  };
+  function hashStr(s) {
+    var h = 0;
+    s = String(s);
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
   function renderPet() {
     var list = entriesFor(dayKey());
     var sum = list.reduce(function (a, e) { return a + (e.e || 0); }, 0);
@@ -1230,21 +1327,27 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     }
     var thirst = !awake ? 0 : since >= 4 ? 2 : since >= 2 ? 1 : 0;
     var pet = PETS[settings.pet] || PETS.panda;
-    var rest = "Noch " + fmt(goal - sum) + " ml.";
-    var says;
+    // Welcher Fall gilt? Dann ein Spruch aus SAYS, der stehen bleibt, bis sich etwas ändert
+    var nowMin = now.getHours() * 60 + now.getMinutes(), slot = Math.floor(nowMin / 30);
+    var kase, seed = "";
+    if (sum >= goal) { kase = "geschafft"; thirst = 0; seed = list.length; }
+    else if (recentLow) { kase = recentLow.e === 0 ? "alkohol0" : "alkohol"; seed = newest.id; }
+    else if (recentSweet) { kase = "suess"; seed = newest.id; }
+    else if (!awake) { kase = "nacht"; seed = slot; }
+    else if (noneYet && thirst === 0) { kase = "morgen"; seed = slot; }
+    else if (noneYet) { kase = "nochnix"; seed = slot; }
+    else if (thirst === 2) { kase = "durst2"; seed = slot; }
+    else if (thirst === 1) { kase = "durst1"; seed = slot; }
+    else if (pct >= 0.75) { kase = "fast"; seed = list.length; }
+    else if (pct >= 0.35) { kase = "mitte"; seed = list.length; }
+    else { kase = "anfang"; seed = list.length; }
+    var pool = SAYS[kase].slice();
+    if (PET_SAYS[settings.pet] && PET_SAYS[settings.pet][kase]) pool = pool.concat(PET_SAYS[settings.pet][kase]);
+    var line = pool[hashStr(kase + dayKey() + seed + settings.pet) % pool.length];
+    var drinkName = (recentLow || recentSweet || {}).n || "";
+    var says = line.replace(/\{rest\}/g, fmt(Math.max(0, goal - sum))).replace(/\{h\}/g, Math.floor(since))
+      .replace(/\{n\}/g, drinkName).replace(/\{tier\}/g, pet.name);
     if (newPetMsg && Date.now() < newPetMsg.until) says = newPetMsg.text;
-    else if (sum >= goal) { says = "Danke! " + (pet.art ? pet.art + " " : "") + pet.name + " ist satt und glücklich."; thirst = 0; }
-    else if (recentLow && recentLow.e === 0) says = "Prost! Aber " + recentLow.n + " löscht keinen Durst. Ein Glas Wasser dazu?";
-    else if (recentLow) says = "Lecker! Aber " + recentLow.n + " zählt nur " + Math.round(recentLow.e / recentLow.ml * 100) + " %. Ein Glas Wasser dazu?";
-    else if (recentSweet) says = "Lecker! Aber " + recentSweet.n + " hat ganz schön viel Zucker. " + rest;
-    else if (!awake) says = "Psst, Schlafenszeit. " + rest;
-    else if (noneYet && thirst === 0) says = "Guten Morgen! Ich hab Durst. Trinkst du was mit mir?";
-    else if (noneYet) says = "Ich hab heute noch gar nichts bekommen …";
-    else if (thirst === 2) says = "Mir hängt die Zunge raus! Seit " + Math.floor(since) + " Stunden nichts.";
-    else if (thirst === 1) says = "Seit " + Math.floor(since) + " Stunden nichts. Ein Schluck?";
-    else if (pct >= 0.75) says = "Fast geschafft! " + rest;
-    else if (pct >= 0.35) says = "Lecker! " + rest;
-    else says = "Danke! Mehr bitte. " + rest;
     $("#says").textContent = says;
 
     if (shownPet !== settings.pet) {
