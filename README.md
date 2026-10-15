@@ -6,9 +6,14 @@ bei jedem Eintrag mit. Bekommt es tagsüber länger nichts, wird es durstig: ab 
 es den Kopf hängen, ab vier schwitzt und wackelt es. Nachts zwischen 22 und 7 Uhr zählt die Pause
 nicht. Beim Tagesziel hüpft es, und Herzen steigen auf.
 
-27 Tiere zur Auswahl, vom Panda über Otter und Faultier bis Dino und Qualle
-(Tipp aufs Tier oder **Mehr → Dein Tier**). Die Getränke-Knöpfe sind ebenfalls animiert:
-Kaffee dampft, Bubble Tea blubbert.
+29 Tiere: Panda, Katze und Hase sind von Anfang an da, die anderen schaltest du durchs Trinken frei
+(Tipp aufs Tier oder **Mehr → Dein Tier** zeigt, was fehlt). Leichte Tiere kommen schnell, etwa das
+Küken beim ersten Getränk oder der Otter nach 3 Tagen am Stück. **Seltene** brauchen Ausdauer
+(Tiger: 30 Tage am Stück), **legendäre** sind richtig schwer: Drache (100 Tage am Stück), Pfau
+(ein ganzer Monat), Einhorn (20 verschiedene Getränke und 30 Tage am Stück), Dino (365 Tage Ziel).
+Ausgewertet wird rückwirkend aus allen Einträgen; nichts davon verlangt Alkohol oder Energydrinks.
+Beim Tagesziel ist der Teich randvoll, darüber läuft er über. Die Getränke-Knöpfe sind ebenfalls
+animiert: Kaffee dampft, Bubble Tea blubbert.
 
 **Öffnen:** https://malenyaaa.github.io/trinkimal/
 

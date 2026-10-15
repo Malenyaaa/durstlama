@@ -92,9 +92,19 @@ p { margin: 0; }
   border-radius: 50%; background: var(--pond); border: 6px solid var(--pond-ring); box-shadow: var(--shadow);
   overflow: hidden; padding: 0; display: block;
 }
+.pond.full { border-color: var(--water); box-shadow: 0 0 0 6px rgba(124, 203, 244, .35), var(--shadow); }
+.pond-wrap { position: relative; margin-top: 8px; }
+.pond-wrap .pond { margin-top: 0; }
+.overdrop { position: absolute; width: 14px; height: 18px; opacity: 0; pointer-events: none; }
+.overdrop svg { width: 100%; height: 100%; display: block; }
+.overdrop path { fill: var(--water); }
+.overdrop.o1 { left: 12%; top: 18%; } .overdrop.o2 { right: 10%; top: 26%; }
+.pond-wrap.over .overdrop { animation: spill 2.6s ease-in infinite; }
+.pond-wrap.over .overdrop.o2 { animation-delay: 1.3s; }
+@keyframes spill { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 85% { opacity: 1; transform: translateY(170px); } 100% { opacity: 0; transform: translateY(190px); } }
 .water { position: absolute; left: 0; right: 0; bottom: 0; height: 14%; transition: height .8s cubic-bezier(.3,1.3,.5,1); }
 .water.back { background: var(--water); }
-.water.front { background: var(--water); opacity: .35; z-index: 3; pointer-events: none; }
+.water.front { background: var(--water); opacity: .28; z-index: 3; pointer-events: none; }
 .wave { position: absolute; left: 0; top: -11px; width: 200%; height: 12px; animation: wave 4s linear infinite; }
 .wave path { fill: var(--water); }
 .water.front .wave { animation-duration: 6s; animation-direction: reverse; }
@@ -102,7 +112,7 @@ p { margin: 0; }
 .pet {
   position: absolute; left: 50%; top: 50%; width: 64%; height: 64%; margin: -36% 0 0 -32%;
   z-index: 2; transform-origin: 50% 90%; animation: breathe 3.2s ease-in-out infinite;
-  transition: filter .6s;
+  transition: filter .6s, top .8s cubic-bezier(.3,1.3,.5,1);
 }
 @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03, .98); } }
 .pond.thirsty .pet { filter: saturate(.7); animation: droop 3.6s ease-in-out infinite; }
@@ -197,6 +207,37 @@ p { margin: 0; }
 .rank-row .v { text-align: right; color: var(--muted); }
 .rank-row .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
 
+/* Mehr: Liste wie iPhone-Einstellungen, Unterseiten */
+.menu { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+.mrow { border: 0; background: transparent; display: grid; grid-template-columns: 40px minmax(0, 1fr) 16px; gap: 12px; align-items: center; padding: 11px 16px; text-align: left; }
+.mrow + .mrow { border-top: 1px solid var(--soft); }
+.mrow:active { background: var(--soft); }
+.mi { width: 40px; height: 40px; border-radius: 12px; background: var(--soft); display: grid; place-items: center; }
+.mi img { width: 28px; height: 28px; }
+.mi svg { width: 22px; height: 22px; fill: none; stroke: var(--pink-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.mt { display: flex; flex-direction: column; min-width: 0; }
+.mt b { font-weight: 600; font-size: 16px; }
+.mt small { color: var(--muted); font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chev { color: var(--muted); font-size: 22px; line-height: 1; }
+.sub { display: flex; flex-direction: column; gap: 14px; }
+.back { align-self: flex-start; border: 0; background: transparent; color: var(--pink-ink); font-weight: 600; font-size: 16px; padding: 4px 0; }
+
+/* Tiere: gesperrt grau, selten silbern, legendär golden */
+.pets button { position: relative; }
+.pets button.locked img { filter: grayscale(1); opacity: .4; }
+.pets button .lock { position: absolute; top: 6px; right: 8px; width: 16px; height: 16px; }
+.pets button .lock svg { width: 100%; height: 100%; fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; }
+.pets button .prog { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pets button.rare { box-shadow: 0 0 0 2px #B9C3D3 inset; }
+.pets button.legend { box-shadow: 0 0 0 2px #E8B84A inset; background: linear-gradient(160deg, #FFF6D8, var(--soft)); }
+@media (prefers-color-scheme: dark) { .pets button.legend { background: linear-gradient(160deg, #4A3B1E, var(--soft)); } }
+.pets button.legend:not(.locked)::after { content: ""; position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); background-size: 250% 100%; animation: shine 3s ease-in-out infinite; }
+@keyframes shine { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.pets button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--pink) inset; }
+.tier-tag { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #B8892A; }
+.tier-tag.rare { color: #7E8BA0; }
+
 .pets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .pets button { border: 0; background: var(--soft); border-radius: 20px; padding: 10px 4px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; }
 .pets button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 0 0 3px var(--pink) inset; }
@@ -274,7 +315,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 
 @media (prefers-reduced-motion: reduce) {
   .pet, .wave, .pond.thirsty .pet, .pond.parched .pet, .pond.sip .pet, .pond.cheer .pet,
-  .pond.parched .sweat, .pond.sip .sipdrop, .pond.happy .heart { animation: none; }
+  .pond.parched .sweat, .pond.sip .sipdrop, .pond.happy .heart, .pond-wrap.over .overdrop { animation: none; }
   .pond.parched .sweat, .pond.happy .heart { opacity: 1; }
   .water { transition: none; }
 }
@@ -291,6 +332,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   <section class="panel" id="p-heute" role="tabpanel" aria-labelledby="t-heute">
     <div class="stage">
       <p class="bubble" id="says">Hallo!</p>
+      <div class="pond-wrap" id="pond-wrap">
       <button class="pond" id="pond" type="button" aria-label="Tier wechseln">
         <span class="water back" id="water-back"><svg class="wave" viewBox="0 0 400 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12 V6 q25 -6 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V12 Z"/></svg></span>
         <span class="pet" id="pet-anim" aria-hidden="true"></span>
@@ -301,7 +343,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         <span class="fx heart h2" aria-hidden="true"><svg viewBox="0 0 24 22"><path d="M12 21 C5 15 1 11 1 6.5 A5.5 5.5 0 0 1 12 4 A5.5 5.5 0 0 1 23 6.5 C23 11 19 15 12 21 Z"/></svg></span>
         <span class="fx heart h3" aria-hidden="true"><svg viewBox="0 0 24 22"><path d="M12 21 C5 15 1 11 1 6.5 A5.5 5.5 0 0 1 12 4 A5.5 5.5 0 0 1 23 6.5 C23 11 19 15 12 21 Z"/></svg></span>
       </button>
-      <div class="count"><b id="sum">0</b><span> ml</span></div>
+      <span class="overdrop o1" aria-hidden="true"><svg viewBox="0 0 30 36"><path d="M15 2 C15 2 3 16 3 23 a12 12 0 0 0 24 0 C27 16 15 2 15 2 Z"/></svg></span><span class="overdrop o2" aria-hidden="true"><svg viewBox="0 0 30 36"><path d="M15 2 C15 2 3 16 3 23 a12 12 0 0 0 24 0 C27 16 15 2 15 2 Z"/></svg></span>
+      </div>
+      <div class="count"><b id="sum">0</b><span> ml<span id="over-pct"></span></span></div>
       <div class="of">von <span id="goal-label">2.000</span> ml</div>
     </div>
 
@@ -338,128 +382,151 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 
   <!-- MEHR -->
   <section class="panel" id="p-mehr" role="tabpanel" aria-labelledby="t-mehr" hidden>
-    <div class="card" id="acct-card" hidden>
-      <h3>Konto auf deinem Server</h3>
-      <p class="note foot-note warn" id="acct-msg" hidden></p>
-      <form id="acct-out" class="login" autocomplete="on">
-        <p class="note">Mit Anmeldung siehst du auf jedem Gerät dieselben Einträge, und Kurzbefehle können still eintragen. Konten legt der Besitzer des Servers an.</p>
-        <div class="field"><label for="login-email">E-Mail</label><input type="email" id="login-email" autocomplete="username" required></div>
-        <div class="field"><label for="login-pw">Passwort</label><input type="password" id="login-pw" autocomplete="current-password" required></div>
-        <div class="row-btns"><button class="primary" id="login-btn" type="submit">Anmelden</button></div>
-      </form>
-      <div id="acct-in" hidden>
-        <p id="acct-who"></p>
-        <p class="note" id="acct-sync"></p>
-        <div class="row-btns">
-          <button class="pill" id="sync-btn" type="button">Jetzt abgleichen</button>
-          <button class="pill" id="logout-btn" type="button">Abmelden</button>
-        </div>
-      </div>
-    </div>
+    <!-- Liste wie in den iPhone-Einstellungen; jeder Punkt öffnet eine Unterseite -->
+    <nav class="menu" id="mehr-menu" aria-label="Einstellungen">
+      <button class="mrow" type="button" data-sub="tier"><span class="mi"><img id="mi-tier" src="tiere/panda.svg" alt=""></span><span class="mt"><b>Dein Tier</b><small id="m-tier"></small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="ziel"><span class="mi"><img src="getraenke/wasser.png" alt=""></span><span class="mt"><b>Tagesziel</b><small id="m-ziel"></small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="getraenke"><span class="mi"><img src="getraenke/kaffee.svg" alt=""></span><span class="mt"><b>Getränke</b><small id="m-getraenke"></small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="konto" id="m-konto-row" hidden><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><span class="mt"><b>Konto</b><small id="m-konto"></small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="kurz"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span class="mt"><b>Kurzbefehle</b><small id="m-kurz"></small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="sicherung"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9z"/><path d="M12 11v6M9.5 13.5 12 11l2.5 2.5"/></svg></span><span class="mt"><b>Sicherung</b><small>Datei speichern oder laden</small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="app" id="m-app-row"><span class="mi"><img src="icons/icon-192.png" alt=""></span><span class="mt"><b>Als App installieren</b><small>auf den Home-Bildschirm</small></span><span class="chev" aria-hidden="true">›</span></button>
+      <button class="mrow" type="button" data-sub="info"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></span><span class="mt"><b>Über Trinkimal</b><small>Datenschutz und Lizenzen</small></span><span class="chev" aria-hidden="true">›</span></button>
+    </nav>
 
-    <div class="card">
-      <h3>Dein Tier</h3>
+    <div class="sub" id="s-tier" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Dein Tier</h2>
+      <p class="note" id="unlock-count"></p>
       <div class="pets" id="pet-pick" role="group" aria-label="Tier auswählen"></div>
+      <p class="note">Graue Tiere schaltest du frei, indem du trinkst. Tipp drauf, dann siehst du, was fehlt.</p>
     </div>
 
-    <div class="card">
-      <h3>Tagesziel</h3>
-      <div class="goal-row">
-        <div class="field"><label for="goal-input">Milliliter pro Tag</label><input type="number" id="goal-input" min="500" max="6000" step="100" inputmode="numeric"></div>
-        <div class="presets" id="goal-presets"></div>
+    <div class="sub" id="s-ziel" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Tagesziel</h2>
+      <div class="card">
+        <div class="goal-row">
+          <div class="field"><label for="goal-input">Milliliter pro Tag</label><input type="number" id="goal-input" min="500" max="6000" step="100" inputmode="numeric"></div>
+          <div class="presets" id="goal-presets"></div>
+        </div>
+        <p class="note">Die Deutsche Gesellschaft für Ernährung nennt für Erwachsene rund 1,5 Liter aus Getränken am Tag. Bei Hitze, Sport oder Arbeit draußen ist es mehr.</p>
       </div>
-      <p class="note">Die Deutsche Gesellschaft für Ernährung nennt für Erwachsene rund 1,5 Liter aus Getränken am Tag. Bei Hitze, Sport oder Arbeit draußen ist es mehr.</p>
     </div>
 
-    <details class="more" id="drinks-box">
-      <summary>Getränke</summary>
-      <div class="more-body">
-        <p class="note">Ein Häkchen bei <span class="k">Startseite</span> legt das Getränk nach vorne. <span class="k">Zählt</span> sagt, wie viel Prozent zum Tagesziel gerechnet werden; Laut Studien wässern Kaffee, Tee, Saft, Cola und normales Bier fast genauso gut wie Wasser, Milch sogar besser (130 %). Wein entwässert kurzzeitig (50 %). Du kannst jeden Wert selbst ändern. Koffein und Zucker gelten je 100 ml.</p>
+    <div class="sub" id="s-getraenke" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Getränke</h2>
+      <p class="note">Ein Häkchen bei <span class="k">Startseite</span> legt das Getränk nach vorne. <span class="k">Zählt</span> sagt, wie viel Prozent zum Tagesziel gerechnet werden. Laut Studien wässern Kaffee, Tee, Saft, Cola und normales Bier fast genauso gut wie Wasser, Milch sogar besser (130 %). Wein entwässert kurzzeitig (50 %). Koffein und Zucker gelten je 100 ml.</p>
+      <div class="card">
         <div class="add-row">
           <div class="field"><label for="new-name">Neues Getränk</label><input type="text" id="new-name" placeholder="z. B. Ingwertee" maxlength="30"></div>
           <div class="field"><label for="new-ml">Menge ml</label><input type="number" id="new-ml" value="300" min="10" max="2000" step="10" inputmode="numeric"></div>
           <button class="primary" id="new-add" type="button">Anlegen</button>
         </div>
-        <div class="dlist" id="dlist"></div>
-        <div id="arch-box">
-          <h3>Archiv</h3>
-          <p class="note">Archivierte Getränke erscheinen nicht mehr zur Auswahl. Alte Einträge und Kurzbefehl-Links bleiben gültig.</p>
-          <div class="dlist" id="arch-list"></div>
-        </div>
       </div>
-    </details>
+      <div class="dlist" id="dlist"></div>
+      <div id="arch-box" class="card">
+        <h3>Archiv</h3>
+        <p class="note">Archivierte Getränke erscheinen nicht mehr zur Auswahl. Alte Einträge und Kurzbefehl-Links bleiben gültig.</p>
+        <div class="dlist" id="arch-list"></div>
+      </div>
+    </div>
 
-    <details class="more" id="kurz-box">
-      <summary>Kurzbefehle fürs iPhone</summary>
-      <div class="more-body">
-        <div id="silent-box" class="more-body" hidden>
-          <h3>Still eintragen über deinen Server</h3>
-          <p class="note">Damit öffnet sich gar nichts: Der Kurzbefehl schickt das Getränk direkt an deinen Server und zeigt danach kurz „Wasser, 250 ml eingetragen. Heute 1.250 von 2.000 ml.“</p>
-          <div class="row-btns"><button class="primary" id="key-btn" type="button">Schlüssel erzeugen</button></div>
-          <div id="key-out" hidden>
-            <div class="link-row" style="grid-template-columns: minmax(0, 1fr) auto;"><code id="key-val"></code><button class="small" id="key-copy" type="button">Kopieren</button></div>
-            <p class="note">Nur jetzt sichtbar, gleich in den Kurzbefehl kopieren. Ein neuer Schlüssel macht den alten ungültig.</p>
+    <div class="sub" id="s-konto" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Konto</h2>
+      <div class="card" id="acct-card">
+        <p class="note foot-note warn" id="acct-msg" hidden></p>
+        <form id="acct-out" class="login" autocomplete="on">
+          <p class="note">Mit Anmeldung siehst du auf jedem Gerät dieselben Einträge, und Kurzbefehle können still eintragen. Konten legt der Besitzer des Servers an.</p>
+          <div class="field"><label for="login-email">E-Mail</label><input type="email" id="login-email" autocomplete="username" required></div>
+          <div class="field"><label for="login-pw">Passwort</label><input type="password" id="login-pw" autocomplete="current-password" required></div>
+          <div class="row-btns"><button class="primary" id="login-btn" type="submit">Anmelden</button></div>
+        </form>
+        <div id="acct-in" hidden>
+          <p id="acct-who"></p>
+          <p class="note" id="acct-sync"></p>
+          <div class="row-btns">
+            <button class="pill" id="sync-btn" type="button">Jetzt abgleichen</button>
+            <button class="pill" id="logout-btn" type="button">Abmelden</button>
           </div>
-          <ol class="steps">
-            <li>Neuer Kurzbefehl, Aktion <span class="k">Inhalte von URL abrufen</span>, URL: <code id="log-url"></code></li>
-            <li>In der Aktion auf den Pfeil: Methode <span class="k">POST</span>, unter <span class="k">Header</span> einen Eintrag <code>X-Trinkimal-Key</code> mit deinem Schlüssel.</li>
-            <li><span class="k">Anfragetext</span>: JSON, Feld <code>drink</code> (Text) mit dem Kürzel, zum Beispiel <code>wasser</code>. Für eine andere Menge ein Feld <code>ml</code> (Zahl).</li>
-            <li>Darunter <span class="k">Wörterbuchwert abrufen</span> mit Schlüssel <code>text</code>, dann <span class="k">Mitteilung anzeigen</span> mit diesem Wert.</li>
-          </ol>
-          <p class="note">Mehrere Getränke in einem Kurzbefehl: vorne <span class="k">Aus Menü auswählen</span>, in jede Zeile dieselben Aktionen mit anderem Kürzel. Die Einträge erscheinen in der App beim nächsten Abgleich.</p>
-          <h3>Ohne Server: per Link</h3>
         </div>
-        <p>Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Trinkimal das Getränk sofort ein. Mit der App Kurzbefehle wird daraus ein Knopf, ein Widget, ein Siri-Satz oder zweimal hinten aufs iPhone klopfen.</p>
-        <p class="note">Kurzbefehle öffnen Links immer in Safari. Nutze Trinkimal deshalb auch sonst in Safari, nicht als Web-App vom Home-Bildschirm. Die hätte einen eigenen, getrennten Speicher.</p>
-        <div class="links" id="links"></div>
-        <p class="note">Andere Menge: hinten anhängen, zum Beispiel <code>#wasser-500</code>. Öffnest du denselben Link ohne Zeitstempel zweimal innerhalb von 90 Sekunden, fragt Trinkimal nach, statt doppelt einzutragen.</p>
-
-        <h3>Variante A: ein Menü, Safari geht kurz auf</h3>
-        <ol class="steps">
-          <li>App <span class="k">Kurzbefehle</span> öffnen, oben rechts auf <span class="k">+</span>, Name <span class="k">Trinken</span>.</li>
-          <li>Aktion <span class="k">Aus Menü auswählen</span>. Für jedes Getränk eine Zeile anlegen, zum Beispiel „Wasser“, „Kaffee“.</li>
-          <li>Unter jede Zeile: Aktion <span class="k">Aktuelles Datum</span>, dann <span class="k">Datum formatieren</span> mit Datumsformat <span class="k">Eigenes</span> und dem Format <code>yyyyMMddHHmmss</code>.</li>
-          <li>Darunter Aktion <span class="k">URL</span> mit dem Link des Getränks, hinten <code>-250-</code> und die Variable <span class="k">Formatiertes Datum</span>. Ergebnis zum Beispiel <code>…#wasser-250-20261014143005</code>.</li>
-          <li>Darunter <span class="k">URLs öffnen</span>.</li>
-        </ol>
-        <p class="note">Der Zeitstempel sorgt dafür, dass nichts doppelt gezählt wird, auch wenn Safari die Seite später neu lädt. Starten: „Hey Siri, Trinken“, das Kurzbefehle-Widget, oder Einstellungen → Bedienungshilfen → Tippen → <span class="k">Auf Rückseite tippen</span> → Doppeltippen → Trinken.</p>
-
-        <h3>Variante B: still eintragen, ohne Safari</h3>
-        <p class="note">Der Kurzbefehl schreibt den Eintrag nur in eine Textdatei in iCloud Drive. Beim nächsten Öffnen holt Trinkimal alles auf einmal nach, mit der richtigen Uhrzeit.</p>
-        <ol class="steps">
-          <li>Kurzbefehl <span class="k">Trinken still</span>: <span class="k">Aus Menü auswählen</span>, pro Zeile <span class="k">Aktuelles Datum</span> und <span class="k">Datum formatieren</span> wie oben.</li>
-          <li>Dann Aktion <span class="k">Text</span> mit <code>wasser-250-</code> plus <span class="k">Formatiertes Datum</span>.</li>
-          <li>Dann <span class="k">An Textdatei anhängen</span>, Datei <code>Shortcuts/trinkimal.txt</code>. Optional <span class="k">Mitteilung anzeigen</span> „Wasser notiert“.</li>
-          <li>Zweiter Kurzbefehl <span class="k">Trinkimal öffnen</span>: <span class="k">Datei abrufen</span> <code>Shortcuts/trinkimal.txt</code>, dann <span class="k">Text ersetzen</span>: Zeilenumbruch durch <code>_</code> ersetzen.</li>
-          <li>Dann <span class="k">URL</span>: <code id="queue-url"></code> plus <span class="k">Geänderter Text</span>, dann <span class="k">URLs öffnen</span>.</li>
-          <li>Zum Schluss einen leeren <span class="k">Text</span> mit <span class="k">Datei sichern</span> nach <code>Shortcuts/trinkimal.txt</code> schreiben, Ersetzen an.</li>
-        </ol>
-
-        <h3>Apple Health und Erinnerungen</h3>
-        <p class="note">In jede Menüzeile passt zusätzlich <span class="k">Gesundheitsprobe protokollieren</span> (Wasser, bei Kaffee auch Koffein). Eine Webseite kann Health aber nicht auslesen. Erinnern: In Kurzbefehle unter <span class="k">Automation</span> → <span class="k">Tageszeit</span> eine Uhrzeit wählen, <span class="k">Sofort ausführen</span> und die Aktion <span class="k">Mitteilung anzeigen</span> mit „Schluck Wasser?“.</p>
       </div>
-    </details>
-
-    <div class="card">
-      <h3>Sicherung</h3>
-      <p class="note">Trinkimal speichert alles nur in diesem Browser. iOS kann Website-Daten löschen, wenn du die Seite lange nicht öffnest. Sichere deshalb ab und zu eine Datei, zum Beispiel in iCloud Drive.</p>
-      <div class="row-btns">
-        <button class="primary" id="export-btn" type="button">Sicherung speichern</button>
-        <button class="pill" id="import-btn" type="button">Sicherung laden</button>
-        <input type="file" id="import-file" accept="application/json,.json" hidden>
-      </div>
-      <p class="note">Beim Laden kommen Einträge aus der Datei dazu, vorhandene bleiben. Tier, Getränke und Ziel werden aus der Datei übernommen.</p>
     </div>
 
-    <div class="card" id="install-card">
-      <h3>Als App aufs Handy</h3>
-      <p class="note">iPhone: in Safari unten auf <span class="k">Teilen</span>, dann <span class="k">Zum Home-Bildschirm</span>. Android: im Browser-Menü <span class="k">App installieren</span>. Danach startet Trinkimal wie eine App und funktioniert auch ohne Netz.</p>
-      <p class="note" id="install-split">Ohne eigenen Server hat die App vom Home-Bildschirm einen eigenen Speicher, getrennt von Safari. Kurzbefehl-Links landen dann in Safari, nicht in der App.</p>
-      <div class="row-btns"><button class="primary" id="install-btn" type="button" hidden>Installieren</button></div>
+    <div class="sub" id="s-kurz" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Kurzbefehle</h2>
+      <div class="card" id="silent-box" hidden>
+        <h3>Still eintragen</h3>
+        <p class="note">Der Kurzbefehl schickt das Getränk direkt an deinen Server, ohne dass sich etwas öffnet, und meldet „Wasser, 250 ml eingetragen. Heute 1.250 von 2.000 ml.“ Geht per Siri, Widget, Apple Watch oder zweimal hinten aufs iPhone klopfen.</p>
+        <div class="row-btns"><button class="primary" id="key-btn" type="button">Schlüssel erzeugen</button></div>
+        <div id="key-out" hidden>
+          <div class="link-row" style="grid-template-columns: minmax(0, 1fr) auto;"><code id="key-val"></code><button class="small" id="key-copy" type="button">Kopieren</button></div>
+          <p class="note">Nur jetzt sichtbar, gleich in den Kurzbefehl kopieren. Ein neuer Schlüssel macht den alten ungültig.</p>
+        </div>
+        <ol class="steps">
+          <li>Neuer Kurzbefehl, Aktion <span class="k">Inhalte von URL abrufen</span>, URL: <code id="log-url"></code></li>
+          <li>In der Aktion auf den Pfeil: Methode <span class="k">POST</span>, unter <span class="k">Header</span> einen Eintrag <code>X-Trinkimal-Key</code> mit deinem Schlüssel.</li>
+          <li><span class="k">Anfragetext</span>: JSON, Feld <code>drink</code> (Text) mit dem Kürzel, zum Beispiel <code>wasser</code>. Für eine andere Menge ein Feld <code>ml</code> (Zahl).</li>
+          <li>Darunter <span class="k">Wörterbuchwert abrufen</span> mit Schlüssel <code>text</code>, dann <span class="k">Mitteilung anzeigen</span> mit diesem Wert.</li>
+        </ol>
+        <p class="note">Mehrere Getränke: vorne <span class="k">Aus Menü auswählen</span>, in jede Zeile dieselben Aktionen mit anderem Kürzel. Zusätzlich passt <span class="k">Gesundheitsprobe protokollieren</span> hinein, dann steht es auch in Apple Health.</p>
+      </div>
+      <p class="note" id="kurz-noserver">Am bequemsten sind Kurzbefehle mit eigenem Server: Dann tragen sie still ein. Ohne Server öffnet jeder Kurzbefehl kurz Safari.</p>
+
+      <details class="more">
+        <summary>Ohne Server: per Link</summary>
+        <div class="more-body">
+          <p class="note">Jedes Getränk hat einen eigenen Link. Öffnest du ihn, trägt Trinkimal das Getränk ein. Kurzbefehle öffnen Links immer in Safari; nutze Trinkimal dann auch sonst in Safari, nicht als App vom Home-Bildschirm, die hätte einen eigenen Speicher.</p>
+          <div class="links" id="links"></div>
+          <p class="note">Andere Menge: hinten anhängen, zum Beispiel <code>#wasser-500</code>. Denselben Link ohne Zeitstempel zweimal innerhalb von 90 Sekunden fragt Trinkimal nach, statt doppelt einzutragen.</p>
+          <h3>Ein Menü für alle Getränke</h3>
+          <ol class="steps">
+            <li>App <span class="k">Kurzbefehle</span>, oben rechts <span class="k">+</span>, Name <span class="k">Trinken</span>.</li>
+            <li>Aktion <span class="k">Aus Menü auswählen</span>, je Getränk eine Zeile.</li>
+            <li>Unter jede Zeile: <span class="k">Aktuelles Datum</span>, <span class="k">Datum formatieren</span> (Eigenes Format <code>yyyyMMddHHmmss</code>), dann <span class="k">URL</span> mit dem Link, hinten <code>-250-</code> und <span class="k">Formatiertes Datum</span>, dann <span class="k">URLs öffnen</span>.</li>
+          </ol>
+          <h3>Still per Textdatei</h3>
+          <p class="note">Statt <span class="k">URLs öffnen</span>: <span class="k">Text</span> <code>wasser-250-</code> plus Datum an <code>Shortcuts/trinkimal.txt</code> anhängen. Ein zweiter Kurzbefehl liest die Datei, ersetzt Zeilenumbrüche durch <code>_</code>, öffnet <code id="queue-url"></code> plus Text und leert die Datei danach. Trinkimal holt dann alles mit der richtigen Uhrzeit nach.</p>
+        </div>
+      </details>
     </div>
 
-    <p class="foot-note" id="foot-note">Alle Daten bleiben in diesem Browser. Trinkimal schickt nichts ins Netz.</p>
-    <p class="foot-note">Tiere und Getränke-Animationen: Google Noto Emoji (CC BY 4.0). Wasser, Glas, Milch, Becher: Microsoft Fluent Emoji (MIT). Abspielen: lottie-web (MIT). Schrift: Fredoka (OFL).</p>
+    <div class="sub" id="s-sicherung" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Sicherung</h2>
+      <div class="card">
+        <p class="note" id="backup-note">iOS kann Website-Daten löschen, wenn du die Seite lange nicht öffnest. Sichere deshalb ab und zu eine Datei, zum Beispiel in iCloud Drive.</p>
+        <div class="row-btns">
+          <button class="primary" id="export-btn" type="button">Sicherung speichern</button>
+          <button class="pill" id="import-btn" type="button">Sicherung laden</button>
+          <input type="file" id="import-file" accept="application/json,.json" hidden>
+        </div>
+        <p class="note">Beim Laden kommen Einträge aus der Datei dazu, vorhandene bleiben. Tier, Getränke und Ziel werden aus der Datei übernommen.</p>
+      </div>
+    </div>
+
+    <div class="sub" id="s-app" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Als App installieren</h2>
+      <div class="card" id="install-card">
+        <p class="note">iPhone: in Safari unten auf <span class="k">Teilen</span>, dann <span class="k">Zum Home-Bildschirm</span>. Android: im Browser-Menü <span class="k">App installieren</span>. Danach startet Trinkimal wie eine App und funktioniert auch ohne Netz.</p>
+        <p class="note" id="install-split">Ohne eigenen Server hat die App vom Home-Bildschirm einen eigenen Speicher, getrennt von Safari. Kurzbefehl-Links landen dann in Safari, nicht in der App.</p>
+        <div class="row-btns"><button class="primary" id="install-btn" type="button" hidden>Installieren</button></div>
+      </div>
+    </div>
+
+    <div class="sub" id="s-info" hidden>
+      <button class="back" type="button">‹ Mehr</button>
+      <h2>Über Trinkimal</h2>
+      <div class="card">
+        <p class="note" id="foot-note">Alle Daten bleiben in diesem Browser. Trinkimal schickt nichts ins Netz.</p>
+        <p class="note">Tiere und Getränke-Animationen: Google Noto Emoji (CC BY 4.0). Wasser, Glas, Milch, Becher: Microsoft Fluent Emoji (MIT). Abspielen: lottie-web (MIT). Schrift: Fredoka (OFL). Code: MIT.</p>
+        <p class="note">Trinkimal ist kein Medizinprodukt.</p>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -539,17 +606,137 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   };
 
   // Tiere unter tiere/: animiert (Noto Emoji, CC BY 4.0), .json + Standbild .svg
+  // Reihenfolge = Anzeige: frei, dann normal, selten, legendär.
+  // need(st) liefert [Stand, Ziel]; ohne need ist das Tier von Anfang an frei.
   var PETS = {
-    panda: { name: "Panda", art: "Der" }, baer: { name: "Bär", art: "Der" }, pinguin: { name: "Pinguin", art: "Der" },
-    frosch: { name: "Frosch", art: "Der" }, kueken: { name: "Küken", art: "Das" }, katze: { name: "Katze", art: "Die" },
-    fuchs: { name: "Fuchs", art: "Der" }, einhorn: { name: "Einhorn", art: "Das" }, otter: { name: "Otter", art: "Der" },
-    robbe: { name: "Robbe", art: "Die" }, eule: { name: "Eule", art: "Die" }, igel: { name: "Igel", art: "Der" },
-    faultier: { name: "Faultier", art: "Das" }, krake: { name: "Krake", art: "Der" }, schildkroete: { name: "Schildkröte", art: "Die" },
-    flamingo: { name: "Flamingo", art: "Der" }, kuh: { name: "Kuh", art: "Die" }, loewe: { name: "Löwe", art: "Der" },
-    dino: { name: "Dino", art: "Der" }, affe: { name: "Affe", art: "Der" }, hase: { name: "Hase", art: "Der" },
-    qualle: { name: "Qualle", art: "Die" }, biene: { name: "Biene", art: "Die" }, eidechse: { name: "Eidechse", art: "Die" },
-    schwein: { name: "Schwein", art: "Das" }, kaenguru: { name: "Känguru", art: "Das" }, tiger: { name: "Tiger", art: "Der" }
+    panda: { name: "Panda", art: "Der" },
+    katze: { name: "Katze", art: "Die" },
+    hase: { name: "Hase", art: "Der" },
+    kueken: { name: "Küken", art: "Das", text: "Trag dein erstes Getränk ein", need: function (s) { return [s.entries, 1]; } },
+    pinguin: { name: "Pinguin", art: "Der", text: "Schaffe dein Tagesziel", need: function (s) { return [s.hit, 1]; } },
+    baer: { name: "Bär", art: "Der", text: "Schaffe dein Tagesziel 3-mal", need: function (s) { return [s.hit, 3]; } },
+    frosch: { name: "Frosch", art: "Der", text: "Trink an 5 Tagen etwas", need: function (s) { return [s.active, 5]; } },
+    otter: { name: "Otter", art: "Der", text: "Schaffe dein Ziel 3 Tage am Stück", need: function (s) { return [s.bestRun, 3]; } },
+    igel: { name: "Igel", art: "Der", text: "Trink 7 Tage hintereinander etwas", need: function (s) { return [s.activeRun, 7]; } },
+    faultier: { name: "Faultier", art: "Das", text: "Komm nach mindestens 3 Tagen Pause zurück", need: function (s) { return [s.comeback, 1]; } },
+    biene: { name: "Biene", art: "Die", text: "Trink an 5 Tagen schon vor 8 Uhr", need: function (s) { return [s.early, 5]; } },
+    eule: { name: "Eule", art: "Die", text: "Trink an 5 Tagen zwischen 20 und 22 Uhr", need: function (s) { return [s.late, 5]; } },
+    krake: { name: "Krake", art: "Der", text: "Trag an einem Tag 8 Getränke ein", need: function (s) { return [s.maxCount, 8]; } },
+    affe: { name: "Affe", art: "Der", text: "Trink an einem Tag 5 verschiedene Getränke", need: function (s) { return [s.maxKinds, 5]; } },
+    fuchs: { name: "Fuchs", art: "Der", text: "Leg ein eigenes Getränk an und trink es 3-mal", need: function (s) { return [s.custom, 3]; } },
+    kuh: { name: "Kuh", art: "Die", text: "Trink 10-mal Milch", need: function (s) { return [s.milk, 10]; } },
+    qualle: { name: "Qualle", art: "Die", text: "Schaffe dein Ziel an einem Tag nur mit Wasser", need: function (s) { return [s.waterDay, 1]; } },
+    robbe: { name: "Robbe", art: "Die", text: "Schaffe dein Ziel 7 Tage am Stück", need: function (s) { return [s.bestRun, 7]; } },
+    schildkroete: { name: "Schildkröte", art: "Die", text: "Trink an 30 verschiedenen Tagen etwas", need: function (s) { return [s.active, 30]; } },
+    flamingo: { name: "Flamingo", art: "Der", tier: "rare", text: "Schaffe dein Ziel 14 Tage am Stück", need: function (s) { return [s.bestRun, 14]; } },
+    kaenguru: { name: "Känguru", art: "Das", tier: "rare", text: "Schaffe dein Ziel an 5 Tagen schon bis 18 Uhr", need: function (s) { return [s.byEvening, 5]; } },
+    eidechse: { name: "Eidechse", art: "Die", tier: "rare", text: "Trink an einem Tag anderthalbmal so viel wie dein Ziel (höchstens 1 Liter mehr)", need: function (s) { return [s.bigDay, 1]; } },
+    schwein: { name: "Schwein", art: "Das", tier: "rare", text: "Schaffe dein Ziel an 7 Tagen mit weniger als 25 g Zucker", need: function (s) { return [s.lowSugar, 7]; } },
+    loewe: { name: "Löwe", art: "Der", tier: "rare", text: "Schaffe dein Ziel eine ganze Woche von Montag bis Sonntag", need: function (s) { return [s.perfectWeek, 1]; } },
+    tiger: { name: "Tiger", art: "Der", tier: "rare", text: "Schaffe dein Ziel 30 Tage am Stück", need: function (s) { return [s.bestRun, 30]; } },
+    einhorn: { name: "Einhorn", art: "Das", tier: "legend", text: "Probier 20 verschiedene Getränke und schaffe 30 Tage am Stück",
+      need: function (s) { return [Math.min(s.kinds, 20) + Math.min(s.bestRun, 30), 50]; } },
+    pfau: { name: "Pfau", art: "Der", tier: "legend", text: "Schaffe dein Ziel an jedem Tag eines ganzen Kalendermonats", need: function (s) { return [s.perfectMonth, 1]; } },
+    drache: { name: "Drache", art: "Der", tier: "legend", text: "Schaffe dein Ziel 100 Tage am Stück", need: function (s) { return [s.bestRun, 100]; } },
+    dino: { name: "Dino", art: "Der", tier: "legend", text: "Schaffe dein Ziel an insgesamt 365 Tagen", need: function (s) { return [s.hit, 365]; } }
   };
+
+  // Kennzahlen für das Freischalten, immer neu aus allen Einträgen (rückwirkend, auf allen Geräten gleich)
+  function iconOf(id) { var d = drinkById(id); return d ? d.icon : (DEF_ICON[id] || "becher"); }
+  function nextDay(k) { var d = new Date(k + "T12:00:00"); d.setDate(d.getDate() + 1); return dayKey(d); }
+  function unlockStats() {
+    var s = { entries: 0, hit: 0, active: 0, bestRun: 0, activeRun: 0, comeback: 0, early: 0, late: 0, maxCount: 0, maxKinds: 0,
+      custom: 0, milk: 0, waterDay: 0, byEvening: 0, bigDay: 0, lowSugar: 0, perfectWeek: 0, perfectMonth: 0, kinds: 0 };
+    var goal = settings.goal, kinds = {}, hitSet = {};
+    var keys = Object.keys(days).filter(function (k) { return days[k].length; }).sort();
+    var run = 0, aRun = 0, prevHit = null, prevActive = null;
+    keys.forEach(function (k) {
+      var list = days[k].slice().sort(function (a, b) { return a.t - b.t; });
+      var sum = 0, sug = 0, kindsDay = {}, onlyWater = true, early = false, late = false, reachedAt = null;
+      list.forEach(function (e) {
+        s.entries++; sum += e.e || 0; sug += e.sug || 0;
+        kinds[e.d] = 1; kindsDay[e.d] = 1;
+        var ic = iconOf(e.d);
+        if (ic === "milch") s.milk++;
+        if (ic !== "wasser" && ic !== "glas") onlyWater = false;
+        if (!DEF_ICON.hasOwnProperty(e.d)) s.custom++;
+        var h = new Date(e.t).getHours();
+        if (h < 8) early = true;
+        if (h >= 20 && h < 22) late = true;
+        if (reachedAt === null && sum >= goal) reachedAt = h;
+      });
+      var hit = sum >= goal;
+      s.active++;
+      if (early) s.early++;
+      if (late) s.late++;
+      s.maxCount = Math.max(s.maxCount, list.length);
+      s.maxKinds = Math.max(s.maxKinds, Object.keys(kindsDay).length);
+      if (prevActive) {
+        var gap = (new Date(k + "T12:00:00") - new Date(prevActive + "T12:00:00")) / 864e5;
+        if (gap >= 4) s.comeback = 1;
+        aRun = gap === 1 ? aRun + 1 : 1;
+      } else aRun = 1;
+      s.activeRun = Math.max(s.activeRun, aRun);
+      prevActive = k;
+      if (hit) {
+        s.hit++; hitSet[k] = 1;
+        run = prevHit && nextDay(prevHit) === k ? run + 1 : 1;
+        prevHit = k;
+        s.bestRun = Math.max(s.bestRun, run);
+        if (onlyWater) s.waterDay = 1;
+        if (reachedAt !== null && reachedAt < 18) s.byEvening++;
+        if (sug < 25) s.lowSugar++;
+      }
+      if (sum >= Math.min(goal * 1.5, goal + 1000)) s.bigDay = 1;
+    });
+    s.kinds = Object.keys(kinds).length;
+    // Ganze Woche Mo–So und ganzer Kalendermonat, nur abgeschlossene Zeiträume
+    var today = dayKey();
+    Object.keys(hitSet).forEach(function (k) {
+      var d = new Date(k + "T12:00:00");
+      if (d.getDay() === 1 && !s.perfectWeek) {
+        var ok = true, x = k;
+        for (var i = 0; i < 7; i++) { if (!hitSet[x] || x > today) { ok = false; break; } x = nextDay(x); }
+        if (ok) s.perfectWeek = 1;
+      }
+      if (d.getDate() === 1 && !s.perfectMonth) {
+        var okm = true, y = k, m = d.getMonth();
+        while (new Date(y + "T12:00:00").getMonth() === m) { if (!hitSet[y]) { okm = false; break; } y = nextDay(y); }
+        if (okm) s.perfectMonth = 1;
+      }
+    });
+    return s;
+  }
+  function unlockInfo(k, st) {
+    var p = PETS[k];
+    if (!p.need) return { open: true, tier: "" };
+    var r = p.need(st), cur = Math.min(r[0], r[1]);
+    var open = cur >= r[1] || (settings.geschenkt || []).indexOf(k) >= 0;
+    var prog = k === "einhorn" ? Math.min(st.kinds, 20) + "/20 Getränke, " + Math.min(st.bestRun, 30) + "/30 Tage" : cur + "/" + r[1];
+    return { open: open, tier: p.tier || "", text: p.text, prog: prog };
+  }
+  function openPets() {
+    var st = unlockStats();
+    return Object.keys(PETS).filter(function (k) { return unlockInfo(k, st).open; });
+  }
+  // Neu freigeschaltete Tiere feiern (je Gerät einmal)
+  function checkUnlocks() {
+    var now = openPets(), seenL = sGet("dl.feiert");
+    if (!Array.isArray(seenL)) { sSet("dl.feiert", now); return; }
+    var fresh = now.filter(function (k) { return seenL.indexOf(k) < 0; });
+    if (!fresh.length) return;
+    sSet("dl.feiert", seenL.concat(fresh));
+    // Die Sprechblase verkündet es (der Hinweis unten bleibt fürs Rückgängig frei)
+    var p = PETS[fresh[fresh.length - 1]];
+    var badge = p.tier === "legend" ? "Legendär! " : p.tier === "rare" ? "Selten! " : "";
+    newPetMsg = {
+      text: fresh.length > 1 ? fresh.length + " neue Tiere freigeschaltet! Tipp auf mich." :
+        badge + p.art + " " + p.name + " ist freigeschaltet! Tipp auf mich zum Wechseln.",
+      until: Date.now() + 3 * 60000
+    };
+    cheer();
+  }
+  var newPetMsg = null;
 
   var $ = function (s) { return document.querySelector(s); };
   var fmt = function (n) { return Math.round(n).toLocaleString("de-DE"); };
@@ -601,7 +788,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       var old = OLD_F.hasOwnProperty(d.id) ? OLD_F[d.id] : 100;
       if (DEF_ICON.hasOwnProperty(d.id) && d.f === old) d.f = HYD.hasOwnProperty(d.id) ? HYD[d.id] : 100;
     });
-    return { v: 2, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda" };
+    return { v: 2, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
+      geschenkt: (Array.isArray(s.geschenkt) ? s.geschenkt : []).filter(function (k) { return PETS.hasOwnProperty(k); }) };
   }
   function sanitizeEntry(e) {
     if (!e || typeof e.id !== "string" || !/^[A-Za-z0-9_-]{1,60}$/.test(e.id) || !(Number(e.t) > 0)) return null;
@@ -896,7 +1084,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var pet = PETS[settings.pet] || PETS.panda;
     var rest = "Noch " + fmt(goal - sum) + " ml.";
     var says;
-    if (sum >= goal) { says = "Danke! " + pet.art + " " + pet.name + " ist satt und glücklich."; thirst = 0; }
+    if (newPetMsg && Date.now() < newPetMsg.until) says = newPetMsg.text;
+    else if (sum >= goal) { says = "Danke! " + pet.art + " " + pet.name + " ist satt und glücklich."; thirst = 0; }
     else if (recentLow && recentLow.e === 0) says = "Prost! Aber " + recentLow.n + " löscht keinen Durst. Ein Glas Wasser dazu?";
     else if (recentLow) says = "Lecker! Aber " + recentLow.n + " zählt nur " + Math.round(recentLow.e / recentLow.ml * 100) + " %. Ein Glas Wasser dazu?";
     else if (recentSweet) says = "Lecker! Aber " + recentSweet.n + " hat ganz schön viel Zucker. " + rest;
@@ -916,13 +1105,17 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       shownPet = settings.pet;
     }
     $("#pond").setAttribute("aria-label", pet.name + " im Teich, " + says + " Tippen zum Tier wechseln");
-    var h = (14 + pct * 34) + "%";
+    // Leer eine kleine Pfütze, beim Tagesziel randvoll; das Tier schwimmt mit dem Wasser nach oben
+    var h = (10 + pct * 90) + "%";
+    $("#pet-anim").style.top = (50 - 16 * pct) + "%";
     $("#water-back").style.height = h;
     $("#water-front").style.height = h;
     var p = $("#pond");
     p.classList.toggle("thirsty", thirst === 1);
     p.classList.toggle("parched", thirst === 2);
     p.classList.toggle("happy", sum >= goal);
+    p.classList.toggle("full", pct >= 0.9);
+    $("#pond-wrap").classList.toggle("over", sum > goal);
   }
 
   function renderHeute() {
@@ -933,7 +1126,10 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var sug = list.reduce(function (a, e) { return a + (e.sug || 0); }, 0);
 
     $("#sum").textContent = fmt(sum);
+    var over = Math.round(sum / settings.goal * 100);
+    $("#over-pct").textContent = sum > settings.goal ? " · " + over + " %" : "";
     $("#goal-label").textContent = fmt(settings.goal);
+    checkUnlocks();
     renderPet();
     renderTiles();
 
@@ -962,7 +1158,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
 
     $("#today-label").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
   }
-  $("#pond").addEventListener("click", function () { showTab("mehr"); window.scrollTo(0, 0); });
+  $("#pond").addEventListener("click", function () { showTab("mehr"); showSub("tier"); });
 
   // ---------- Woche ----------
   function reached(day) { return daySum(day) >= settings.goal; }
@@ -1026,34 +1222,88 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { saveSettings(); renderHeute(); }, 500); }
   function flushSave() { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; saveSettings(); } }
 
+  var LOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   function renderPetPick() {
     var pp = $("#pet-pick"); pp.textContent = "";
+    var st = unlockStats(), n = 0;
     Object.keys(PETS).forEach(function (k) {
-      var b = el("button"); b.type = "button";
+      var u = unlockInfo(k, st), open = u.open;
+      if (open) n++;
+      var b = el("button", (open ? "" : "locked") + (u.tier ? " " + u.tier : "")); b.type = "button";
       b.setAttribute("aria-pressed", String(settings.pet === k));
       b.appendChild(stillImg("tiere/" + k + ".svg"));
       b.appendChild(el("span", null, PETS[k].name));
+      if (u.tier) b.appendChild(el("span", "tier-tag" + (u.tier === "rare" ? " rare" : ""), u.tier === "rare" ? "Selten" : "Legendär"));
+      if (!open) {
+        var lk = el("span", "lock"); lk.innerHTML = LOCK_SVG; b.appendChild(lk);
+        b.appendChild(el("span", "prog", u.prog));
+        b.setAttribute("aria-label", PETS[k].name + ", gesperrt: " + u.text + " (" + u.prog + ")");
+      }
       b.addEventListener("click", function () {
-        settings.pet = k; saveSettings(); renderPet();
+        if (!open) { toast(PETS[k].name + ": " + u.text + ". Stand: " + u.prog + ".", null, null, 7000); return; }
+        settings.pet = k; saveSettings(); renderPet(); renderMenu();
         pp.querySelectorAll("button").forEach(function (x, i) { x.setAttribute("aria-pressed", String(Object.keys(PETS)[i] === k)); });
       });
       pp.appendChild(b);
     });
+    $("#unlock-count").textContent = n + " von " + Object.keys(PETS).length + " Tieren freigeschaltet.";
   }
 
+  // ---------- Mehr: Liste und Unterseiten ----------
+  var sub = null;
+  function renderMenu() {
+    var st = unlockStats();
+    var open = Object.keys(PETS).filter(function (k) { return unlockInfo(k, st).open; }).length;
+    var pet = PETS[settings.pet] || PETS.panda;
+    $("#mi-tier").src = "tiere/" + settings.pet + ".svg";
+    $("#m-tier").textContent = pet.name + " · " + open + " von " + Object.keys(PETS).length;
+    $("#m-ziel").textContent = fmt(settings.goal) + " ml am Tag";
+    var favs = activeDrinks().filter(function (d) { return d.fav; }).length;
+    $("#m-getraenke").textContent = favs + " auf der Startseite, " + activeDrinks().length + " insgesamt";
+    $("#m-konto").textContent = srv.auth ? "Angemeldet als " + (srv.auth.email || "du") : "Nicht angemeldet";
+    $("#m-kurz").textContent = srv.auth ? "Still eintragen per Siri und Widget" : "Per Link, Safari geht kurz auf";
+  }
+  function renderSub(name) {
+    if (name === "tier") renderPetPick();
+    if (name === "ziel") {
+      $("#goal-input").value = settings.goal;
+      var pr = $("#goal-presets"); pr.textContent = "";
+      [1500, 2000, 2500, 3000].forEach(function (v) {
+        var b = el("button", "pill", liter(v) + " l"); b.type = "button";
+        b.addEventListener("click", function () { settings.goal = v; $("#goal-input").value = v; saveSettings(); renderHeute(); });
+        pr.appendChild(b);
+      });
+    }
+    if (name === "getraenke") renderDrinkEditor();
+    if (name === "kurz") renderKurz();
+    renderAccount();
+  }
+  function showSub(name, push) {
+    flushSave();
+    sub = name || null;
+    $("#mehr-menu").hidden = !!sub;
+    document.querySelectorAll("#p-mehr .sub").forEach(function (s) { s.hidden = s.id !== "s-" + sub; });
+    if (sub) {
+      renderSub(sub);
+      if (push !== false) { try { history.pushState({ sub: sub }, ""); } catch (e) {} }
+    } else renderMenu();
+    window.scrollTo(0, 0);
+  }
   function renderMehr() {
     renderAccount();
-    renderPetPick();
-    $("#goal-input").value = settings.goal;
-    var pr = $("#goal-presets"); pr.textContent = "";
-    [1500, 2000, 2500, 3000].forEach(function (v) {
-      var b = el("button", "pill", liter(v) + " l"); b.type = "button";
-      b.addEventListener("click", function () { settings.goal = v; $("#goal-input").value = v; saveSettings(); renderHeute(); });
-      pr.appendChild(b);
-    });
-    renderDrinkEditor();
-    renderKurz();
+    if (sub) renderSub(sub); else renderMenu();
   }
+  document.querySelectorAll("#mehr-menu .mrow").forEach(function (b) {
+    b.addEventListener("click", function () { showSub(b.dataset.sub); });
+  });
+  document.querySelectorAll("#p-mehr .back").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (history.state && history.state.sub) history.back(); else showSub(null, false);
+    });
+  });
+  window.addEventListener("popstate", function (ev) {
+    if (tab === "mehr") showSub(ev.state && ev.state.sub ? ev.state.sub : null, false);
+  });
 
   function renderDrinkEditor() {
     var list = $("#dlist"); list.textContent = "";
@@ -1380,9 +1630,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   }
 
   function renderAccount() {
-    var card = $("#acct-card");
-    card.hidden = !srv.ok;
+    $("#m-konto-row").hidden = !srv.ok;
     $("#silent-box").hidden = !(srv.ok && srv.auth);
+    $("#kurz-noserver").hidden = !!(srv.ok && srv.auth);
     if (!srv.ok) return;
     $("#acct-out").hidden = !!srv.auth;
     $("#acct-in").hidden = !srv.auth;
@@ -1446,7 +1696,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   });
   var standalone = false;
   try { standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) {}
-  $("#install-card").hidden = standalone;
+  $("#m-app-row").hidden = standalone;
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
     window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
   }
@@ -1463,6 +1713,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       if (on && focus) x.focus();
     });
     TABS.forEach(function (n) { $("#p-" + n).hidden = n !== t; });
+    if (t === "mehr" && !focus) { sub = null; $("#mehr-menu").hidden = false; document.querySelectorAll("#p-mehr .sub").forEach(function (s) { s.hidden = true; }); }
     renderAll(true);
   }
   document.querySelectorAll(".tabbar button").forEach(function (b) {
@@ -1498,6 +1749,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     fn.classList.add("warn");
   }
 
+  // Wer schon ein Tier hatte, das jetzt gesperrt wäre, behält es
+  if (!unlockInfo(settings.pet, unlockStats()).open) { settings.geschenkt.push(settings.pet); sSet("dl.settings", settings); }
   renderAll(true);
   processHash();
   detectServer().then(function (ok) {
