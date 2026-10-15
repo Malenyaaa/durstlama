@@ -1,0 +1,77 @@
+Trinkimal: Plan für Freunde, Bestenliste und Gruppen-Events
+==========================================================
+
+Stand 15.10.2026. Noch nicht gebaut. Alles hier braucht den eigenen Server (PocketBase,
+siehe README „Eigener Server“), weil die Daten mehrerer Konten zusammenkommen müssen.
+Wird umgesetzt, sobald der Server läuft.
+
+
+1. Freunde und Bestenliste
+--------------------------
+
+Entscheidungen
+- Nur Freunde, nicht „alle auf dem Server“.
+- Freund hinzufügen per Freundescode, z. B. OTTER-4821 (Tierwort + 4 Ziffern, neu erzeugbar),
+  oder Link …/#freund=OTTER-4821. Anfrage, annehmen, jederzeit entfernen (beidseitig).
+- Mitmachen nur auf Wunsch: Ein Profil entsteht erst bei „Mitmachen“, mit selbst gewähltem
+  Namen (2–20 Zeichen, nie die E-Mail).
+- Andere sehen: Name, Tier als Bild, Tagesprozent, Serie, gemeinsame Serie. Milliliter nur,
+  wenn man „Menge zeigen“ einschaltet.
+- Rangliste nach Tagen mit erreichtem Ziel (Woche), dann Durchschnittsprozent, höchstens 100 %.
+  Ziele unter 1.000 ml zählen in der Bestenliste als 1.000 ml.
+- Freundschafts-Serie: Tage, an denen beide ihr Ziel geschafft haben. Pausentage beachten.
+
+Server (neue Migration, nicht die bestehende ändern)
+- trinkimal_entries bekommt ein Feld day (YYYY-MM-DD), gesetzt von der App bzw. von /log
+  über tzo; Nachtragen für alte Einträge in der Migration.
+- trinkimal_profiles: owner (eindeutig), name, pet, code (eindeutig), visible, show_ml.
+  Regeln: nur eigenes Profil lesen/schreiben; fremde Profile nie direkt, nur über Routen.
+- trinkimal_friends: from, to, status (pending|accepted), eindeutig (from, to).
+  Lesen: from oder to = ich. Schreiben nur über Routen.
+- trinkimal_days (nur Hooks schreiben): owner, day, e, goal, pct, hit; eindeutig (owner, day).
+  Hook nach Anlegen/Ändern eines Eintrags rechnet den Tag neu.
+- Routen (angemeldet): GET /api/trinkimal/freunde, POST …/freunde/anfrage {code},
+  POST …/freunde/annehmen {id}, DELETE …/freunde/{id}, POST …/freunde/code.
+  Serie und gemeinsame Serie werden in der Route aus trinkimal_days berechnet.
+- Die App liest nie fremde Einträge, nur die zusammengefassten Tageswerte über die Route.
+
+App
+- Neuer Reiter „Freunde“ (nur mit Server, Anmeldung und Profil).
+- Zeile je Freund: kleiner Teich mit Tier, Name, Prozent, Serie, gemeinsame Serie.
+- Unter Mehr → Freunde: Name, sichtbar, Menge zeigen, Profil löschen.
+
+
+2. Gruppen-Event „Wie viel Wasser steckt in …?“
+-----------------------------------------------
+
+Idee des Nutzers: Alle Freunde trinken zusammen so viel Wasser, wie man für 1 kg Rind braucht.
+
+Virtueller Wasserbedarf (weltweiter Durchschnitt, Water Footprint Network, Mekonnen und Hoekstra):
+
+  1 Apfel (100 g)              82 Liter
+  1 Tasse Kaffee (125 ml)     132 Liter
+  1 Ei (60 g)                 196 Liter
+  1 Tafel Schokolade (100 g) 1.720 Liter
+  1 Burger                  2.400 Liter
+  1 Jeans                   ca. 10.000 Liter
+  1 kg Rind                 15.415 Liter
+
+Größenordnung: 5 Freunde mit je 2 Litern am Tag brauchen für 1 kg Rind rund 4 Jahre.
+
+Zwei Arten
+a) Dauer-Reise „Gemeinsam auf 1 kg Rind“: Alles, was die Gruppe trinkt, zählt zusammen.
+   Etappen in der Reihenfolge der Tabelle, je mit kurzem Fakt („Ihr habt zusammen schon eine
+   Tafel Schokolade getrunken!“). Am Ende vielleicht ein besonderes Tier.
+b) Monats-Events mit einem Ziel passend zur Gruppengröße (automatisch gewählt), z. B.
+   „Diesen Monat trinkt ihr zusammen einen Burger“.
+
+Offen
+- Zählt die Menge in ml oder die Anrechnung (e)? Vorschlag: e, wie das Tagesziel.
+- Zählen nur Freunde, die beim Event „mitmachen“?
+- Belohnung am Ende: besonderes Tier, Abzeichen, nur Feier?
+
+Quellen
+- Water Footprint Network, Product Gallery: https://www.waterfootprint.org/resources/interactive-tools/product-gallery/
+- Mekonnen, Hoekstra (2012): A global assessment of the water footprint of farm animal products,
+  Ecosystems 15, 401–415
+- Übersicht mit denselben Werten: https://www.enel.com/learning-hub/environment/water-footprint

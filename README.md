@@ -394,6 +394,7 @@ Trinkimal ist kein Medizinprodukt.
 - `tiere/` – Tier-Animationen (Lottie-JSON) mit Standbildern, `getraenke/` – Getränkebilder
 - `vendor/lottie_light.min.js` – Abspieler für die Animationen, `fonts/` – Schrift
 - `sw.js` – Service Worker für den Offline-Start; bei Änderungen an App-Dateien `FASSUNG` hochzählen
+- `konzept/` – Pläne für später (Freunde, Bestenliste, Gruppen-Events)
 - `server/` – PocketBase-Tabellen (`pb_migrations/`), Server-Adressen (`pb_hooks/`) und Installation
 - Zum Ausprobieren über einen kleinen Webserver öffnen; direkt als Datei geöffnet zeigt die Seite
   Standbilder, weil der Browser die Animationen dann nicht laden darf
