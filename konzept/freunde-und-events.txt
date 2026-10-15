@@ -19,7 +19,10 @@ Entscheidungen
   wenn man „Menge zeigen“ einschaltet.
 - Rangliste nach Tagen mit erreichtem Ziel (Woche), dann Durchschnittsprozent, höchstens 100 %.
   Ziele unter 1.000 ml zählen in der Bestenliste als 1.000 ml.
-- Freundschafts-Serie: Tage, an denen beide ihr Ziel geschafft haben. Pausentage beachten.
+- Freundschafts-Serie: Tage, an denen beide ihr Ziel geschafft haben.
+- Pausen im Wettbewerb: In Rangliste und Freundschafts-Serie zählen Pausentage als nicht
+  geschafft (sonst nimmt man sich per Dauerpause aus verfehlten Tagen heraus). Die eigene
+  Serie bleibt davon unberührt.
 
 Server (neue Migration, nicht die bestehende ändern)
 - trinkimal_entries bekommt ein Feld day (YYYY-MM-DD), gesetzt von der App bzw. von /log
@@ -32,6 +35,8 @@ Server (neue Migration, nicht die bestehende ändern)
   Hook nach Anlegen/Ändern eines Eintrags rechnet den Tag neu.
 - Routen (angemeldet): GET /api/trinkimal/freunde, POST …/freunde/anfrage {code},
   POST …/freunde/annehmen {id}, DELETE …/freunde/{id}, POST …/freunde/code.
+  Schutz gegen Durchprobieren von Codes (nur ca. 330.000 Möglichkeiten): höchstens etwa
+  10 Anfragen pro Konto und Stunde, und die Antwort verrät nicht, ob es den Code gibt.
   Serie und gemeinsame Serie werden in der Route aus trinkimal_days berechnet.
 - Die App liest nie fremde Einträge, nur die zusammengefassten Tageswerte über die Route.
 
