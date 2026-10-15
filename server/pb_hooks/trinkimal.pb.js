@@ -40,9 +40,18 @@ routerAdd("POST", "/api/trinkimal/log", (e) => {
   const f = isFinite(Number(drink.f)) ? Number(drink.f) : 100
   const now = Date.now()
 
+  // Optionaler Stempel (z. B. „Formatiertes Datum“ aus dem Kurzbefehl): dieselbe Anfrage zweimal
+  // ergibt nur einen Eintrag, etwa wenn iOS bei schlechtem Netz wiederholt
+  const stamp = String(body.stamp || "").replace(/[^0-9A-Za-z]/g, "").slice(0, 30)
+  const eid = stamp ? ("s" + drink.id + stamp).slice(0, 60) : "s" + now.toString(36) + $security.randomString(5).toLowerCase()
+  let dup = false
+  if (stamp) {
+    try { e.app.findFirstRecordByFilter("trinkimal_entries", "owner = {:o} && eid = {:e}", { o: uid, e: eid }); dup = true } catch (_) {}
+  }
+
   const r = new Record(e.app.findCollectionByNameOrId("trinkimal_entries"))
   r.set("owner", uid)
-  r.set("eid", "s" + now.toString(36) + $security.randomString(5).toLowerCase())
+  r.set("eid", eid)
   r.set("t", now)
   r.set("d", drink.id)
   r.set("n", String(drink.name || "Getränk").slice(0, 30))
@@ -51,7 +60,13 @@ routerAdd("POST", "/api/trinkimal/log", (e) => {
   r.set("e", Math.round(ml * f / 100))
   r.set("caf", Math.round(ml * (Number(drink.caf) || 0) / 100))
   r.set("sug", Math.round(ml * (Number(drink.sug) || 0) / 10) / 10)
-  e.app.save(r)
+  if (!dup) {
+    try { e.app.save(r) } catch (err) {
+      // Gleichzeitig doppelt angekommen: der eindeutige Index hat es abgefangen
+      if (!stamp) throw err
+      dup = true
+    }
+  }
 
   // Tagessumme in der Zeitzone, die die App zuletzt gemeldet hat
   const tzo = isFinite(Number(data.tzo)) ? Number(data.tzo) : 0
@@ -63,6 +78,6 @@ routerAdd("POST", "/api/trinkimal/log", (e) => {
   today.forEach((x) => { sum += x.getFloat("e") })
   const goal = Number(data.goal) || 2000
   const fmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-  const text = String(drink.name || "Getränk") + ", " + fmt(ml) + " ml eingetragen. Heute " + fmt(sum) + " von " + fmt(goal) + " ml."
-  return e.json(200, { ok: true, text: text, today: Math.round(sum), goal: goal })
+  const text = String(drink.name || "Getränk") + ", " + fmt(ml) + (dup ? " ml war schon eingetragen. Heute " : " ml eingetragen. Heute ") + fmt(sum) + " von " + fmt(goal) + " ml."
+  return e.json(200, { ok: true, duplicate: dup, text: text, today: Math.round(sum), goal: goal })
 })

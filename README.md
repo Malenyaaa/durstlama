@@ -61,7 +61,8 @@ Home-Bildschirm gestartet, löscht iOS die Daten nicht.
 
 **Mit eigenem Server:** unter **Mehr → Kurzbefehle** einen Schlüssel erzeugen und die Aktion
 „Inhalte von URL abrufen“ mit `POST` an `https://deine-domain/api/trinkimal/log` schicken,
-Header `X-Trinkimal-Key`, JSON-Feld `drink` (Kürzel) und optional `ml`. Die Antwort enthält
+Header `X-Trinkimal-Key`, JSON-Feld `drink` (Kürzel), optional `ml` und `stamp` (aktuelles Datum
+als `yyyyMMddHHmmss`; dieselbe Anfrage zweimal ergibt dann nur einen Eintrag). Die Antwort enthält
 im Feld `text` eine Rückmeldung wie „Wasser, 250 ml eingetragen. Heute 1.250 von 2.000 ml.“
 
 **Ohne Server** öffnen Kurzbefehle Links immer in **Safari**. Nutze Trinkimal dann auch sonst in

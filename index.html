@@ -519,7 +519,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         <ol class="steps">
           <li>Neuer Kurzbefehl, Aktion <span class="k">Inhalte von URL abrufen</span>, URL: <code id="log-url"></code></li>
           <li>In der Aktion auf den Pfeil: Methode <span class="k">POST</span>, unter <span class="k">Header</span> einen Eintrag <code>X-Trinkimal-Key</code> mit deinem Schlüssel.</li>
-          <li><span class="k">Anfragetext</span>: JSON, Feld <code>drink</code> (Text) mit dem Kürzel, zum Beispiel <code>wasser</code>. Für eine andere Menge ein Feld <code>ml</code> (Zahl).</li>
+          <li><span class="k">Anfragetext</span>: JSON, Feld <code>drink</code> (Text) mit dem Kürzel, zum Beispiel <code>wasser</code>. Für eine andere Menge ein Feld <code>ml</code> (Zahl). Gegen Doppelte ein Feld <code>stamp</code> mit <span class="k">Aktuelles Datum</span> (Format <code>yyyyMMddHHmmss</code>).</li>
           <li>Darunter <span class="k">Wörterbuchwert abrufen</span> mit Schlüssel <code>text</code>, dann <span class="k">Mitteilung anzeigen</span> mit diesem Wert.</li>
         </ol>
         <p class="note">Mehrere Getränke: vorne <span class="k">Aus Menü auswählen</span>, in jede Zeile dieselben Aktionen mit anderem Kürzel. Zusätzlich passt <span class="k">Gesundheitsprobe protokollieren</span> hinein, dann steht es auch in Apple Health.</p>
@@ -740,9 +740,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       list.forEach(function (e) {
         s.entries++; sum += e.e || 0; sug += e.sug || 0;
         kinds[e.d] = 1; kindsDay[e.d] = 1;
-        var ic = iconOf(e.d);
-        if (ic === "milch") s.milk++;
-        if (ic !== "wasser" && ic !== "glas") onlyWater = false;
+        if (e.d === "milch" || e.d === "hafermilch") s.milk++;
+        if (e.d !== "wasser" && e.d !== "sprudel") onlyWater = false;
         if (!DEF_ICON.hasOwnProperty(e.d)) s.custom++;
         var h = new Date(e.t).getHours();
         if (h < 8) early = true;
@@ -805,7 +804,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       st.others = others.filter(function (x) { return unlockInfo(x, st).open; }).length;
     }
     var r = p.need(st), cur = Math.min(r[0], r[1]);
-    var open = cur >= r[1] || (settings.geschenkt || []).indexOf(k) >= 0;
+    var open = cur >= r[1] || (settings.geschenkt || []).indexOf(k) >= 0 || (settings.frei || []).indexOf(k) >= 0;
     var prog = k === "einhorn" ? Math.min(st.kinds, 20) + "/20 Getränke, " + Math.min(st.bestRun, 30) + "/30 Tage"
       : k === "wal" ? fmt(cur) + " von 1.000 Litern" : cur + "/" + r[1];
     return { open: open, tier: p.tier || "", text: p.text, prog: prog };
@@ -817,6 +816,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   // Neu freigeschaltete Tiere feiern (je Gerät einmal)
   function checkUnlocks() {
     var now = openPets(), seenL = sGet("dl.feiert");
+    // Einmal frei bleibt frei, auch wenn später das Ziel steigt oder Einträge fehlen
+    var lost = now.filter(function (k) { return PETS[k].need && settings.frei.indexOf(k) < 0; });
+    if (lost.length) { settings.frei = settings.frei.concat(lost); saveSettings(); }
     if (!Array.isArray(seenL)) { sSet("dl.feiert", now); return; }
     var fresh = now.filter(function (k) { return seenL.indexOf(k) < 0; });
     if (!fresh.length) return;
@@ -884,7 +886,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       if (DEF_ICON.hasOwnProperty(d.id) && d.f === old) d.f = HYD.hasOwnProperty(d.id) ? HYD[d.id] : 100;
     });
     return { v: 2, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
-      geschenkt: (Array.isArray(s.geschenkt) ? s.geschenkt : []).filter(function (k) { return PETS.hasOwnProperty(k); }) };
+      geschenkt: (Array.isArray(s.geschenkt) ? s.geschenkt : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
+      frei: (Array.isArray(s.frei) ? s.frei : []).filter(function (k) { return PETS.hasOwnProperty(k); }) };
   }
   function sanitizeEntry(e) {
     if (!e || typeof e.id !== "string" || !/^[A-Za-z0-9_-]{1,60}$/.test(e.id) || !(Number(e.t) > 0)) return null;
@@ -911,6 +914,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   var pend = sGet("dl.pending") || {};
   ["add", "del", "gone", "undel"].forEach(function (k) { if (!Array.isArray(pend[k])) pend[k] = []; });
   function savePend() { sSet("dl.pending", pend); }
+  var linkedId = sGet("dl.linked");
   function saveDay(day) {
     var arr = days[day] || [];
     if (arr.length) sSet("dl.day." + day, arr); else { sDel("dl.day." + day); delete days[day]; }
@@ -943,7 +947,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     if (arr.some(function (x) { return x.id === e.id; })) return false;
     arr.push(e);
     saveDay(day);
-    if (!remote) {
+    if (!remote && linkedId) {   // Warteliste nur, wenn das Gerät mit einem Konto verbunden ist
       pend.del = pend.del.filter(function (id) { return id !== e.id; });
       if (pend.gone.indexOf(e.id) >= 0 && pend.undel.indexOf(e.id) < 0) pend.undel.push(e.id);
       if (pend.add.indexOf(e.id) < 0) pend.add.push(e.id);
@@ -955,7 +959,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var day = dayKey(new Date(e.t));
     days[day] = entriesFor(day).filter(function (x) { return x.id !== e.id; });
     saveDay(day);
-    if (!remote) {
+    if (!remote && linkedId) {   // Warteliste nur, wenn das Gerät mit einem Konto verbunden ist
       var wasPending = pend.add.indexOf(e.id) >= 0;
       pend.add = pend.add.filter(function (id) { return id !== e.id; });
       if (!wasPending && pend.del.indexOf(e.id) < 0) pend.del.push(e.id);
@@ -1678,19 +1682,39 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function syncSettings() {
     return api("collections/trinkimal_settings/records?perPage=1").then(function (j) {
       var r = j.items && j.items[0];
+      var fresh = !!sGet("dl.freshlink");   // erstes Mal mit diesem Konto auf diesem Gerät
+      if (r) sDel("dl.freshlink");
       var mine = settingsPayload();
-      if (!r) return api("collections/trinkimal_settings/records", { method: "POST", body: { owner: srv.auth.id, data: mine } });
-      var theirs = r.data || {};
-      if ((theirs.ts || 0) > (settings.ts || 0)) {
-        settings = sanitizeSettings(theirs);
+      if (!r) { sDel("dl.freshlink"); return api("collections/trinkimal_settings/records", { method: "POST", body: { owner: srv.auth.id, data: mine } }); }
+      var theirs = sanitizeSettings(r.data || {});
+      var serverWins = fresh || (theirs.ts || 0) > (settings.ts || 0);
+      // Nichts geht verloren: Getränke und freigeschaltete Tiere beider Seiten werden zusammengeführt
+      var merged = mergeSettings(serverWins ? theirs : settings, serverWins ? settings : theirs);
+      var changedForServer = JSON.stringify(merged.drinks) !== JSON.stringify(theirs.drinks) ||
+        merged.frei.length !== theirs.frei.length || merged.geschenkt.length !== theirs.geschenkt.length;
+      if (serverWins || JSON.stringify(merged) !== JSON.stringify(settings)) {
+        settings = merged;
         sSet("dl.settings", settings);
         tileSig = "";
         var a = document.activeElement;
         if (tab === "mehr" && !(a && $("#p-mehr").contains(a) && a.tagName === "INPUT")) renderMehr();
-      } else if ((theirs.ts || 0) < (settings.ts || 0) || theirs.tzo !== mine.tzo) {
-        return api("collections/trinkimal_settings/records/" + r.id, { method: "PATCH", body: { data: mine } });
+      }
+      if (changedForServer || (!serverWins && (theirs.ts || 0) < (settings.ts || 0)) || (r.data || {}).tzo !== mine.tzo) {
+        return api("collections/trinkimal_settings/records/" + r.id, { method: "PATCH", body: { data: settingsPayload() } });
       }
     });
+  }
+
+  // win gibt Ziel, Tier und Werte vor; Getränke, die nur lose kennt, und alle Freischaltungen kommen dazu
+  function mergeSettings(win, lose) {
+    var m = clone(win);
+    var ids = {}; m.drinks.forEach(function (d) { ids[d.id] = 1; });
+    lose.drinks.forEach(function (d) { if (!ids[d.id]) m.drinks.push(clone(d)); });
+    ["frei", "geschenkt"].forEach(function (f) {
+      (lose[f] || []).forEach(function (k) { if (m[f].indexOf(k) < 0) m[f].push(k); });
+    });
+    m.ts = Math.max(win.ts || 0, lose.ts || 0);
+    return m;
   }
 
   function allEntryIds() { var ids = []; for (var d in days) days[d].forEach(function (e) { ids.push(e.id); }); return ids; }
@@ -1710,11 +1734,12 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         Object.keys(days).forEach(function (d) { sDel("dl.day." + d); });
         days = {};
         pend = { add: [], del: [], gone: [], undel: [] }; savePend();
-        settings.ts = 0; sSet("dl.settings", settings);
+        settings = sanitizeSettings({}); settings.pet = "panda"; sSet("dl.settings", settings); shownPet = null; tileSig = "";
         sDel("dl.lastpull");
         toast("Anderes Konto: Die Einträge des vorigen Kontos wurden von diesem Gerät entfernt. Sie liegen weiter auf dem Server.", null, null, 9000);
       }
-      sSet("dl.linked", j.record.id);
+      if (linked !== j.record.id) sSet("dl.freshlink", 1);   // Konto gibt beim ersten Abgleich die Einstellungen vor
+      sSet("dl.linked", j.record.id); linkedId = j.record.id;
       syncErr = "";
       return sync();
     });
@@ -1772,7 +1797,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     api("trinkimal/key", { method: "POST" }).then(function (j) {
       $("#key-val").textContent = j.key;
       $("#key-out").hidden = false;
-    }, function () { toast("Der Schlüssel ließ sich nicht erzeugen. Ist der Server erreichbar?", null); });
+    }, function (err) {
+      toast(err && err.status === 401 ? "Die Anmeldung ist abgelaufen. Bitte unter Mehr → Konto neu anmelden." : "Der Schlüssel ließ sich nicht erzeugen. Ist der Server erreichbar?", null, null, 7000);
+    });
   });
   $("#key-copy").addEventListener("click", function () { copy($("#key-val").textContent, $("#key-val"), this); });
 

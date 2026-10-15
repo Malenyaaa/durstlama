@@ -65,4 +65,8 @@ migrate((app) => {
   for (const name of ["trinkimal_settings", "trinkimal_entries"]) {
     try { app.delete(app.findCollectionByNameOrId(name)) } catch (_) {}
   }
+  const users = app.findCollectionByNameOrId("users")
+  users.createRule = ""
+  users.authToken.duration = 604800
+  app.save(users)
 })
