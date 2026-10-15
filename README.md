@@ -8,7 +8,8 @@ nicht. Beim Tagesziel hüpft es, und Herzen steigen auf.
 
 33 Tiere: Panda, Katze und Hase sind von Anfang an da, die anderen schaltest du durchs Trinken frei
 (Tipp aufs Tier oder **Mehr → Dein Tier** zeigt, was fehlt). Leichte Tiere kommen schnell, etwa das
-Küken beim ersten Getränk oder der Otter nach 3 Tagen am Stück. **Seltene** brauchen Ausdauer
+Küken nach dem ersten Getränk oder der Otter nach 3 Tagen am Stück. Gezählt werden abgeschlossene
+Tage, ein neues Tier zieht also am nächsten Morgen ein. **Seltene** brauchen Ausdauer
 (Tiger: 30 Tage am Stück), **legendäre** sind richtig schwer: Drache (100 Tage am Stück), Pfau
 (ein ganzer Monat), Einhorn, Dino, Phönix, Fledermaus, Timmy der Wal (1.000 Liter) und als
 allerletztes der Schmetterling, wenn alle anderen frei sind.

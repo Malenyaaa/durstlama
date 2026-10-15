@@ -92,7 +92,6 @@ p { margin: 0; }
   border-radius: 50%; background: var(--pond); border: 6px solid var(--pond-ring); box-shadow: var(--shadow);
   overflow: hidden; padding: 0; display: block;
 }
-.pond.full { border-color: var(--water); box-shadow: 0 0 0 6px rgba(124, 203, 244, .35), var(--shadow); }
 .pond-wrap { position: relative; margin-top: 8px; }
 .pond-wrap .pond { margin-top: 0; }
 .overdrop { position: absolute; width: 14px; height: 18px; opacity: 0; pointer-events: none; }
@@ -456,7 +455,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       <h2>Dein Tier</h2>
       <p class="note" id="unlock-count"></p>
       <div class="pets" id="pet-pick" role="group" aria-label="Tier auswählen"></div>
-      <p class="note">Graue Tiere schaltest du frei, indem du trinkst. Tipp drauf, dann siehst du, was fehlt.</p>
+      <p class="note">Graue Tiere schaltest du frei, indem du trinkst. Tipp drauf, dann siehst du, was fehlt. Gezählt werden abgeschlossene Tage: Ein neues Tier zieht am nächsten Morgen ein.</p>
     </div>
 
     <div class="sub" id="s-ziel" hidden>
@@ -697,7 +696,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     eis: { name: "Eiswürfel", png: true }
   };
   var DEF_ICON = {
-    wasser: "eingiessen", sprudel: "wasser", kraeutertee: "teekanne", schwarztee: "tee", fruechtetee: "erdbeere", gruentee: "tee",
+    wasser: "wasser", sprudel: "wasser", kraeutertee: "teekanne", schwarztee: "tee", fruechtetee: "erdbeere", gruentee: "tee",
     kaffee: "kaffee", espresso: "kaffee", cappuccino: "kaffee", koffeinfrei: "kaffee", kakao: "kaffee", bruehe: "kaffee",
     apfelschorle: "apfel", apfelsaft: "apfel", osaft: "orange", milch: "milch", hafermilch: "milch",
     cola: "becher", colazero: "becher", limo: "becher", eistee: "becher", energy: "becher", iso: "becher",
@@ -764,7 +763,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var s = { entries: 0, hit: 0, active: 0, bestRun: 0, activeRun: 0, comeback: 0, early: 0, late: 0, maxCount: 0, maxKinds: 0,
       custom: 0, milk: 0, waterDay: 0, byEvening: 0, bigDay: 0, lowSugar: 0, perfectWeek: 0, perfectMonth: 0, kinds: 0, total: 0, phoenix: 0 };
     var goal = settings.goal, kinds = {}, hitSet = {};
-    var keys = Object.keys(days).filter(function (k) { return days[k].length; }).sort();
+    // Nur abgeschlossene Tage: neue Tiere gibt es erst am nächsten Tag
+    var todayKey = dayKey();
+    var keys = Object.keys(days).filter(function (k) { return days[k].length && k < todayKey; }).sort();
     var run = 0, aRun = 0, prevHit = null, prevActive = null, runStart = null, pauseEnd = null;
     keys.forEach(function (k) {
       var list = days[k].slice().sort(function (a, b) { return a.t - b.t; });
@@ -862,8 +863,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var p = PETS[fresh[fresh.length - 1]];
     var badge = p.tier === "legend" ? "Legendär! " : p.tier === "rare" ? "Selten! " : "";
     newPetMsg = {
-      text: fresh.length > 1 ? fresh.length + " neue Tiere freigeschaltet! Tipp auf mich." :
-        badge + (p.art ? p.art + " " : "") + p.name + " ist freigeschaltet! Tipp auf mich zum Wechseln.",
+      text: fresh.length > 1 ? fresh.length + " neue Tiere sind über Nacht eingezogen! Tipp auf mich." :
+        badge + (p.art ? p.art + " " : "") + p.name + " ist über Nacht eingezogen! Tipp auf mich zum Wechseln.",
       until: Date.now() + 3 * 60000
     };
     cheer();
@@ -926,7 +927,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       drinks.forEach(function (d) { if (OLD_ICON[d.id] && d.icon === OLD_ICON[d.id]) d.icon = DEF_ICON[d.id]; });
       DEFAULT_DRINKS.forEach(function (d) { if (!drinks.some(function (x) { return x.id === d.id; })) { var c = sanitizeDrink(clone(d)); c.fav = false; drinks.push(c); } });
     }
-    return { v: 3, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
+    if (s.drinks && !(s.v >= 4)) drinks.forEach(function (d) { if (d.id === "wasser" && d.icon === "eingiessen") d.icon = "wasser"; });   // Fassung 4: Wasser wieder als Tropfen
+    return { v: 4, ts: num(s.ts, 0, 1e15, 0), goal: num(s.goal, 500, 6000, 2000), drinks: drinks, pet: PETS.hasOwnProperty(s.pet) ? s.pet : "panda",
       geschenkt: (Array.isArray(s.geschenkt) ? s.geschenkt : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
       frei: (Array.isArray(s.frei) ? s.frei : []).filter(function (k) { return PETS.hasOwnProperty(k); }),
       pauseSince: DAY_RE.test(s.pauseSince) ? s.pauseSince : null,
@@ -1251,16 +1253,15 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       shownPet = settings.pet;
     }
     $("#pond").setAttribute("aria-label", pet.name + " im Teich, " + says + " Tippen zum Tier wechseln");
-    // Leer eine kleine Pfütze, beim Tagesziel randvoll; das Tier schwimmt mit dem Wasser nach oben
+    // Leer eine kleine Pfütze, beim Tagesziel randvoll; das Tier bleibt in der Mitte
     var h = (10 + pct * 90) + "%";
-    $("#pet-anim").style.top = (50 - 16 * pct) + "%";
     $("#water-back").style.height = h;
     $("#water-front").style.height = h;
     var p = $("#pond");
     p.classList.toggle("thirsty", thirst === 1);
     p.classList.toggle("parched", thirst === 2);
     p.classList.toggle("happy", sum >= goal);
-    p.classList.toggle("full", pct >= 0.9);
+
     $("#pond-wrap").classList.toggle("over", sum > goal);
   }
 
@@ -1753,7 +1754,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       // Nichts geht verloren: Getränke und freigeschaltete Tiere beider Seiten werden zusammengeführt
       var merged = mergeSettings(serverWins ? theirs : settings, serverWins ? settings : theirs);
       var changedForServer = JSON.stringify(merged.drinks) !== JSON.stringify(theirs.drinks) ||
-        merged.frei.length !== theirs.frei.length || merged.geschenkt.length !== theirs.geschenkt.length;
+        merged.frei.length !== theirs.frei.length || merged.geschenkt.length !== theirs.geschenkt.length ||
+        merged.pauses.length !== theirs.pauses.length;
       if (serverWins || JSON.stringify(merged) !== JSON.stringify(settings)) {
         settings = merged;
         sSet("dl.settings", settings);
