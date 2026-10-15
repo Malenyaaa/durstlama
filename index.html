@@ -595,7 +595,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       <h2 id="onb-title">Willkommen bei Trinkimal!</h2>
       <p>Such dir ein Tier aus. Es lebt in deinem Teich und trinkt mit dir mit.</p>
       <div class="onb-pets" id="onb-pets"></div>
-      <p class="note">26 weitere Tiere schaltest du durchs Trinken frei, manche sind richtig selten.</p>
+      <p class="note">30 weitere Tiere schaltest du durchs Trinken frei, manche sind richtig selten.</p>
     </section>
     <section class="onb-step" data-step="1" hidden>
       <h2>Wie viel willst du am Tag trinken?</h2>
@@ -718,7 +718,11 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       need: function (s) { return [Math.min(s.kinds, 20) + Math.min(s.bestRun, 30), 50]; } },
     pfau: { name: "Pfau", art: "Der", tier: "legend", text: "Schaffe dein Ziel an jedem Tag eines ganzen Kalendermonats", need: function (s) { return [s.perfectMonth, 1]; } },
     drache: { name: "Drache", art: "Der", tier: "legend", text: "Schaffe dein Ziel 100 Tage am Stück", need: function (s) { return [s.bestRun, 100]; } },
-    dino: { name: "Dino", art: "Der", tier: "legend", text: "Schaffe dein Ziel an insgesamt 365 Tagen", need: function (s) { return [s.hit, 365]; } }
+    dino: { name: "Dino", art: "Der", tier: "legend", text: "Schaffe dein Ziel an insgesamt 365 Tagen", need: function (s) { return [s.hit, 365]; } },
+    phoenix: { name: "Phönix", art: "Der", tier: "legend", text: "Komm nach mindestens 7 Tagen Pause zurück und schaffe danach 14 Tage am Stück", need: function (s) { return [s.phoenix, 14]; } },
+    fledermaus: { name: "Fledermaus", art: "Die", tier: "legend", text: "Trink an 30 Tagen zwischen 20 und 22 Uhr", need: function (s) { return [s.late, 30]; } },
+    wal: { name: "Timmy", art: "", tier: "legend", text: "Trink insgesamt 1.000 Liter", need: function (s) { return [Math.floor(s.total / 1000), 1000]; } },
+    schmetterling: { name: "Schmetterling", art: "Der", tier: "legend", text: "Schalte alle anderen Tiere frei", need: function (s) { return [s.others, s.othersMax]; } }
   };
 
   // Kennzahlen für das Freischalten, immer neu aus allen Einträgen (rückwirkend, auf allen Geräten gleich)
@@ -726,10 +730,10 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function nextDay(k) { var d = new Date(k + "T12:00:00"); d.setDate(d.getDate() + 1); return dayKey(d); }
   function unlockStats() {
     var s = { entries: 0, hit: 0, active: 0, bestRun: 0, activeRun: 0, comeback: 0, early: 0, late: 0, maxCount: 0, maxKinds: 0,
-      custom: 0, milk: 0, waterDay: 0, byEvening: 0, bigDay: 0, lowSugar: 0, perfectWeek: 0, perfectMonth: 0, kinds: 0 };
+      custom: 0, milk: 0, waterDay: 0, byEvening: 0, bigDay: 0, lowSugar: 0, perfectWeek: 0, perfectMonth: 0, kinds: 0, total: 0, phoenix: 0 };
     var goal = settings.goal, kinds = {}, hitSet = {};
     var keys = Object.keys(days).filter(function (k) { return days[k].length; }).sort();
-    var run = 0, aRun = 0, prevHit = null, prevActive = null;
+    var run = 0, aRun = 0, prevHit = null, prevActive = null, runStart = null, pauseEnd = null;
     keys.forEach(function (k) {
       var list = days[k].slice().sort(function (a, b) { return a.t - b.t; });
       var sum = 0, sug = 0, kindsDay = {}, onlyWater = true, early = false, late = false, reachedAt = null;
@@ -746,6 +750,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         if (reachedAt === null && sum >= goal) reachedAt = h;
       });
       var hit = sum >= goal;
+      s.total += sum;
       s.active++;
       if (early) s.early++;
       if (late) s.late++;
@@ -754,6 +759,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       if (prevActive) {
         var gap = (new Date(k + "T12:00:00") - new Date(prevActive + "T12:00:00")) / 864e5;
         if (gap >= 4) s.comeback = 1;
+        if (gap >= 8) pauseEnd = k;   // mindestens 7 Tage ohne Eintrag
         aRun = gap === 1 ? aRun + 1 : 1;
       } else aRun = 1;
       s.activeRun = Math.max(s.activeRun, aRun);
@@ -761,6 +767,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       if (hit) {
         s.hit++; hitSet[k] = 1;
         run = prevHit && nextDay(prevHit) === k ? run + 1 : 1;
+        if (run === 1) runStart = k;
+        if (pauseEnd && runStart >= pauseEnd) s.phoenix = Math.max(s.phoenix, run);
         prevHit = k;
         s.bestRun = Math.max(s.bestRun, run);
         if (onlyWater) s.waterDay = 1;
@@ -790,9 +798,16 @@ details.more[open] > summary::after { transform: rotate(90deg); }
   function unlockInfo(k, st) {
     var p = PETS[k];
     if (!p.need) return { open: true, tier: "" };
+    if (k === "schmetterling" && st.others == null) {
+      // Das allerletzte Tier: zählt, wie viele der anderen schon frei sind
+      var others = Object.keys(PETS).filter(function (x) { return x !== "schmetterling" && PETS[x].need; });
+      st.othersMax = others.length;
+      st.others = others.filter(function (x) { return unlockInfo(x, st).open; }).length;
+    }
     var r = p.need(st), cur = Math.min(r[0], r[1]);
     var open = cur >= r[1] || (settings.geschenkt || []).indexOf(k) >= 0;
-    var prog = k === "einhorn" ? Math.min(st.kinds, 20) + "/20 Getränke, " + Math.min(st.bestRun, 30) + "/30 Tage" : cur + "/" + r[1];
+    var prog = k === "einhorn" ? Math.min(st.kinds, 20) + "/20 Getränke, " + Math.min(st.bestRun, 30) + "/30 Tage"
+      : k === "wal" ? fmt(cur) + " von 1.000 Litern" : cur + "/" + r[1];
     return { open: open, tier: p.tier || "", text: p.text, prog: prog };
   }
   function openPets() {
@@ -811,7 +826,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var badge = p.tier === "legend" ? "Legendär! " : p.tier === "rare" ? "Selten! " : "";
     newPetMsg = {
       text: fresh.length > 1 ? fresh.length + " neue Tiere freigeschaltet! Tipp auf mich." :
-        badge + p.art + " " + p.name + " ist freigeschaltet! Tipp auf mich zum Wechseln.",
+        badge + (p.art ? p.art + " " : "") + p.name + " ist freigeschaltet! Tipp auf mich zum Wechseln.",
       until: Date.now() + 3 * 60000
     };
     cheer();
@@ -1167,7 +1182,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     var rest = "Noch " + fmt(goal - sum) + " ml.";
     var says;
     if (newPetMsg && Date.now() < newPetMsg.until) says = newPetMsg.text;
-    else if (sum >= goal) { says = "Danke! " + pet.art + " " + pet.name + " ist satt und glücklich."; thirst = 0; }
+    else if (sum >= goal) { says = "Danke! " + (pet.art ? pet.art + " " : "") + pet.name + " ist satt und glücklich."; thirst = 0; }
     else if (recentLow && recentLow.e === 0) says = "Prost! Aber " + recentLow.n + " löscht keinen Durst. Ein Glas Wasser dazu?";
     else if (recentLow) says = "Lecker! Aber " + recentLow.n + " zählt nur " + Math.round(recentLow.e / recentLow.ml * 100) + " %. Ein Glas Wasser dazu?";
     else if (recentSweet) says = "Lecker! Aber " + recentSweet.n + " hat ganz schön viel Zucker. " + rest;
