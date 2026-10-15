@@ -787,21 +787,24 @@ details.more[open] > summary::after { transform: rotate(90deg); }
       if (late) s.late++;
       s.maxCount = Math.max(s.maxCount, list.length);
       s.maxKinds = Math.max(s.maxKinds, Object.keys(kindsDay).length);
+      var pz = paused(k);   // Pausentage zählen für keine Serie, unterbrechen sie aber auch nicht
       if (prevActive) {
         var gap = (new Date(k + "T12:00:00") - new Date(prevActive + "T12:00:00")) / 864e5;
         if (gap >= 4) s.comeback = 1;
         if (gap >= 8) pauseEnd = k;   // mindestens 7 Tage ohne Eintrag
-        aRun = follows(prevActive, k) ? aRun + 1 : 1;
-      } else aRun = 1;
+        if (!pz) aRun = follows(prevActive, k) ? aRun + 1 : 1;
+      } else if (!pz) aRun = 1;
       s.activeRun = Math.max(s.activeRun, aRun);
       prevActive = k;
       if (hit) {
         s.hit++; hitSet[k] = 1;
-        run = prevHit && follows(prevHit, k) ? run + 1 : 1;
-        if (run === 1) runStart = k;
-        if (pauseEnd && runStart >= pauseEnd) s.phoenix = Math.max(s.phoenix, run);
-        prevHit = k;
-        s.bestRun = Math.max(s.bestRun, run);
+        if (!pz) {
+          run = prevHit && follows(prevHit, k) ? run + 1 : 1;
+          if (run === 1) runStart = k;
+          if (pauseEnd && runStart >= pauseEnd) s.phoenix = Math.max(s.phoenix, run);
+          prevHit = k;
+          s.bestRun = Math.max(s.bestRun, run);
+        }
         if (onlyWater) s.waterDay = 1;
         if (reachedAt !== null && reachedAt < 18) s.byEvening++;
         if (sug < 25) s.lowSugar++;
@@ -1310,8 +1313,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     if (!reached(dayKey(d))) d.setDate(d.getDate() - 1);
     for (var i = 0; i < 2000; i++) {
       var k = dayKey(d);
-      if (reached(k)) n++;
-      else if (!paused(k)) break;   // pausierter Tag ohne Ziel: überspringen, Serie hält
+      if (paused(k)) { d.setDate(d.getDate() - 1); continue; }   // Pausentage weder mitzählen noch abbrechen
+      if (!reached(k)) break;
+      n++;
       d.setDate(d.getDate() - 1);
     }
     return n;
@@ -1771,6 +1775,9 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     ["frei", "geschenkt"].forEach(function (f) {
       (lose[f] || []).forEach(function (k) { if (m[f].indexOf(k) < 0) m[f].push(k); });
     });
+    // Vergangene Pausen beider Geräte behalten; die laufende Pause gibt die Gewinnerseite vor
+    var seenP = {};
+    m.pauses = m.pauses.concat(lose.pauses || []).filter(function (p) { var key = p[0] + "|" + p[1]; if (seenP[key]) return false; seenP[key] = 1; return true; }).slice(-100);
     m.ts = Math.max(win.ts || 0, lose.ts || 0);
     return m;
   }
