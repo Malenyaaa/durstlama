@@ -111,7 +111,7 @@ p { margin: 0; }
 .pet {
   position: absolute; left: 50%; top: 50%; width: 64%; height: 64%; margin: -36% 0 0 -32%;
   z-index: 2; transform-origin: 50% 90%; animation: breathe 3.2s ease-in-out infinite;
-  transition: filter .6s, top .8s cubic-bezier(.3,1.3,.5,1);
+  transition: filter .6s;
 }
 @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03, .98); } }
 .pond.thirsty .pet { filter: saturate(.7); animation: droop 3.6s ease-in-out infinite; }
@@ -1392,7 +1392,7 @@ details.more[open] > summary::after { transform: rotate(90deg); }
         b.setAttribute("aria-label", PETS[k].name + ", gesperrt: " + u.text + " (" + u.prog + ")");
       }
       b.addEventListener("click", function () {
-        if (!open) { toast(PETS[k].name + ": " + u.text + ". Stand: " + u.prog + ".", null, null, 7000); return; }
+        if (!open) { toast(PETS[k].name + ": " + u.text + ". Stand bis gestern: " + u.prog + ". Neue Tiere ziehen am nächsten Morgen ein.", null, null, 8000); return; }
         settings.pet = k; saveSettings(); renderPet(); renderMenu();
         pp.querySelectorAll("button").forEach(function (x, i) { x.setAttribute("aria-pressed", String(Object.keys(PETS)[i] === k)); });
       });
