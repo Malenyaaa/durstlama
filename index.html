@@ -1294,7 +1294,45 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     loewe: { geschafft: ["Roaar! Ich bin der König des vollen Teichs."] },
     tiger: { geschafft: ["Rrrr! Gestreift und gut gewässert."] },
     drache: { geschafft: ["Ich spucke heute Wasser statt Feuer. Ziel geschafft!"] },
-    wal: { geschafft: ["Timmy macht eine riesige Fontäne! Ziel geschafft."], fast: ["Timmy schwimmt schon fast! Noch {rest} ml."] },
+    // Timmy: angelehnt an den Buckelwal vor Timmendorfer Strand (Frühjahr 2026); ersetzt die allgemeinen Sprüche
+    wal: { only: true,
+      geschafft: [
+        "Teich voll! Und das ganz ohne Bagger und Rettungsrinne.",
+        "Genug Wasser unterm Bauch. Kein Wal-O-Mat nötig: Ich bleib einfach hier.",
+        "Ziel geschafft, ohne dass vorher drei Behörden zuständig waren.",
+        "Timmy macht eine Fontäne! Die Schaulustigen am Ufer applaudieren."
+      ],
+      anfang: [
+        "Danke! In der Ostsee war's anfangs auch ziemlich flach. Noch {rest} ml.",
+        "Erst mal Wasser. Ob man mich retten oder sprengen sollte, klärt später eine Talkshow. Noch {rest} ml."
+      ],
+      mitte: [
+        "Halbvoll! Damit wär ich vor Timmendorf noch nicht freigekommen. Noch {rest} ml.",
+        "Schon besser! Am Ufer stehen erste Schaulustige mit Handy. Noch {rest} ml."
+      ],
+      fast: [
+        "Gleich genug Wasser, um aus eigener Kraft loszuschwimmen. Noch {rest} ml.",
+        "Noch {rest} ml, dann brauch ich kein Wassertaxi und keine Schlepper."
+      ],
+      morgen: ["Guten Morgen aus der Ostsee! Heute strande ich nur, wenn du nichts trinkst."],
+      nochnix: [
+        "Ich lieg auf dem Trockenen. Bitte nicht gleich den Bagger rufen, ein Glas reicht.",
+        "Mein Teich ist flacher als die Wismarbucht. Wer zuständig ist, klärt gerade ein Ausschuss."
+      ],
+      durst1: [
+        "Seit {h} Stunden nichts. Soll ich schon mal eine Pressekonferenz einberufen?",
+        "{h} Stunden trocken. Am Ufer sammeln sich die ersten Experten mit Meinung."
+      ],
+      durst2: [
+        "{h} Stunden auf dem Trockenen! Draußen streiten sie schon: retten oder sprengen?",
+        "Ich steck fest. Das Ministerium prüft, der Bagger wartet, ich hab einfach nur Durst.",
+        "{h} Stunden ohne Wasser. Bitte keinen Wal-O-Mat, bitte ein Glas Wasser."
+      ],
+      nacht: ["Zzz … ich träum vom Atlantik. Ganz ohne Schlepper."],
+      suess: ["{n}? In der Ostsee gab's nur Salzwasser und Schlagzeilen. Noch {rest} ml."],
+      alkohol: ["Prost! Auf alle, die schon immer genau wussten, wie man Wale rettet."],
+      alkohol0: ["Prost! Ein Wasser dazu, sonst steh ich morgen wieder in der Zeitung."]
+    },
     phoenix: { geschafft: ["Ich leuchte vor Freude! Ziel geschafft."] },
     fledermaus: { nacht: ["Endlich Nacht! Für mich fängt der Tag jetzt an."], geschafft: ["Ich häng vor Freude kopfüber. Ziel geschafft!"] },
     faultier: { geschafft: ["Ganz … langsam … Ziel … geschafft. Jetzt erst mal ausruhen."], anfang: ["Kein Stress. Ein Schluck nach dem anderen."] },
@@ -1342,7 +1380,8 @@ details.more[open] > summary::after { transform: rotate(90deg); }
     else if (pct >= 0.35) { kase = "mitte"; seed = list.length; }
     else { kase = "anfang"; seed = list.length; }
     var pool = SAYS[kase].slice();
-    if (PET_SAYS[settings.pet] && PET_SAYS[settings.pet][kase]) pool = pool.concat(PET_SAYS[settings.pet][kase]);
+    var own = PET_SAYS[settings.pet];
+    if (own && own[kase]) pool = own.only ? own[kase].slice() : pool.concat(own[kase]);
     var line = pool[hashStr(kase + dayKey() + seed + settings.pet) % pool.length];
     var drinkName = (recentLow || recentSweet || {}).n || "";
     var says = line.replace(/\{rest\}/g, fmt(Math.max(0, goal - sum))).replace(/\{h\}/g, Math.floor(since))
